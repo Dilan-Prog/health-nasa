@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Astronauta extends Model
@@ -12,7 +13,13 @@ class Astronauta extends Model
 
     protected $table = 'astronautas';
 
-    protected $fillable = ['user_id', 'nombre', 'mision', 'entorno'];
+    protected $fillable = ['user_id', 'mision_id', 'nombre', 'mision', 'entorno'];
+
+    /** Misión a la que pertenece (no se llama `mision` para no chocar con la columna de texto del mismo nombre). */
+    public function misionDeVuelo(): BelongsTo
+    {
+        return $this->belongsTo(Mision::class, 'mision_id');
+    }
 
     public function mediciones(): HasMany
     {

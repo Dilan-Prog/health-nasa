@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Astronauta;
+use App\Models\Evaluacion;
 use App\Models\Medicion;
+use App\Models\Mision;
 use App\Services\Salud\EnvioATierra;
 use App\Services\Salud\Estado;
 use App\Services\Salud\IndiceSistemaCorporal;
@@ -17,6 +19,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Panel extends Component
 {
+    /** 0 = astronautas sin misión asignada (datos anteriores a las misiones). */
+    public int $misionId = 0;
     public ?int $astronautaId = null;
     public string $indicador = 'frecuencia_cardiaca';
     public string $valor = '';
@@ -27,7 +31,65 @@ class Panel extends Component
 
     public function mount(): void
     {
-        $this->astronautaId = Astronauta::orderBy('id')->value('id');
+        $this->misionId = (int) (Mision::orderBy('id')->value('id') ?? 0);
+        $this->astronautaId = $this->tripulantesQuery()->orderBy('id')->value('id');
+    }
+
+    private function tripulantesQuery()
+    {
+        return Astronauta::query()->when(
+            $this->misionId > 0,
+            fn ($q) => $q->where('mision_id', $this->misionId),
+            fn ($q) => $q->whereNull('mision_id'),
+        );
+    }
+
+    public function updatedMisionId(): void
+    {
+        $this->reset('aviso', 'errores');
+        $this->astronautaId = $this->tripulantesQuery()->orderBy('id')->value('id');
+    }
+
+    public function seleccionar(int $id): void
+    {
+        if ($this->tripulantesQuery()->whereKey($id)->exists()) {
+            $this->astronautaId = $id;
+            $this->reset('aviso', 'errores');
+        }
+    }
+
+    /**
+     * Resumen de estado por tripulante a partir de la última evaluación de cada indicador.
+     * @return array<int, array{peor: ?string, precaucion: int, critico: int, con_datos: int}>
+     */
+    private function resumenTripulacion($tripulantes): array
+    {
+        $ids = $tripulantes->pluck('id');
+        $resumen = $ids->mapWithKeys(fn ($id) => [$id => ['peor' => null, 'precaucion' => 0, 'critico' => 0, 'con_datos' => 0]])->all();
+        if ($ids->isEmpty()) {
+            return $resumen;
+        }
+
+        $ultimas = Evaluacion::query()
+            ->join('mediciones', 'mediciones.id', '=', 'evaluaciones.medicion_id')
+            ->whereIn('mediciones.astronauta_id', $ids)
+            ->groupBy('mediciones.astronauta_id', 'mediciones.indicador')
+            ->selectRaw('max(evaluaciones.id) as id')->pluck('id');
+
+        $rango = ['normal' => 1, 'precaucion' => 2, 'critico' => 3];
+        foreach (Evaluacion::whereIn('id', $ultimas)->with('medicion:id,astronauta_id')->get() as $ev) {
+            $r = &$resumen[$ev->medicion->astronauta_id];
+            $r['con_datos']++;
+            if ($ev->estado !== 'normal') {
+                $r[$ev->estado]++;
+            }
+            if ($r['peor'] === null || $rango[$ev->estado] > $rango[$r['peor']]) {
+                $r['peor'] = $ev->estado;
+            }
+            unset($r);
+        }
+
+        return $resumen;
     }
 
     public function updatedAstronautaId(): void
@@ -120,10 +182,15 @@ class Panel extends Component
         }
 
         $envio = app(EnvioATierra::class);
+        $tripulantes = $this->tripulantesQuery()->orderBy('id')->get();
 
         return view('livewire.panel', [
             'config' => $config,
-            'astronautas' => Astronauta::orderBy('id')->get(),
+            'misiones' => Mision::orderBy('id')->get(),
+            'hayAstronautasSinMision' => Astronauta::whereNull('mision_id')->exists(),
+            'mision' => $this->misionId > 0 ? Mision::find($this->misionId) : null,
+            'astronautas' => $tripulantes,
+            'resumenTripulacion' => $this->resumenTripulacion($tripulantes),
             'ultimas' => $ultimas,
             'indice' => $indice,
             'series' => $series,
