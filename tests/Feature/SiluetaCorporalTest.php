@@ -15,28 +15,52 @@ class SiluetaCorporalTest extends TestCase
         return Blade::render('<x-silueta-corporal :activos="$a" />', ['a' => $activos]);
     }
 
-    public function test_todos_los_musculos_son_interactivos_y_tienen_nombre(): void
+    public function test_todos_los_musculos_de_las_tres_vistas_son_interactivos_y_tienen_nombre(): void
     {
         $html = $this->render();
 
-        $this->assertCount(50, MusculosCuerpo::IDS);
-        foreach (MusculosCuerpo::IDS as $id) {
-            $this->assertNotNull(MusculosCuerpo::nombre($id), "Sin nombre: {$id}");
-            $this->assertStringContainsString('data-musculo="'.$id.'"', $html);
+        $esperado = ['frontal' => 50, 'lateral' => 26, 'posterior' => 32];
+        foreach ($esperado as $vista => $n) {
+            $this->assertCount($n, MusculosCuerpo::POR_VISTA[$vista], $vista);
+            $this->assertStringContainsString('data-vista="'.$vista.'"', $html);
+            foreach (MusculosCuerpo::POR_VISTA[$vista] as $id) {
+                $this->assertNotNull(MusculosCuerpo::nombre($id), "Sin nombre: {$id}");
+                $this->assertStringContainsString('data-musculo="'.$id.'"', $html);
+            }
         }
-        $this->assertSame(50, substr_count($html, 'data-musculo="'));
-        $this->assertSame(50, substr_count($html, 'role="button" tabindex="0"'));
+        $this->assertSame(108, substr_count($html, 'data-musculo="'));
+        $this->assertSame(108, substr_count($html, 'role="button" tabindex="0"'));
+        $this->assertCount(81, MusculosCuerpo::ids());
         $this->assertStringContainsString('aria-label="Pectoral mayor izquierdo"', $html);
+        foreach (['Frontal', 'De costado', 'De atrás'] as $boton) {
+            $this->assertStringContainsString('>'.$boton.'</button>', $html);
+        }
+    }
+
+    public function test_un_id_presente_en_varias_vistas_se_resalta_en_todas(): void
+    {
+        $html = $this->render(['biceps_der']);
+
+        // biceps_der existe en la vista frontal y en la lateral
+        $this->assertSame(2, substr_count($html, 'is-activo'));
+    }
+
+    public function test_los_ids_de_mascara_son_unicos_por_instancia(): void
+    {
+        preg_match_all('/id="(sil-mask-[a-z0-9]+-(?:lateral|posterior))"/', $this->render().$this->render(), $m);
+
+        $this->assertCount(4, $m[1]);
+        $this->assertCount(4, array_unique($m[1]));
     }
 
     public function test_solo_los_activos_llevan_la_clase_y_los_desconocidos_se_ignoran(): void
     {
-        $html = $this->render(['biceps_izq', 'recto_abdominal_3_der', 'no_existe_der']);
+        $html = $this->render(['recto_abdominal_3_der', 'no_existe_der']);
 
-        $this->assertSame(2, substr_count($html, 'is-activo'));
-        $this->assertMatchesRegularExpression('/class="musculo is-activo"\s+data-musculo="biceps_izq"/', $html);
-        $this->assertMatchesRegularExpression('/class="musculo"\s+data-musculo="biceps_der"/', $html);
-        $this->assertStringContainsString('aria-label="Bíceps izquierdo, resaltado"', $html);
+        $this->assertSame(1, substr_count($html, 'is-activo'));
+        $this->assertMatchesRegularExpression('/class="musculo is-activo"\s+data-musculo="recto_abdominal_3_der"/', $html);
+        $this->assertMatchesRegularExpression('/class="musculo"\s+data-musculo="recto_abdominal_3_izq"/', $html);
+        $this->assertStringContainsString('aria-label="Recto abdominal (porción 3) derecho, resaltado"', $html);
     }
 
     public function test_no_hay_colores_fijos_en_los_paths(): void
