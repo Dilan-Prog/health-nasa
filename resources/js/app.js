@@ -1,4 +1,5 @@
 import './bootstrap';
+import './indicador/app.js';
 
 // Cuando otro dispositivo registra una medición, el panel se refresca solo.
 document.addEventListener('livewire:init', () => {

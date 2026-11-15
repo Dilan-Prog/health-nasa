@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Indicador;
 use App\Livewire\Panel;
 use App\Livewire\Tripulacion;
 use Illuminate\Support\Facades\Route;
@@ -7,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', Panel::class)->name('panel');
 
 Route::get('/tripulacion', Tripulacion::class)->name('tripulacion');
+
+Route::get('/indicador', Indicador::class)->name('indicador');
 
 Route::get('/demo/silueta', \App\Livewire\SiluetaDemo::class)->name('silueta.demo');
 

@@ -79,7 +79,9 @@ class ExpedicionSeeder extends Seeder
             $ids[] = $astronauta->id;
 
             DB::transaction(function () use ($astronauta, $t, $ci, $hoy, $proc) {
-                $astronauta->mediciones()->delete(); // cascada: evaluaciones y alertas
+                // Cascada: evaluaciones y alertas. Se conserva el historial de HistorialExpedicionSeeder (origen 'historial'):
+                // siempre es anterior a estas mediciones y evita borrar y reinsertar ~2.300 filas por tripulante.
+                $astronauta->mediciones()->where('origen', '!=', 'historial')->delete();
 
                 $conHoy = $t['hora'] !== null;
                 $ultimo = $conHoy ? 6 : 5;       // índice del valor de diseño dentro de la serie

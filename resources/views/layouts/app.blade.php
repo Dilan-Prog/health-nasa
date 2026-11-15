@@ -13,7 +13,7 @@
         ['t' => 'Astronauta', 'links' => [
             ['t' => 'Panel', 'ic' => 'dashboard', 'ruta' => 'panel', 'href' => '/'],
             ['t' => 'Registrar', 'ic' => 'add_circle', 'ruta' => 'registrar', 'href' => '/registrar'],
-            ['t' => 'Indicador', 'ic' => 'monitoring'],
+            ['t' => 'Indicador', 'ic' => 'monitoring', 'ruta' => 'indicador', 'href' => '/indicador'],
             ['t' => 'Sistemas', 'ic' => 'accessibility_new'],
             ['t' => 'Historial', 'ic' => 'history'],
             ['t' => 'Alertas', 'ic' => 'notifications_active'],

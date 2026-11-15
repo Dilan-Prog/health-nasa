@@ -15,6 +15,8 @@
  |   decimales  -> (opcional) decimales con que el simulador redondea el valor
  |
  | Pérdida ósea y masa muscular se guardan con signo: -1.6 = pérdida de 1.6 %.
+ | Hidratación, sueño, estrés cognitivo y visión (SANS) alimentan solo la pantalla Indicador (config/indicadores.php);
+ | sus rangos siguen los de la maqueta (normal = lo..hi; precaución = margen del 30 % del ancho del rango).
  */
 
 return [
@@ -120,14 +122,44 @@ return [
                 'valor' => ['valido' => [0, 1000], 'normal' => [0, 70], 'precaucion' => [0, 100], 'decimales' => 1],
             ],
         ],
+        'hidratacion' => [
+            'nombre' => 'Hidratación',
+            'unidad' => 'L/día',
+            'sistema' => 'metabolico',
+            'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
+            'frecuencia' => 'diaria',
+            'componentes' => [
+                'valor' => ['valido' => [0, 10], 'normal' => [2.5, 3.0], 'precaucion' => [2.05, 3.45], 'decimales' => 1],
+            ],
+        ],
         'sueno' => [
-            'nombre' => 'Horas de sueño',
-            'unidad' => 'h/día',
+            'nombre' => 'Sueño',
+            'unidad' => 'h',
             'sistema' => 'mental',
             'riesgos' => ['aislamiento', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [0, 24], 'normal' => [6.5, 9], 'precaucion' => [4, 10]],
+                'valor' => ['valido' => [0, 24], 'normal' => [7, 9], 'precaucion' => [5.65, 10.35], 'decimales' => 1],
+            ],
+        ],
+        'estres_cognitivo' => [
+            'nombre' => 'Estrés / cognitivo',
+            'unidad' => '/100',
+            'sistema' => 'mental',
+            'riesgos' => ['aislamiento', 'entorno_cerrado'],
+            'frecuencia' => 'diaria',
+            'componentes' => [
+                'valor' => ['valido' => [0, 100], 'normal' => [75, 100], 'precaucion' => [60, 100]],
+            ],
+        ],
+        'vision_sans' => [
+            'nombre' => 'Visión (SANS)',
+            'unidad' => 'D',
+            'sistema' => 'mental',
+            'riesgos' => ['gravedad_alterada'],
+            'frecuencia' => 'diaria',
+            'componentes' => [
+                'valor' => ['valido' => [-5, 10], 'normal' => [0, 0.5], 'precaucion' => [-0.15, 0.65], 'decimales' => 1],
             ],
         ],
         'animo' => [

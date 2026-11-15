@@ -160,7 +160,7 @@ class ResumenTripulanteTest extends TestCase
         $foto = fn () => [
             Mision::where('nombre', ExpedicionSeeder::MISION)->count(),
             $mision->tripulantes()->count(),
-            Medicion::whereIn('astronauta_id', $mision->tripulantes()->pluck('id'))->count(),
+            Medicion::whereIn('astronauta_id', $mision->tripulantes()->pluck('id'))->where('origen', '!=', 'historial')->count(), // el historial lo siembra HistorialExpedicionSeeder
         ];
         $antes = $foto();
 
