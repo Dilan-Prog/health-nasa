@@ -57,8 +57,8 @@
 .panel-vista--espejo .icono { transform: scaleX(-1); }
 
 .panel-lista { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-rows: repeat(10, minmax(48px, 1fr)); gap: 4px; }
+.panel-fila:not([data-estado]) { --c: var(--muted); --t: var(--muted-2); --s: var(--border-faint); } /* sin dato: gris (no pisa los colores de estado) */
 .panel-fila {
-    --c: var(--muted); --t: var(--muted-2); --s: var(--border-faint);
     font: inherit; color: inherit; cursor: pointer; min-width: 0; min-height: 44px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto;
     align-items: center; column-gap: 10px; padding: 4px 10px; box-sizing: border-box; text-align: left; border-radius: var(--radius);
     border: 1px solid var(--border-faint); background: transparent; outline: none; font-variant-numeric: tabular-nums; transition: background-color 150ms ease;
