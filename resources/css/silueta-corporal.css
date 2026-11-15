@@ -1,0 +1,72 @@
+/*
+ * <x-silueta-corporal>: todos los colores son variables CSS; ningún path lleva relleno fijo.
+ * Pensada para fondo oscuro (p. ej. #1E1E1E o el azul marino del panel). Sobre fondo claro,
+ * sobrescribe --silueta-relleno y --silueta-contorno en el contenedor.
+ */
+.silueta-corporal {
+    --musculo-inactivo: #ECECEB;
+    --musculo-activo: #E40612;
+    --musculo-borde: #9CA3AF;
+    --silueta-relleno: #C7C6C6;
+    --silueta-contorno: #888788;
+    --silueta-foco: #FFFFFF;
+    --silueta-transicion: 150ms;
+
+    position: relative;
+    width: 100%;
+    max-width: 26rem;
+    margin-inline: auto;
+}
+
+.silueta-corporal svg {
+    display: block;
+    width: 100%;
+    height: auto; /* escala con el viewBox: sin tamaños fijos */
+}
+
+.silueta-corporal .silueta { pointer-events: none; }
+.silueta-corporal .sil-relleno { fill: var(--silueta-relleno); }
+.silueta-corporal .sil-trazo { stroke: var(--silueta-contorno); }
+.silueta-corporal .sil-detalle { fill: var(--silueta-contorno); }
+
+.silueta-corporal .musculo {
+    --relleno: var(--musculo-inactivo);
+    fill: var(--relleno);
+    stroke: var(--musculo-borde);
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: fill var(--silueta-transicion) ease;
+}
+.silueta-corporal .musculo.is-activo { --relleno: var(--musculo-activo); }
+
+/* Hover y foco de teclado: el músculo se oscurece levemente. */
+.silueta-corporal .musculo:hover,
+.silueta-corporal .musculo:focus-visible {
+    fill: color-mix(in srgb, var(--relleno) 82%, #000);
+}
+.silueta-corporal .musculo:focus { outline: none; }
+.silueta-corporal .musculo:focus-visible {
+    outline: 2px solid var(--silueta-foco);
+    outline-offset: 1px;
+}
+
+.silueta-tooltip {
+    position: absolute;
+    z-index: 10;
+    transform: translate(-50%, calc(-100% - 14px));
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    background: #0A1F44;
+    color: #fff;
+    border: 1px solid #fff;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+[x-cloak] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    .silueta-corporal { --silueta-transicion: 0ms; }
+}

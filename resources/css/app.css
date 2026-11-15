@@ -1,3 +1,5 @@
+@import './silueta-corporal.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

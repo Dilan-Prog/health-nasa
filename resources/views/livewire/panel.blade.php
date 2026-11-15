@@ -7,6 +7,57 @@
     $est = fn ($s) => $indice[$s]['estado']?->value;
 @endphp
 
+<div>
+{{-- Misión y tripulación --}}
+<div class="rounded-lg border border-gray-200 p-4 mb-6">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <label for="mision" class="text-xs font-semibold text-nasa-blue uppercase">Misión</label>
+            <select id="mision" wire:model.live="misionId" class="mt-1 block min-w-[16rem] rounded border border-gray-300 p-2">
+                @foreach ($misiones as $m)
+                    <option value="{{ $m->id }}">{{ $m->nombre }}</option>
+                @endforeach
+                @if ($hayAstronautasSinMision)
+                    <option value="0">Sin misión asignada</option>
+                @endif
+            </select>
+        </div>
+        @if ($mision)
+            <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+                <div><dt class="text-xs uppercase text-gray-400">Entorno</dt><dd class="font-semibold">{{ ucfirst(str_replace('_', ' ', $mision->entorno)) }}</dd></div>
+                <div><dt class="text-xs uppercase text-gray-400">Día de misión</dt><dd class="font-semibold">{{ $mision->inicio_en ? $mision->inicio_en->diffInDays(now()) + 1 : '—' }} / {{ $mision->duracion_dias }}</dd></div>
+                <div><dt class="text-xs uppercase text-gray-400">Retardo con tierra</dt><dd class="font-semibold">{{ config('umbrales.retardo_min.'.$mision->entorno, 0) }} min</dd></div>
+                <div><dt class="text-xs uppercase text-gray-400">Tripulantes</dt><dd class="font-semibold">{{ $astronautas->count() }}</dd></div>
+            </dl>
+        @endif
+    </div>
+
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        @forelse ($astronautas as $a)
+            @php $r = $resumenTripulacion[$a->id]; $sel = $a->id === $astronautaId; @endphp
+            <button type="button" wire:click="seleccionar({{ $a->id }})" aria-pressed="{{ $sel ? 'true' : 'false' }}"
+                    class="rounded-lg border p-3 text-left transition {{ $sel ? 'ring-2 ring-nasa-blue bg-nasa-light' : 'hover:bg-gray-50' }}"
+                    style="border-left: 6px solid {{ $color($r['peor']) }}">
+                <div class="flex items-start justify-between gap-2">
+                    <span class="text-sm font-semibold">{{ $a->nombre }}</span>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-bold text-white" style="background: {{ $color($r['peor']) }}">
+                        {{ $r['peor'] ? $etiqueta[$r['peor']] : 'Sin datos' }}
+                    </span>
+                </div>
+                <p class="mt-1 text-xs text-gray-600">
+                    @if ($r['con_datos'])
+                        {{ $r['critico'] }} crítico · {{ $r['precaucion'] }} precaución · {{ $r['con_datos'] }} indicadores
+                    @else
+                        Aún no hay mediciones
+                    @endif
+                </p>
+            </button>
+        @empty
+            <p class="col-span-full text-sm text-gray-500">Esta misión aún no tiene tripulantes.</p>
+        @endforelse
+    </div>
+</div>
+
 <div class="grid gap-6 lg:grid-cols-3">
     {{-- Columna izquierda: astronauta, figura humana, índices --}}
     <section class="space-y-4">
@@ -14,7 +65,7 @@
             <label class="text-xs font-semibold text-nasa-blue uppercase">Astronauta</label>
             <select wire:model.live="astronautaId" class="mt-1 w-full rounded border-gray-300 border p-2">
                 @foreach ($astronautas as $a)
-                    <option value="{{ $a->id }}">{{ $a->nombre }} · {{ $a->mision }} ({{ str_replace('_', ' ', $a->entorno) }})</option>
+                    <option value="{{ $a->id }}">{{ $a->nombre }}</option>
                 @endforeach
             </select>
             <div class="mt-3 border-t pt-3 text-xs text-gray-600">
@@ -35,21 +86,9 @@
 
         <div class="rounded-lg border border-gray-200 p-4">
             <h2 class="font-bold text-nasa-blue mb-2">Figura humana</h2>
-            <svg viewBox="0 0 200 330" class="mx-auto w-48" role="img" aria-label="Estado por sistema corporal">
-                {{-- Inmune: contorno del torso --}}
-                <rect x="62" y="68" width="76" height="120" rx="30" fill="none" stroke="{{ $color($est('inmune')) }}" stroke-width="6" stroke-dasharray="8 4"/>
-                {{-- Mental: cabeza --}}
-                <circle cx="100" cy="36" r="26" fill="{{ $color($est('mental')) }}"/>
-                {{-- Óseo: brazos y piernas --}}
-                <rect x="28" y="76" width="22" height="100" rx="11" fill="{{ $color($est('oseo')) }}"/>
-                <rect x="150" y="76" width="22" height="100" rx="11" fill="{{ $color($est('oseo')) }}"/>
-                <rect x="70" y="196" width="26" height="110" rx="13" fill="{{ $color($est('oseo')) }}"/>
-                <rect x="104" y="196" width="26" height="110" rx="13" fill="{{ $color($est('oseo')) }}"/>
-                {{-- Cardiovascular: corazón --}}
-                <path d="M100 128 C84 112 80 98 92 92 C98 89 100 94 100 96 C100 94 102 89 108 92 C120 98 116 112 100 128 Z" fill="{{ $color($est('cardiovascular')) }}"/>
-                {{-- Metabólico: abdomen --}}
-                <ellipse cx="100" cy="160" rx="22" ry="20" fill="{{ $color($est('metabolico')) }}"/>
-            </svg>
+            <div class="rounded-lg bg-nasa-navy p-3">
+                <x-silueta-corporal class="max-w-xs" />
+            </div>
             <ul class="mt-3 space-y-1 text-sm">
                 @foreach ($nombresSistema as $k => $n)
                     <li class="flex items-center justify-between">
@@ -140,4 +179,5 @@
             @endforeach
         </div>
     </section>
+</div>
 </div>
