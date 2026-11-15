@@ -12,13 +12,13 @@
     $grupos = [
         ['t' => 'Astronauta', 'links' => [
             ['t' => 'Panel', 'ic' => 'dashboard', 'ruta' => 'panel', 'href' => '/'],
-            ['t' => 'Registrar', 'ic' => 'add_circle', 'accion' => 'abrir-registro'],
+            ['t' => 'Registrar', 'ic' => 'add_circle', 'ruta' => 'registrar', 'href' => '/registrar'],
             ['t' => 'Indicador', 'ic' => 'monitoring'],
             ['t' => 'Sistemas', 'ic' => 'accessibility_new'],
             ['t' => 'Historial', 'ic' => 'history'],
             ['t' => 'Alertas', 'ic' => 'notifications_active'],
             ['t' => 'Guía', 'ic' => 'menu_book'],
-            ['t' => 'Rutinas', 'ic' => 'event_note'],
+            ['t' => 'Rutinas', 'ic' => 'event_note', 'ruta' => 'rutinas', 'href' => '/rutinas'],
             ['t' => 'Misión', 'ic' => 'rocket_launch'],
         ]],
         ['t' => 'Estación y Tierra', 'links' => [
@@ -90,11 +90,17 @@
     </div>
 </div>
 
-@if (class_exists(\App\Livewire\RegistrarMedicion::class))
-    <livewire:registrar-medicion />
-@endif
-
+{{-- El registro de mediciones es ahora la pantalla /registrar: el evento `abrir-registro` (con `indicador` opcional) navega a ella.
+     El componente RegistrarMedicion (modal) sigue existiendo, sin montar. --}}
 @livewireScripts
+<script>
+    document.addEventListener('livewire:init', () => {
+        window.Livewire.on('abrir-registro', (p) => {
+            const d = Array.isArray(p) ? p[0] : p;
+            window.location.href = @js(route('registrar', [], false)) + (d && d.indicador ? '?indicador=' + encodeURIComponent(d.indicador) : '');
+        });
+    });
+</script>
 <script>
     // El service worker solo se registra en contextos seguros (HTTPS o localhost).
     if ('serviceWorker' in navigator) {

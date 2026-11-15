@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AstronautasSeeder::class);
         $this->call(ExpedicionSeeder::class);
+        $this->call(RutinasSeeder::class);
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',

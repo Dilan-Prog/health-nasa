@@ -4,10 +4,9 @@ namespace App\Livewire;
 
 use App\Events\MedicionRegistrada;
 use App\Models\Astronauta;
-use App\Services\Salud\EvaluadorEstado;
+use App\Services\Salud\AnalisisRegistro;
 use App\Services\Salud\ProcesadorMediciones;
 use App\Services\Salud\ResumenTripulante;
-use App\Services\Salud\ValidadorMedicion;
 use App\Support\TripulanteActual;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -80,52 +79,25 @@ class RegistrarMedicion extends Component
         $this->errorGeneral = null;
     }
 
-    /** Normaliza y convierte el texto a los componentes de umbrales; null si el texto está vacío. */
-    private function parsear(string $clave, string $texto): ?array
-    {
-        $t = trim(str_replace(["\u{2212}", "\u{2013}", ','], ['-', '-', '.'], $texto));
-        if ($t === '') {
-            return null;
-        }
-        if ($clave === 'presion_arterial') {
-            if (! preg_match('/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/', $t, $m)) {
-                return ['formato' => 'Escribe la presión como 128/84'];
-            }
-
-            return ['valores' => ['sistolica' => (float) $m[1], 'diastolica' => (float) $m[2]]];
-        }
-        if (! preg_match('/^-?\d+(?:\.\d+)?$/', $t)) {
-            return ['formato' => 'Escribe solo un número'];
-        }
-        $n = (float) $t;
-        // Las pérdidas se guardan con signo: un valor positivo se interpreta como magnitud de pérdida.
-        if (config("panel.indicadores.$clave.perdida") && $n > 0) {
-            $n = -$n;
-        }
-
-        return ['valores' => ['valor' => $n]];
-    }
-
     /** @return array<string, array{valores: ?array, error: ?string, estado: ?string}> */
     private function analizar(): array
     {
-        $umbrales = config('umbrales');
-        $validador = new ValidadorMedicion($umbrales);
-        $evaluador = new EvaluadorEstado($umbrales);
+        $analisis = AnalisisRegistro::make();
         $salida = [];
         foreach (config('panel.indicadores') as $clave => $_) {
-            $p = $this->parsear($clave, (string) ($this->campos[$clave] ?? ''));
+            $p = $analisis->parsear($clave, (string) ($this->campos[$clave] ?? ''));
             $r = ['valores' => null, 'error' => $this->erroresGuardado[$clave] ?? null, 'estado' => null];
             if ($p !== null) {
                 if (isset($p['formato'])) {
                     $r['error'] ??= $p['formato'];
-                } elseif ($validador->validar($clave, $p['valores']) !== []) {
-                    $r['error'] ??= 'Valor fuera de lo posible, revisa la medición';
                 } else {
-                    $r['valores'] = $p['valores'];
-                    $r['estado'] = match ($evaluador->evaluar($clave, $p['valores'])->value) {
-                        'normal' => 'ok', 'precaucion' => 'warn', default => 'crit',
-                    };
+                    $e = $analisis->evaluar($clave, $p['valores']);
+                    if ($e['error']) {
+                        $r['error'] ??= $e['error'];
+                    } else {
+                        $r['valores'] = $p['valores'];
+                        $r['estado'] = $e['estado'];
+                    }
                 }
             }
             $salida[$clave] = $r;

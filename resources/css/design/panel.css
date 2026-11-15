@@ -24,7 +24,7 @@
 }
 .panel-medicion .icono, .panel-badge .icono { font-size: 16px; }
 .panel-btn-registrar {
-    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; min-height: 44px;
+    text-decoration: none; box-sizing: border-box; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; min-height: 44px;
     margin-top: 2px; padding: 0 12px; border-radius: 8px; border: 1px solid oklch(0.42 0.14 258 / 0.45); background: var(--surface); color: var(--primary);
 }
 .panel-btn-registrar .icono { font-size: 18px; }

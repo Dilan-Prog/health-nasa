@@ -36,9 +36,9 @@
                     {{ $hoy ? 'Medición realizada'.($hora ? ' · '.$hora.' UTC' : '') : 'Medición pendiente de hoy' }}
                 </span>
                 @unless ($hoy)
-                    <button type="button" class="panel-btn-registrar" wire:click="$dispatch('abrir-registro')">
+                    <a href="{{ route('registrar') }}" class="panel-btn-registrar">
                         <span class="icono">edit_note</span>Registrar medición
-                    </button>
+                    </a>
                 @endunless
             </div>
 
