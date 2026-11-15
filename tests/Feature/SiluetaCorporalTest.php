@@ -19,7 +19,7 @@ class SiluetaCorporalTest extends TestCase
     {
         $html = $this->render();
 
-        $esperado = ['frontal' => 50, 'lateral' => 26, 'posterior' => 32];
+        $esperado = ['frontal' => 50, 'lateral' => 26, 'lateral_izq' => 26, 'posterior' => 32];
         foreach ($esperado as $vista => $n) {
             $this->assertCount($n, MusculosCuerpo::POR_VISTA[$vista], $vista);
             $this->assertStringContainsString('data-vista="'.$vista.'"', $html);
@@ -28,11 +28,11 @@ class SiluetaCorporalTest extends TestCase
                 $this->assertStringContainsString('data-musculo="'.$id.'"', $html);
             }
         }
-        $this->assertSame(108, substr_count($html, 'data-musculo="'));
-        $this->assertSame(108, substr_count($html, 'role="button" tabindex="0"'));
-        $this->assertCount(81, MusculosCuerpo::ids());
+        $this->assertSame(134, substr_count($html, 'data-musculo="'));
+        $this->assertSame(134, substr_count($html, 'role="button" tabindex="0"'));
+        $this->assertCount(92, MusculosCuerpo::ids());
         $this->assertStringContainsString('aria-label="Pectoral mayor izquierdo"', $html);
-        foreach (['Frontal', 'De costado', 'De atrás'] as $boton) {
+        foreach (['Frontal', 'Costado der.', 'Costado izq.', 'De atrás'] as $boton) {
             $this->assertStringContainsString('>'.$boton.'</button>', $html);
         }
     }
@@ -41,16 +41,17 @@ class SiluetaCorporalTest extends TestCase
     {
         $html = $this->render(['biceps_der']);
 
-        // biceps_der existe en la vista frontal y en la lateral
+        // biceps_der existe en la vista frontal y en la lateral derecha
         $this->assertSame(2, substr_count($html, 'is-activo'));
+        $this->assertSame(2, substr_count($this->render(['biceps_izq']), 'is-activo')); // frontal + lateral izquierda (espejo)
     }
 
     public function test_los_ids_de_mascara_son_unicos_por_instancia(): void
     {
-        preg_match_all('/id="(sil-mask-[a-z0-9]+-(?:lateral|posterior))"/', $this->render().$this->render(), $m);
+        preg_match_all('/id="(sil-mask-[a-z0-9]+-(?:lateral_izq|lateral|posterior))"/', $this->render().$this->render(), $m);
 
-        $this->assertCount(4, $m[1]);
-        $this->assertCount(4, array_unique($m[1]));
+        $this->assertCount(6, $m[1]);
+        $this->assertCount(6, array_unique($m[1]));
     }
 
     public function test_solo_los_activos_llevan_la_clase_y_los_desconocidos_se_ignoran(): void

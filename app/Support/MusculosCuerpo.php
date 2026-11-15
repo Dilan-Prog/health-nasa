@@ -11,7 +11,7 @@ namespace App\Support;
  */
 final class MusculosCuerpo
 {
-    public const VISTAS = ['frontal' => 'Frontal', 'lateral' => 'De costado', 'posterior' => 'De atrás'];
+    public const VISTAS = ['frontal' => 'Frontal', 'lateral' => 'Costado der.', 'lateral_izq' => 'Costado izq.', 'posterior' => 'De atrás'];
 
     /** Ids de los músculos de cada vista, en el orden de capas del SVG original. */
     public const POR_VISTA = [
@@ -94,6 +94,34 @@ final class MusculosCuerpo
             'gemelo_der',
             'soleo_der',
             'tibial_anterior_der',
+        ],
+        'lateral_izq' => [
+            'trapecio_sup_izq',
+            'esternocleidomastoideo_izq',
+            'deltoides_anterior_izq',
+            'deltoides_lateral_izq',
+            'deltoides_posterior_izq',
+            'infraespinoso_izq',
+            'redondo_mayor_izq',
+            'pectoral_clavicular_izq',
+            'pectoral_mayor_izq',
+            'pectoral_menor_izq',
+            'coracobraquial_izq',
+            'triceps_largo_izq',
+            'biceps_izq',
+            'flexores_antebrazo_izq',
+            'braquiorradial_izq',
+            'dorsal_ancho_izq',
+            'serrato_1_izq',
+            'serrato_2_izq',
+            'serrato_3_izq',
+            'oblicuo_externo_izq',
+            'gluteo_mayor_izq',
+            'isquiotibiales_izq',
+            'cuadriceps_izq',
+            'gemelo_izq',
+            'soleo_izq',
+            'tibial_anterior_izq',
         ],
         'posterior' => [
             'trapecio_sup_der',
