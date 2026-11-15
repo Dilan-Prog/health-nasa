@@ -7,7 +7,7 @@
         <button type="button" wire:click="$set('ejemplo', 'b')" class="px-3 py-1.5 rounded text-sm border border-white/40 {{ $ejemplo === 'b' ? 'bg-white text-nasa-navy font-semibold' : '' }}">Ejemplo B</button>
     </div>
 
-    <x-silueta-corporal :activos="$activos" />
+    <x-silueta-corporal :activos="$activos" class="silueta-corporal--oscuro" />
 
     <p class="mt-4 text-sm" aria-live="polite">
         Último músculo seleccionado:

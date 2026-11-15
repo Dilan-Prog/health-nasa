@@ -1,0 +1,156 @@
+<?php
+
+/*
+ | Presentación del panel de tripulante (textos, iconos, zonas del cuerpo y acciones).
+ | Fuente: diseño "Panel tripulación" (constantes D y QM). La herramienta orienta, no diagnostica:
+ | las acciones son pautas generales, nunca medicación. Rangos y bases son valores de EJEMPLO.
+ |
+ |  - 'musculos' usa los ids de App\Support\MusculosCuerpo (p. ej. pectoral_mayor_izq).
+ |  - 'limites' alimenta el texto de "razón" (min/max con su rótulo; para pérdidas, 'max' es la magnitud límite).
+ |  - 'base' es el valor base personal de ejemplo; 'perdida' => true: se muestra y guarda con signo negativo.
+ |  - 'decimales' son los decimales con que se muestra el valor.
+ */
+
+return [
+    // Altitud orbital de la estación (km), mostrada en la cabecera.
+    'orbita_km' => 408,
+
+    'indicadores' => [
+        'presion_arterial' => [
+            'etiqueta' => 'Presión arterial',
+            'icono' => 'monitor_heart',
+            'unidad' => 'mmHg',
+            'rango' => 'MÍN 90/60 · MÁX 120/80 mmHg',
+            'zona' => 'Tórax',
+            'musculos' => ['pectoral_mayor_izq', 'pectoral_mayor_der'],
+            'acciones' => ['Reposa 5 min sentado, sin hablar', 'Repite la medición en el mismo brazo', 'Bebe un vaso de agua'],
+            'base' => '116/76',
+            'perdida' => false,
+            'decimales' => 0,
+            'limites' => ['min' => 90, 'max' => 120, 'min_txt' => '90/60', 'max_txt' => '120/80'],
+        ],
+        'frecuencia_cardiaca' => [
+            'etiqueta' => 'Frecuencia cardíaca',
+            'icono' => 'favorite',
+            'unidad' => 'lpm',
+            'rango' => 'MÍN 60 · MÁX 100 lpm',
+            'zona' => 'Corazón · tórax izquierdo',
+            'musculos' => ['pectoral_mayor_izq', 'pectoral_inferior_izq'],
+            'acciones' => ['Reposa 5 min y respira despacio', 'Repite la medición'],
+            'base' => '64',
+            'perdida' => false,
+            'decimales' => 0,
+            'limites' => ['min' => 60, 'max' => 100],
+        ],
+        'saturacion_o2' => [
+            'etiqueta' => 'Saturación O₂',
+            'icono' => 'air',
+            'unidad' => '%',
+            'rango' => 'MÍN 95 · MÁX 100 %',
+            'zona' => 'Pulmones · tórax',
+            'musculos' => ['pectoral_clavicular_izq', 'pectoral_clavicular_der', 'serrato_anterior_izq', 'serrato_anterior_der'],
+            'acciones' => ['Respira profundo y despacio durante 1 min', 'Revisa el sensor y la postura del dedo', 'Repite la medición'],
+            'base' => '98',
+            'perdida' => false,
+            'decimales' => 0,
+            'limites' => ['min' => 95, 'max' => 100],
+        ],
+        'glucosa' => [
+            'etiqueta' => 'Glucosa',
+            'icono' => 'water_drop',
+            'unidad' => 'mg/dL',
+            'rango' => 'MÍN 70 · MÁX 140 mg/dL',
+            'zona' => 'Abdomen',
+            'musculos' => [
+                'recto_abdominal_1_izq', 'recto_abdominal_1_der', 'recto_abdominal_2_izq', 'recto_abdominal_2_der',
+                'recto_abdominal_3_izq', 'recto_abdominal_3_der', 'recto_abdominal_4_izq', 'recto_abdominal_4_der',
+            ],
+            'acciones' => ['Anota tu última comida y la hora', 'Repite la medición en 15 min', 'Bebe un vaso de agua'],
+            'base' => '98',
+            'perdida' => false,
+            'decimales' => 0,
+            'limites' => ['min' => 70, 'max' => 140],
+        ],
+        'temperatura' => [
+            'etiqueta' => 'Temperatura',
+            'icono' => 'thermostat',
+            'unidad' => '°C',
+            'rango' => 'MÍN 36.1 · MÁX 37.2 °C',
+            'zona' => 'Cuello',
+            'musculos' => ['esternocleidomastoideo_izq', 'esternocleidomastoideo_der'],
+            'acciones' => ['Revisa la temperatura del módulo', 'Quítate una capa de ropa si tienes calor', 'Repite la medición en 20 min'],
+            'base' => '36.6',
+            'perdida' => false,
+            'decimales' => 1,
+            'limites' => ['min' => 36.1, 'max' => 37.2],
+        ],
+        'imc' => [
+            'etiqueta' => 'IMC',
+            'icono' => 'monitor_weight',
+            'unidad' => 'kg/m²',
+            'rango' => 'MÍN 18.5 · MÁX 24.9 kg/m²',
+            'zona' => 'Abdomen · cintura',
+            'musculos' => ['oblicuo_externo_izq', 'oblicuo_externo_der', 'oblicuo_inferior_izq', 'oblicuo_inferior_der'],
+            'acciones' => ['Revisa tu registro de comidas de la semana', 'Coméntalo en tu próxima consulta de nutrición'],
+            'base' => '23.0',
+            'perdida' => false,
+            'decimales' => 1,
+            'limites' => ['min' => 18.5, 'max' => 24.9],
+        ],
+        'perdida_osea' => [
+            'etiqueta' => 'Pérdida ósea (cadera)',
+            'icono' => 'skeleton',
+            'unidad' => '%/mes',
+            'rango' => 'MÍN 0 · MÁX −1 %/mes',
+            'zona' => 'Cadera',
+            'musculos' => ['tensor_fascia_lata_izq', 'tensor_fascia_lata_der', 'recto_femoral_izq', 'recto_femoral_der'],
+            'acciones' => ['Completa hoy tu sesión de carga en el ARED', 'Registra los minutos de ejercicio resistido', 'Revisa el calcio de tu dieta con nutrición'],
+            'base' => '−0.6',
+            'perdida' => true,
+            'decimales' => 1,
+            'limites' => ['max' => 1],
+        ],
+        'masa_muscular' => [
+            'etiqueta' => 'Masa muscular',
+            'icono' => 'fitness_center',
+            'unidad' => '% misión',
+            'rango' => 'MÍN 0 · MÁX −2 % misión',
+            'zona' => 'Piernas',
+            'musculos' => [
+                'vasto_lateral_izq', 'vasto_lateral_der', 'vasto_medial_izq', 'vasto_medial_der',
+                'gemelo_medial_izq', 'gemelo_medial_der',
+            ],
+            'acciones' => ['Completa la rutina de fuerza de piernas', 'Registra series y cargas', 'Revisa las proteínas de tu dieta con nutrición'],
+            'base' => '−1.2',
+            'perdida' => true,
+            'decimales' => 1,
+            'limites' => ['max' => 2],
+        ],
+        'radiacion_diaria' => [
+            'etiqueta' => 'Radiación diaria',
+            'icono' => 'flare',
+            'unidad' => 'mSv/día',
+            'rango' => 'MÍN 0 · MÁX 0.5 mSv/día',
+            'zona' => 'Cuello · tiroides',
+            'musculos' => ['trapecio_sup_izq', 'trapecio_sup_der', 'esternocleidomastoideo_izq', 'esternocleidomastoideo_der'],
+            'acciones' => ['Reduce hoy el tiempo en módulos poco blindados', 'Duerme en la zona blindada', 'Revisa tu dosímetro personal'],
+            'base' => '0.38',
+            'perdida' => false,
+            'decimales' => 2,
+            'limites' => ['min' => 0, 'max' => 0.5],
+        ],
+        'dosis_acumulada' => [
+            'etiqueta' => 'Dosis acumulada',
+            'icono' => 'data_usage',
+            'unidad' => 'mSv',
+            'rango' => 'MÍN 0 · MÁX 100 mSv',
+            'zona' => 'Exposición de todo el cuerpo',
+            'musculos' => ['trapecio_sup_izq', 'trapecio_sup_der', 'esternocleidomastoideo_izq', 'esternocleidomastoideo_der'],
+            'acciones' => ['Revisa con tierra el plan de EVAs restantes', 'Prioriza las zonas blindadas en tu horario'],
+            'base' => '70',
+            'perdida' => false,
+            'decimales' => 1,
+            'limites' => ['min' => 0, 'max' => 100],
+        ],
+    ],
+];

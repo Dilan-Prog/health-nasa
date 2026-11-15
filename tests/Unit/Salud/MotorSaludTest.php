@@ -35,7 +35,10 @@ class MotorSaludTest extends TestCase
     {
         $e = new EvaluadorEstado($this->config);
 
-        $this->assertSame(Estado::Normal, $e->evaluar('frecuencia_cardiaca', ['valor' => 50]));
+        $this->assertSame(Estado::Critico, $e->evaluar('frecuencia_cardiaca', ['valor' => 49]));
+        $this->assertSame(Estado::Precaucion, $e->evaluar('frecuencia_cardiaca', ['valor' => 50]));
+        $this->assertSame(Estado::Precaucion, $e->evaluar('frecuencia_cardiaca', ['valor' => 59]));
+        $this->assertSame(Estado::Normal, $e->evaluar('frecuencia_cardiaca', ['valor' => 60]));
         $this->assertSame(Estado::Normal, $e->evaluar('frecuencia_cardiaca', ['valor' => 100]));
         $this->assertSame(Estado::Precaucion, $e->evaluar('frecuencia_cardiaca', ['valor' => 101]));
         $this->assertSame(Estado::Precaucion, $e->evaluar('frecuencia_cardiaca', ['valor' => 120]));
@@ -48,7 +51,7 @@ class MotorSaludTest extends TestCase
 
         $this->assertSame(Estado::Normal, $e->evaluar('presion_arterial', ['sistolica' => 118, 'diastolica' => 76]));
         // Sistólica normal, diastólica en precaución -> precaución.
-        $this->assertSame(Estado::Precaucion, $e->evaluar('presion_arterial', ['sistolica' => 118, 'diastolica' => 92]));
+        $this->assertSame(Estado::Precaucion, $e->evaluar('presion_arterial', ['sistolica' => 118, 'diastolica' => 86]));
         // Sistólica crítica manda aunque la diastólica sea normal.
         $this->assertSame(Estado::Critico, $e->evaluar('presion_arterial', ['sistolica' => 185, 'diastolica' => 80]));
     }

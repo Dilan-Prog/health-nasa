@@ -1,20 +1,40 @@
 {{--
-    Silueta corporal anatómica (vistas frontal, lateral y posterior), SVG en línea con cada músculo como pieza independiente.
+    Silueta corporal anatómica (vistas frontal, lateral der., lateral izq. y posterior), SVG en línea con cada músculo como pieza independiente.
 
-    Uso:   <x-silueta-corporal :activos="['pectoral_mayor_der', 'biceps_izq']" vista="frontal" />
-    Props: activos (array de ids a resaltar; un id presente en varias vistas se resalta en todas),
-           vista (frontal | lateral | posterior; la vista inicial, el usuario puede cambiarla arriba a la derecha).
-           Cualquier atributo extra (class, etc.) va al contenedor.
-    Evento al hacer clic o pulsar Enter/Espacio sobre un músculo:
+    Props: activos   array de ids a resaltar (un id presente en varias vistas se resalta en todas).
+           vista     frontal | lateral | lateral_izq | posterior (vista inicial; en miniatura, la única que se pinta).
+           selector  bool (true): muestra los botones de vista internos; false los oculta (control externo).
+           modo      interactivo (defecto) | miniatura (solo la vista indicada, sin Alpine/handlers/roles/tabindex/tooltip,
+                     aria-hidden="true"; para tarjetas).
+    Cualquier atributo extra (class, etc.) va al contenedor. Clases útiles: silueta-corporal--ajustar (alto 100% del padre,
+    proporción 420/1100, centrada) y silueta-corporal--oscuro (paleta para fondo oscuro; el defecto es para fondo claro).
+
+    Ejemplos:
+      <x-silueta-corporal :activos="$ids" vista="frontal" />                                   (interactivo, con botones)
+      <div style="height:560px"><x-silueta-corporal :activos="$ids" :selector="false" class="silueta-corporal--ajustar" /></div>
+      <x-silueta-corporal modo="miniatura" vista="posterior" :activos="$ids" class="silueta-corporal--ajustar" />
+
+    Control externo de la vista (solo modo interactivo): window.dispatchEvent(new CustomEvent('silueta-vista', {detail: 'posterior'}))
+    o, desde Alpine, $dispatch('silueta-vista', 'posterior'). Al cambiar con sus propios botones emite 'silueta-vista-cambiada'
+    (detail = vista, burbujea). Ojo: el evento externo afecta a TODAS las siluetas interactivas de la página.
+
+    Eventos al hacer clic o pulsar Enter/Espacio sobre un músculo:
         Livewire.dispatch('musculo-seleccionado', { id })   -> #[On('musculo-seleccionado')] public function x(string $id)
         y un CustomEvent DOM del mismo nombre que burbujea desde el contenedor.
-    Las formas (atributo d) son las de los SVG originales, sin tocar (resources/views/silueta/*.blade.php, generados).
-    Los colores viven en resources/css/silueta-corporal.css como variables CSS.
+
+    Ids que pinta cada vista (MusculosCuerpo::POR_VISTA; las formas d son las de los SVG originales y no se tocan):
+        frontal     50 ids, ambos lados (_izq/_der).
+        lateral     26 ids, solo lado derecho (_der) y los centrales sin lado.
+        lateral_izq 26 ids, espejo de la lateral con ids _izq.
+        posterior   32 ids, ambos lados.
+    Los partidos resources/views/silueta/*.blade.php son generados; solo se parametrizan atributos con $interactivo.
+    Colores: resources/css/silueta-corporal.css (variables CSS).
 --}}
-@props(['activos' => [], 'vista' => 'frontal'])
+@props(['activos' => [], 'vista' => 'frontal', 'selector' => true, 'modo' => 'interactivo'])
 @php
     use App\Support\MusculosCuerpo;
 
+    $interactivo = $modo !== 'miniatura';
     $vista = array_key_exists($vista, MusculosCuerpo::VISTAS) ? $vista : 'frontal';
     $uid = \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)); // ids únicos de <mask> por instancia
     $set = array_flip(array_map('strval', (array) $activos));
@@ -24,9 +44,17 @@
     $desconocidos = array_values(array_diff(array_keys($set), $conocidos));
     $resaltados = array_map($nombre, array_values(array_intersect($conocidos, array_keys($set))));
 @endphp
+@if (! $interactivo)
+<div {{ $attributes->class(['silueta-corporal', 'silueta-corporal--miniatura']) }}>
+    <div class="silueta-lienzo">
+        @include('silueta.'.$vista)
+    </div>
+</div>
+@else
 <div {{ $attributes->class(['silueta-corporal']) }}
      x-data="{
         vista: '{{ $vista }}',
+        vistas: @js(array_keys(MusculosCuerpo::VISTAS)),
         tip: { visible: false, texto: '', x: 0, y: 0 },
         musculo(e) { return e.target.closest ? e.target.closest('[data-musculo]') : null },
         mostrar(e) {
@@ -38,7 +66,11 @@
             this.$nextTick(() => { const w = this.$refs.tip.offsetWidth / 2; this.tip.x = Math.min(Math.max(this.tip.x, w), caja.width - w) });
         },
         ocultar() { this.tip.visible = false },
-        cambiar(v) { this.vista = v; this.tip.visible = false },
+        cambiar(v) {
+            this.vista = v; this.tip.visible = false;
+            this.$refs.caja.dispatchEvent(new CustomEvent('silueta-vista-cambiada', { detail: v, bubbles: true }));
+        },
+        externa(v) { if (this.vistas.includes(v)) { this.vista = v; this.tip.visible = false } },
         elegir(e) {
             const m = this.musculo(e); if (! m) return;
             const detail = { id: m.dataset.musculo };
@@ -46,13 +78,16 @@
             this.$refs.caja.dispatchEvent(new CustomEvent('musculo-seleccionado', { detail, bubbles: true }));
         },
      }"
+     x-on:silueta-vista.window="externa($event.detail)"
      x-ref="caja">
+    @if ($selector)
     <div class="silueta-vistas" role="group" aria-label="Cambiar vista">
         @foreach (MusculosCuerpo::VISTAS as $clave => $etiquetaVista)
             <button type="button" x-on:click="cambiar('{{ $clave }}')" x-bind:aria-pressed="vista === '{{ $clave }}'"
                     aria-pressed="{{ $clave === $vista ? 'true' : 'false' }}">{{ $etiquetaVista }}</button>
         @endforeach
     </div>
+    @endif
     <div class="silueta-lienzo"
          x-on:pointerover="mostrar($event)" x-on:pointermove="mostrar($event)" x-on:pointerleave="ocultar()"
          x-on:focusin="mostrar($event)" x-on:focusout="ocultar()"
@@ -69,3 +104,4 @@
         <!-- silueta-corporal: ids no reconocidos (ignorados): {{ implode(', ', $desconocidos) }} -->
     @endif
 </div>
+@endif

@@ -30,7 +30,7 @@ class SimuladorMediciones
             $ruido = (mt_rand() / mt_getrandmax() * 2 - 1) * $semi * 0.8;
             $v = $centro + $ruido + $deriva * $semi * 2.2;
             $v = min(max($v, $vMin), $vMax);
-            $valores[$componente] = round($v, $componente === 'valor' && $nMax < 12 ? 1 : 0);
+            $valores[$componente] = round($v, $r['decimales'] ?? ($componente === 'valor' && $nMax < 12 ? 1 : 0));
         }
 
         // La diastólica nunca puede igualar o superar a la sistólica.

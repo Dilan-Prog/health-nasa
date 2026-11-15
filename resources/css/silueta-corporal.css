@@ -1,7 +1,8 @@
 /*
  * <x-silueta-corporal>: todos los colores son variables CSS; ningún path lleva relleno fijo.
- * Pensada para fondo oscuro (p. ej. #1E1E1E o el azul marino del panel). Sobre fondo claro,
- * sobrescribe --silueta-relleno y --silueta-contorno en el contenedor.
+ * Los valores por defecto son para fondo CLARO (tarjeta blanca del Panel). Para fondo oscuro usa
+ * la modificadora .silueta-corporal--oscuro. Con .silueta-corporal--ajustar la figura toma el alto
+ * del padre (proporción 420/1100, centrada); sin ella, ancho 100% con máximo 26rem.
  */
 .silueta-corporal {
     --musculo-inactivo: #ECECEB;
@@ -9,7 +10,12 @@
     --musculo-borde: #9CA3AF;
     --silueta-relleno: #C7C6C6;
     --silueta-contorno: #888788;
-    --silueta-foco: #FFFFFF;
+    --silueta-foco: #0A1F44;
+    --silueta-btn-fondo: #FFFFFF;
+    --silueta-btn-texto: #0A1F44;
+    --silueta-btn-borde: #CBD5E1;
+    --silueta-btn-activo-fondo: #0A1F44;
+    --silueta-btn-activo-texto: #FFFFFF;
     --silueta-transicion: 150ms;
 
     position: relative;
@@ -23,6 +29,31 @@
     width: 100%;
     height: auto; /* escala con el viewBox: sin tamaños fijos */
 }
+
+/* Rellena el alto del contenedor (que debe tener alto definido). */
+.silueta-corporal--ajustar {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 420 / 1100;
+    margin-inline: auto;
+}
+.silueta-corporal--ajustar .silueta-lienzo,
+.silueta-corporal--ajustar svg { height: 100%; }
+
+/* Fondo oscuro (p. ej. azul marino o #1E1E1E). */
+.silueta-corporal--oscuro {
+    --silueta-foco: #FFFFFF;
+    --silueta-btn-fondo: rgb(10 31 68 / 0.85);
+    --silueta-btn-texto: #FFFFFF;
+    --silueta-btn-borde: rgb(255 255 255 / 0.45);
+    --silueta-btn-activo-fondo: #FFFFFF;
+    --silueta-btn-activo-texto: #0A1F44;
+}
+
+/* Miniatura: solo decorativa, sin interacción. */
+.silueta-corporal--miniatura, .silueta-corporal--miniatura * { pointer-events: none; }
+.silueta-corporal--miniatura .musculo { cursor: default; transition: none; }
 
 .silueta-corporal .silueta { pointer-events: none; }
 
@@ -39,15 +70,15 @@
 .silueta-vistas button {
     padding: 0.25rem 0.5rem;
     border-radius: 0.375rem;
-    border: 1px solid rgb(255 255 255 / 0.45);
-    background: rgb(10 31 68 / 0.85);
-    color: #fff;
+    border: 1px solid var(--silueta-btn-borde);
+    background: var(--silueta-btn-fondo);
+    color: var(--silueta-btn-texto);
     font-size: 0.7rem;
     line-height: 1.1;
     cursor: pointer;
 }
-.silueta-vistas button:hover { border-color: #fff; }
-.silueta-vistas button[aria-pressed="true"] { background: #fff; color: #0A1F44; font-weight: 600; border-color: #fff; }
+.silueta-vistas button:hover { border-color: var(--silueta-btn-texto); }
+.silueta-vistas button[aria-pressed="true"] { background: var(--silueta-btn-activo-fondo); color: var(--silueta-btn-activo-texto); font-weight: 600; border-color: var(--silueta-btn-activo-fondo); }
 .silueta-vistas button:focus-visible { outline: 2px solid var(--silueta-foco); outline-offset: 2px; }
 .silueta-corporal .sil-relleno { fill: var(--silueta-relleno); }
 .silueta-corporal .sil-trazo { stroke: var(--silueta-contorno); }

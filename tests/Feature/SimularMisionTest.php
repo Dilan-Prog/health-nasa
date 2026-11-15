@@ -23,9 +23,10 @@ class SimularMisionTest extends TestCase
         $this->assertSame('estacion', $mision->entorno);
         $this->assertSame(['estacion'], $mision->tripulantes->pluck('entorno')->unique()->all());
 
-        // 3 tripulantes x 5 días x 6 indicadores diarios
-        $indicadores = count(config('umbrales.indicadores'));
-        $this->assertSame(3 * 5 * $indicadores, $mision->mediciones()->count());
+        // 3 tripulantes; indicadores diarios los 5 días y semanales solo el día 0 de cada semana.
+        $frecuencias = array_count_values(array_column(config('umbrales.indicadores'), 'frecuencia'));
+        $porTripulante = 5 * ($frecuencias['diaria'] ?? 0) + 1 * ($frecuencias['semanal'] ?? 0);
+        $this->assertSame(3 * $porTripulante, $mision->mediciones()->count());
         $this->assertSame(0, Medicion::whereIn('astronauta_id', $mision->tripulantes->pluck('id'))->where('origen', '!=', 'simulado')->count());
     }
 

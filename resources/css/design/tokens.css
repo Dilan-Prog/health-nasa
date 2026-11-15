@@ -1,0 +1,40 @@
+/* Tokens del diseño "Panel tripulación" (Claude Design). Úsalos con var(--x); no pongas colores sueltos. */
+:root {
+    --bg: oklch(0.975 0.006 250);
+    --surface: oklch(1 0 0);
+    --surface-sel: oklch(0.97 0.012 250);
+    --text: oklch(0.24 0.04 258);
+    --text-2: oklch(0.3 0.04 258);
+    --muted: oklch(0.46 0.035 258);
+    --muted-2: oklch(0.4 0.035 258);
+    --muted-3: oklch(0.36 0.035 258);
+    --border: oklch(0.89 0.02 250);
+    --border-soft: oklch(0.92 0.012 250);
+    --border-faint: oklch(0.95 0.008 250);
+    --primary: oklch(0.42 0.14 258);
+    --primary-dark: oklch(0.36 0.14 258);
+    --hover: oklch(0.93 0.015 250);
+    --selected: oklch(0.95 0.012 250);
+
+    --ok: oklch(0.6 0.15 150);        --ok-text: oklch(0.5 0.15 150);   --ok-soft: oklch(0.6 0.15 150 / 0.14);
+    --warn: oklch(0.7 0.16 60);       --warn-text: oklch(0.52 0.14 60); --warn-soft: oklch(0.7 0.16 60 / 0.16);
+    --crit: oklch(0.58 0.21 25);      --crit-text: oklch(0.55 0.2 25);  --crit-soft: oklch(0.58 0.21 25 / 0.13);
+    --crit-solid: oklch(0.55 0.2 25);
+
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --radius: 10px; --radius-lg: 14px;
+}
+
+/* Clases de estado reutilizables: <x data-estado="ok|warn|crit"> expone --c (color), --t (texto), --s (suave). */
+[data-estado="ok"]   { --c: var(--ok);   --t: var(--ok-text);   --s: var(--ok-soft); }
+[data-estado="warn"] { --c: var(--warn); --t: var(--warn-text); --s: var(--warn-soft); }
+[data-estado="crit"] { --c: var(--crit); --t: var(--crit-text); --s: var(--crit-soft); }
+
+.icono { /* Material Symbols Rounded */
+    font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1;
+    letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr;
+    -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 500;
+}
+.mono { font-family: var(--font-mono); }

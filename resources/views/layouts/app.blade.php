@@ -1,3 +1,37 @@
+@php
+    $mision = \App\Support\TripulanteActual::mision();
+    $nombreMision = $mision?->nombre ?? 'Misión';
+    $etiquetaMision = mb_strtoupper($nombreMision);
+    $nombreEstacion = match ($mision?->entorno) {
+        'estacion' => 'Estación Orbital',
+        'nave' => 'Nave de tránsito',
+        'base_lunar' => 'Base lunar',
+        'base_marciana' => 'Base marciana',
+        default => 'Estación Orbital',
+    };
+    $grupos = [
+        ['t' => 'Astronauta', 'links' => [
+            ['t' => 'Panel', 'ic' => 'dashboard', 'ruta' => 'panel', 'href' => '/'],
+            ['t' => 'Registrar', 'ic' => 'add_circle', 'accion' => 'abrir-registro'],
+            ['t' => 'Indicador', 'ic' => 'monitoring'],
+            ['t' => 'Sistemas', 'ic' => 'accessibility_new'],
+            ['t' => 'Historial', 'ic' => 'history'],
+            ['t' => 'Alertas', 'ic' => 'notifications_active'],
+            ['t' => 'Guía', 'ic' => 'menu_book'],
+            ['t' => 'Rutinas', 'ic' => 'event_note'],
+            ['t' => 'Misión', 'ic' => 'rocket_launch'],
+        ]],
+        ['t' => 'Estación y Tierra', 'links' => [
+            ['t' => 'Tripulación', 'ic' => 'groups', 'ruta' => 'tripulacion', 'href' => '/tripulacion'],
+            ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt'],
+            ['t' => 'Flight surgeon', 'ic' => 'stethoscope'],
+        ]],
+        ['t' => 'Apoyo', 'links' => [
+            ['t' => 'Aviso legal', 'ic' => 'gavel'],
+            ['t' => 'Acceso', 'ic' => 'login'],
+        ]],
+    ];
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,23 +45,61 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-screen">
-    <header class="bg-nasa-navy text-white border-b-4 border-nasa-red">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <h1 class="text-lg font-bold tracking-wide">Monitor de salud <span class="text-nasa-red">·</span> Astronautas</h1>
-            <span class="text-xs text-blue-200">Servidor a bordo · red local</span>
+<body>
+<div class="shell">
+    <aside class="shell-lateral" aria-label="Navegación principal">
+        <div class="shell-marca">
+            <span class="mono shell-marca-et">{{ $etiquetaMision }}</span>
+            <span class="shell-marca-nombre">{{ $nombreEstacion }}</span>
         </div>
-    </header>
-    <main class="max-w-6xl mx-auto px-4 py-6">{{ $slot }}</main>
-    <footer class="max-w-6xl mx-auto px-4 pb-8 text-xs text-gray-500">
-        Esta herramienta orienta, no diagnostica. Los umbrales son valores de referencia pendientes de validación con fuentes NASA.
-    </footer>
-    @livewireScripts
-    <script>
-        // El service worker solo se registra en contextos seguros (HTTPS o localhost).
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
-        }
-    </script>
+        <livewire:selector-tripulante variante="lateral" />
+        <nav class="shell-nav">
+            @foreach ($grupos as $g)
+                <div class="nav-grupo">
+                    <span class="nav-grupo-t">{{ $g['t'] }}</span>
+                    @foreach ($g['links'] as $l)
+                        @if (isset($l['href']))
+                            @php($activo = request()->routeIs($l['ruta']))
+                            <a href="{{ $l['href'] }}" class="nav-link {{ $activo ? 'is-activo' : '' }}" @if ($activo) aria-current="page" @endif>
+                                <span class="icono">{{ $l['ic'] }}</span>{{ $l['t'] }}
+                            </a>
+                        @elseif (isset($l['accion']))
+                            <button type="button" class="nav-link" onclick="window.Livewire && Livewire.dispatch('{{ $l['accion'] }}')">
+                                <span class="icono">{{ $l['ic'] }}</span>{{ $l['t'] }}
+                            </button>
+                        @else
+                            <a role="link" aria-disabled="true" title="Próximamente" class="nav-link is-off">
+                                <span class="icono">{{ $l['ic'] }}</span>{{ $l['t'] }}
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+            @endforeach
+        </nav>
+    </aside>
+
+    <div class="shell-columna">
+        <div class="shell-barra">
+            <div class="shell-marca">
+                <span class="mono shell-marca-et">{{ $etiquetaMision }}</span>
+                <span class="shell-marca-nombre shell-marca-nombre--sm">{{ $nombreEstacion }}</span>
+            </div>
+            <livewire:selector-tripulante variante="compacta" />
+        </div>
+        {{ $slot }}
+    </div>
+</div>
+
+@if (class_exists(\App\Livewire\RegistrarMedicion::class))
+    <livewire:registrar-medicion />
+@endif
+
+@livewireScripts
+<script>
+    // El service worker solo se registra en contextos seguros (HTTPS o localhost).
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    }
+</script>
 </body>
 </html>

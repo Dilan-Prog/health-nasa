@@ -93,4 +93,42 @@ class SiluetaCorporalTest extends TestCase
 
         $this->get('/demo/silueta')->assertOk();
     }
+
+    public function test_modo_miniatura_pinta_solo_una_vista_sin_interaccion(): void
+    {
+        $html = Blade::render('<x-silueta-corporal modo="miniatura" vista="posterior" :activos="$a" />', ['a' => ['biceps_izq', 'gluteo_mayor_der']]);
+
+        $this->assertSame(1, substr_count($html, '<svg'));
+        $this->assertStringContainsString('data-vista="posterior"', $html);
+        $this->assertStringContainsString('aria-hidden="true"', $html);
+        foreach (['role="button"', 'tabindex', 'x-data', 'x-show', 'x-on:', 'data-nombre', 'aria-label', '<button', 'role="tooltip"'] as $prohibido) {
+            $this->assertStringNotContainsString($prohibido, $html, $prohibido);
+        }
+        $this->assertSame(count(MusculosCuerpo::POR_VISTA['posterior']), substr_count($html, 'data-musculo="'));
+        $this->assertStringContainsString('silueta-corporal--miniatura', $html);
+        $this->assertSame(1, substr_count($html, 'is-activo')); // gluteo_mayor_der (biceps_izq no está en la posterior)
+    }
+
+    public function test_miniatura_resalta_los_activos_de_su_vista(): void
+    {
+        $html = Blade::render('<x-silueta-corporal modo="miniatura" vista="frontal" :activos="$a" />', ['a' => ['biceps_izq']]);
+
+        $this->assertSame(1, substr_count($html, 'is-activo'));
+        $this->assertSame(1, substr_count($html, '<svg'));
+    }
+
+    public function test_selector_false_oculta_los_botones_y_el_evento_externo_esta_presente(): void
+    {
+        $sin = Blade::render('<x-silueta-corporal :selector="false" />');
+        $con = Blade::render('<x-silueta-corporal />');
+
+        $this->assertStringNotContainsString('<button', $sin);
+        $this->assertStringNotContainsString('silueta-vistas', $sin);
+        $this->assertStringContainsString('<button', $con);
+        foreach ([$sin, $con] as $html) {
+            $this->assertStringContainsString('x-on:silueta-vista.window="externa($event.detail)"', $html);
+            $this->assertStringContainsString('silueta-vista-cambiada', $html);
+            $this->assertSame(134, substr_count($html, 'role="button" tabindex="0"'));
+        }
+    }
 }

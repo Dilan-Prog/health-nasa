@@ -43,6 +43,7 @@ class ProcesadorMediciones
         string $origen = 'manual',
         ?CarbonInterface $instante = null,
         bool $emitir = true,
+        bool $usarLineaBase = true,
     ): Evaluacion {
         $instante ??= now();
 
@@ -68,7 +69,9 @@ class ProcesadorMediciones
         $actual = $this->principal($valores);
 
         $estado = $this->evaluador->evaluar($clave, $valores);
-        $estado = $this->lineaBase->ajustar($estado, $this->lineaBase->calcular($historial, $actual));
+        if ($usarLineaBase) { // se desactiva al sembrar datos de ejemplo con estados fijos
+            $estado = $this->lineaBase->ajustar($estado, $this->lineaBase->calcular($historial, $actual));
+        }
         $tendencia = $this->evaluador->tendencia(array_slice([...$historial, $actual], -8));
         $decision = $this->reglas->decidir($estado, $tendencia, $astronauta->retardoMin());
 

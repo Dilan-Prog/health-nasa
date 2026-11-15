@@ -1,183 +1,233 @@
 @php
-    $color = fn ($e) => match ($e) {
-        'normal' => '#1E9E5A', 'precaucion' => '#F5A623', 'critico' => '#FC3D21', default => '#CBD5E1',
-    };
-    $etiqueta = ['normal' => 'Normal', 'precaucion' => 'Precaución', 'critico' => 'Crítico'];
-    $nombresSistema = ['cardiovascular' => 'Cardiovascular', 'oseo' => 'Óseo', 'inmune' => 'Inmune', 'mental' => 'Mental', 'metabolico' => 'Metabólico'];
-    $est = fn ($s) => $indice[$s]['estado']?->value;
+    $etq = ['ok' => 'Bien', 'warn' => 'Revisar', 'crit' => 'Crítico'];
+    $vistas = [
+        ['frontal', 'Vista frontal', 'accessibility_new', ''],
+        ['lateral', 'Vista lateral derecha', 'directions_walk', ''],
+        ['lateral_izq', 'Vista lateral izquierda', 'directions_walk', 'panel-vista--espejo'],
+        ['posterior', 'Vista posterior', 'u_turn_left', ''],
+    ];
+    $hoy = $resumen && $resumen['medido_hoy'];
+    $hora = $resumen && $resumen['ultima_medicion'] ? $resumen['ultima_medicion']->copy()->utc()->format('H:i') : null;
+    $nCrit = $resumen['conteo']['crit'] ?? 0;
+    $nWarn = $resumen['conteo']['warn'] ?? 0;
+    $nTotal = count($indicadores);
+    $resumenTxt = $cargando ? 'Calculando…' : ($nCrit + $nWarn > 0
+        ? $nCrit.' '.($nCrit === 1 ? 'crítico' : 'críticos').' · '.$nWarn.' a revisar'
+        : 'Todo en rango');
+    $iconoEnvio = fn (bool $enviado) => $enviado ? ($conEnlace ? 'check' : 'schedule') : ($conEnlace ? 'campaign' : 'schedule_send');
 @endphp
+<div class="panel-raiz">
+    <x-encabezado titulo-a="Panel" :titulo-b="'Tripulante '.($astronauta?->nombre ?? '—')" />
 
-<div>
-{{-- Misión y tripulación --}}
-<div class="rounded-lg border border-gray-200 p-4 mb-6">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <label for="mision" class="text-xs font-semibold text-nasa-blue uppercase">Misión</label>
-            <select id="mision" wire:model.live="misionId" class="mt-1 block min-w-[16rem] rounded border border-gray-300 p-2">
-                @foreach ($misiones as $m)
-                    <option value="{{ $m->id }}">{{ $m->nombre }}</option>
-                @endforeach
-                @if ($hayAstronautasSinMision)
-                    <option value="0">Sin misión asignada</option>
-                @endif
-            </select>
-        </div>
-        @if ($mision)
-            <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-                <div><dt class="text-xs uppercase text-gray-400">Entorno</dt><dd class="font-semibold">{{ ucfirst(str_replace('_', ' ', $mision->entorno)) }}</dd></div>
-                <div><dt class="text-xs uppercase text-gray-400">Día de misión</dt><dd class="font-semibold">{{ $mision->inicio_en ? $mision->inicio_en->diffInDays(now()) + 1 : '—' }} / {{ $mision->duracion_dias }}</dd></div>
-                <div><dt class="text-xs uppercase text-gray-400">Retardo con tierra</dt><dd class="font-semibold">{{ config('umbrales.retardo_min.'.$mision->entorno, 0) }} min</dd></div>
-                <div><dt class="text-xs uppercase text-gray-400">Tripulantes</dt><dd class="font-semibold">{{ $astronautas->count() }}</dd></div>
-            </dl>
-        @endif
-    </div>
+    @if (! $astronauta)
+        <main class="panel-principal">
+            <p class="panel-vacio-total">No hay tripulantes en la misión actual.</p>
+        </main>
+    @else
+    <main class="panel-principal" x-data="{ vista: 'frontal' }">
 
-    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        @forelse ($astronautas as $a)
-            @php $r = $resumenTripulacion[$a->id]; $sel = $a->id === $astronautaId; @endphp
-            <button type="button" wire:click="seleccionar({{ $a->id }})" aria-pressed="{{ $sel ? 'true' : 'false' }}"
-                    class="rounded-lg border p-3 text-left transition {{ $sel ? 'ring-2 ring-nasa-blue bg-nasa-light' : 'hover:bg-gray-50' }}"
-                    style="border-left: 6px solid {{ $color($r['peor']) }}">
-                <div class="flex items-start justify-between gap-2">
-                    <span class="text-sm font-semibold">{{ $a->nombre }}</span>
-                    <span class="rounded-full px-2 py-0.5 text-xs font-bold text-white" style="background: {{ $color($r['peor']) }}">
-                        {{ $r['peor'] ? $etiqueta[$r['peor']] : 'Sin datos' }}
-                    </span>
-                </div>
-                <p class="mt-1 text-xs text-gray-600">
-                    @if ($r['con_datos'])
-                        {{ $r['critico'] }} crítico · {{ $r['precaucion'] }} precaución · {{ $r['con_datos'] }} indicadores
-                    @else
-                        Aún no hay mediciones
-                    @endif
-                </p>
-            </button>
-        @empty
-            <p class="col-span-full text-sm text-gray-500">Esta misión aún no tiene tripulantes.</p>
-        @endforelse
-    </div>
-</div>
-
-<div class="grid gap-6 lg:grid-cols-3">
-    {{-- Columna izquierda: astronauta, figura humana, índices --}}
-    <section class="space-y-4">
-        <div class="rounded-lg border border-gray-200 p-4">
-            <label class="text-xs font-semibold text-nasa-blue uppercase">Astronauta</label>
-            <select wire:model.live="astronautaId" class="mt-1 w-full rounded border-gray-300 border p-2">
-                @foreach ($astronautas as $a)
-                    <option value="{{ $a->id }}">{{ $a->nombre }}</option>
-                @endforeach
-            </select>
-            <div class="mt-3 border-t pt-3 text-xs text-gray-600">
-                <p>Enlace con tierra:
-                    <b class="{{ $enlace ? 'text-estado-normal' : 'text-nasa-red' }}">{{ $enlace ? 'ACTIVO' : 'SIN ENLACE' }}</b>
-                    · Alertas pendientes: <b>{{ $alertasPendientes }}</b>
-                </p>
-                <div class="mt-2 flex gap-2">
-                    <button wire:click="alternarEnlace" class="rounded border border-nasa-blue text-nasa-blue px-2 py-1">
-                        {{ $enlace ? 'Simular pérdida de enlace' : 'Restablecer enlace' }}
+        {{-- Izquierda: persona y figura --}}
+        <section class="panel-sil" aria-label="Tripulante">
+            <div class="panel-persona">
+                <div class="panel-nombre">{{ $astronauta->nombre }}</div>
+                <div class="panel-rol">{{ $astronauta->rol }}@if ($astronauta->edad) · {{ $astronauta->edad }} años @endif</div>
+                <span role="status" class="panel-medicion" data-estado="{{ $hoy ? 'ok' : 'warn' }}">
+                    <span class="icono">{{ $hoy ? 'task_alt' : 'schedule' }}</span>
+                    {{ $hoy ? 'Medición realizada'.($hora ? ' · '.$hora.' UTC' : '') : 'Medición pendiente de hoy' }}
+                </span>
+                @unless ($hoy)
+                    <button type="button" class="panel-btn-registrar" wire:click="$dispatch('abrir-registro')">
+                        <span class="icono">edit_note</span>Registrar medición
                     </button>
-                    @if ($enlace && $alertasPendientes)
-                        <button wire:click="enviarAhora" class="rounded bg-nasa-blue text-white px-2 py-1">Enviar ahora</button>
+                @endunless
+            </div>
+
+            <div class="panel-sil-caja">
+                <div class="panel-sil-alto">
+                    <x-silueta-corporal :activos="$musculos" :selector="false" class="silueta-corporal--ajustar" />
+                </div>
+            </div>
+
+            <div class="panel-datos">
+                @foreach ([
+                    ['height', $astronauta->altura_m ? number_format($astronauta->altura_m, 2, '.', '').' m' : '—', 'ALTURA'],
+                    ['scale', $astronauta->peso_kg ? number_format($astronauta->peso_kg, 1, '.', '').' kg' : '—', 'PESO'],
+                    ['bloodtype', $astronauta->grupo_sanguineo ?: '—', 'SANGRE'],
+                    ['rocket_launch', $astronauta->evas ?? '—', 'EVAs'],
+                ] as [$ic, $v, $l])
+                    <div class="panel-dato">
+                        <span class="icono panel-dato-ic">{{ $ic }}</span>
+                        <span class="panel-dato-v">{{ $v }}</span>
+                        <span class="panel-dato-l">{{ $l }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
+        {{-- Centro: vistas e indicadores --}}
+        <section class="panel-ind" aria-label="Indicadores">
+            <div role="tablist" aria-label="Vista de la silueta" class="panel-vistas">
+                @foreach ($vistas as [$id, $label, $ic, $extra])
+                    <button type="button" role="tab" class="panel-vista {{ $extra }}" aria-label="{{ $label }}" title="{{ $label }}"
+                            aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                            x-bind:aria-selected="vista === '{{ $id }}' ? 'true' : 'false'"
+                            x-on:click="vista = '{{ $id }}'; $dispatch('silueta-vista', '{{ $id }}')">
+                        <span class="icono">{{ $ic }}</span>
+                    </button>
+                @endforeach
+            </div>
+
+            <div class="panel-lista">
+                @foreach ($indicadores as $m)
+                    @php($e = $m['estado'])
+                    <button type="button" class="panel-fila {{ $e === 'crit' ? 'is-crit' : '' }} {{ $sel === $m['clave'] ? 'is-sel' : '' }}"
+                            @if ($e) data-estado="{{ $e }}" @endif
+                            wire:click="seleccionar('{{ $m['clave'] }}')" aria-pressed="{{ $sel === $m['clave'] ? 'true' : 'false' }}">
+                        <span class="icono panel-fila-ic">{{ $m['icono'] }}</span>
+                        <span class="panel-fila-cuerpo">
+                            <span class="panel-fila-valor"><span class="panel-valor mono">{{ $m['valor'] ?? '—' }}</span><span class="panel-unidad">{{ $m['unidad'] }}</span></span>
+                            <span class="panel-fila-etq">{{ $m['etiqueta'] }}</span>
+                        </span>
+                        <span class="panel-fila-der">
+                            <span class="panel-badge mono"><span class="panel-punto"></span>{{ $e ? $etq[$e] : 'Sin dato' }}</span>
+                            <span class="panel-rango mono">{{ $m['rango'] }}</span>
+                        </span>
+                    </button>
+                @endforeach
+            </div>
+        </section>
+
+        {{-- Derecha: qué hacer ahora --}}
+        <aside class="panel-q" aria-label="Qué hacer ahora">
+            <div class="panel-q-cab">
+                <h2 class="panel-q-titulo">Qué hacer ahora</h2>
+                <div role="status" class="panel-q-estado mono">
+                    <span class="panel-q-resumen">{{ $resumenTxt }}</span>
+                    <span class="panel-enlace" data-estado="{{ $conEnlace ? 'ok' : 'crit' }}">
+                        <span class="icono">{{ $conEnlace ? 'satellite_alt' : 'link_off' }}</span>{{ $conEnlace ? 'ENLACE ACTIVO' : 'SIN ENLACE' }}
+                    </span>
+                    <span class="panel-q-retardo">{{ $conEnlace ? 'Respuesta de tierra en ~'.$retardo.' min' : 'Los avisos quedan en cola hasta recuperar el enlace' }}</span>
+                    <button type="button" class="panel-enlace-demo" wire:click="alternarEnlace" title="Alternar enlace con tierra (demo)" aria-label="Alternar enlace con tierra (demo)">
+                        <span class="icono">swap_horiz</span>
+                    </button>
+                </div>
+            </div>
+
+            @if ($cargando)
+                <div role="status" aria-live="polite" class="panel-cargando">
+                    <span class="panel-cargando-t mono"><span class="icono">hourglass_top</span>CARGANDO SUGERENCIAS…</span>
+                    @foreach ([1, 2, 3] as $k)
+                        <div class="panel-esqueleto">
+                            <div class="panel-esq-fila"><span class="panel-esq panel-esq--ic"></span><span class="panel-esq panel-esq--t"></span><span class="panel-esq panel-esq--b"></span></div>
+                            <span class="panel-esq panel-esq--l1"></span>
+                            <span class="panel-esq panel-esq--g"></span>
+                            <span class="panel-esq panel-esq--l2"></span>
+                        </div>
+                    @endforeach
+                </div>
+            @elseif (! $tarjetas)
+                <div class="panel-vacio">
+                    <span class="icono panel-vacio-ic">check_circle</span>
+                    <div class="panel-vacio-txt">
+                        <span class="panel-vacio-t">Todo en rango, sin acciones pendientes</span>
+                        <span class="panel-vacio-s">Los {{ $nTotal }} indicadores están dentro de tu rango personal.</span>
+                    </div>
+                </div>
+            @else
+                <div class="panel-pista {{ $seleccionado ? 'is-sel' : '' }}">
+                    <span class="icono">{{ $seleccionado ? 'accessibility_new' : 'touch_app' }}</span>
+                    <span class="panel-pista-t">{{ $seleccionado ? 'En la figura: '.$seleccionado['etiqueta'].' · '.$seleccionado['zona'] : 'Selecciona una tarjeta o un indicador para ver en la figura la zona relacionada.' }}</span>
+                    @if ($seleccionado)
+                        <button type="button" class="panel-btn-quitar" wire:click="quitarSeleccion">Quitar</button>
                     @endif
                 </div>
-            </div>
-        </div>
 
-        <div class="rounded-lg border border-gray-200 p-4">
-            <h2 class="font-bold text-nasa-blue mb-2">Figura humana</h2>
-            <div class="rounded-lg bg-nasa-navy p-3">
-                <x-silueta-corporal class="max-w-xs" />
-            </div>
-            <ul class="mt-3 space-y-1 text-sm">
-                @foreach ($nombresSistema as $k => $n)
-                    <li class="flex items-center justify-between">
-                        <span class="flex items-center gap-2"><i class="inline-block w-3 h-3 rounded-full" style="background: {{ $color($est($k)) }}"></i>{{ $n }}</span>
-                        <span class="text-gray-600">{{ $indice[$k]['puntaje'] !== null ? $indice[$k]['puntaje'].'/100' : 'sin datos' }}</span>
-                    </li>
+                @foreach ($tarjetas as $c)
+                    @php($crit = $c['estado'] === 'crit')
+                    <article class="panel-tarjeta {{ $sel === $c['clave'] ? 'is-sel' : '' }}" data-estado="{{ $c['estado'] }}" aria-label="{{ $c['etiqueta'].', '.$etq[$c['estado']] }}" wire:key="tarjeta-{{ $astronauta->id }}-{{ $c['clave'] }}">
+                        <button type="button" class="panel-tarjeta-cab" wire:click="seleccionar('{{ $c['clave'] }}')" aria-pressed="{{ $sel === $c['clave'] ? 'true' : 'false' }}">
+                            <span class="icono panel-tarjeta-ic">{{ $c['icono'] }}</span>
+                            <span class="panel-tarjeta-t">{{ $c['etiqueta'] }}</span>
+                            <span class="panel-badge mono"><span class="icono">{{ $crit ? 'error' : 'warning' }}</span>{{ $etq[$c['estado']] }}</span>
+                            <span class="panel-tarjeta-razon">{{ $c['razon'] }}</span>
+                        </button>
+
+                        <div class="panel-tend">
+                            <div class="panel-tend-cab mono"><span>TENDENCIA 7 DÍAS</span><span class="panel-tend-base"><span class="panel-tend-linea"></span>TU BASE {{ $c['base'] }}</span></div>
+                            <svg role="img" class="panel-tend-svg" viewBox="0 0 280 56" preserveAspectRatio="none"
+                                 aria-label="Tendencia de 7 días de {{ $c['etiqueta'] }}, del valor base al actual {{ $c['valor'] }} {{ $c['unidad'] }}">
+                                <line x1="0" x2="280" y1="{{ $c['svg']['baseY'] }}" y2="{{ $c['svg']['baseY'] }}" class="panel-tend-base-l" stroke-width="1.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></line>
+                                <polyline points="{{ $c['svg']['pts'] }}" fill="none" class="panel-tend-pol" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
+                            </svg>
+                            <div class="panel-tend-pie mono"><span>HACE 6 D</span><span>HOY</span></div>
+                        </div>
+
+                        <ul class="panel-acciones">
+                            @foreach ($c['acciones'] as $j => $txt)
+                                @php($hecha = $hechas[$astronauta->id.'.'.$c['clave'].'.'.$j] ?? false)
+                                <li><label class="panel-accion {{ $hecha ? 'is-hecha' : '' }}">
+                                    <input type="checkbox" @checked($hecha) wire:click="alternarAccion('{{ $c['clave'] }}', {{ $j }})">
+                                    <span>{{ $txt }}</span>
+                                </label></li>
+                            @endforeach
+                        </ul>
+
+                        <div class="panel-botones">
+                            <button type="button" class="panel-btn" wire:click="repetirMedicion('{{ $c['clave'] }}')"><span class="icono">replay</span>Repetir medición</button>
+                            <button type="button" class="panel-btn" disabled title="Próximamente"><span class="icono">menu_book</span>Ver guía</button>
+                            <button type="button" class="panel-btn panel-btn--aviso {{ $crit ? 'is-crit' : '' }}" wire:click="avisarATierra('{{ $c['clave'] }}')" @disabled($c['avisado'])>
+                                <span class="icono">{{ $iconoEnvio($c['avisado']) }}</span>{{ $c['avisado'] ? ($conEnlace ? 'Aviso enviado a tierra' : 'En cola · se enviará al recuperar enlace') : ($conEnlace ? 'Avisar a tierra' : 'Encolar aviso a tierra') }}
+                            </button>
+                        </div>
+                    </article>
                 @endforeach
-            </ul>
-        </div>
-    </section>
-
-    {{-- Columna central y derecha --}}
-    <section class="lg:col-span-2 space-y-6">
-        <div class="rounded-lg border border-gray-200 p-4">
-            <h2 class="font-bold text-nasa-blue mb-3">Registrar medición</h2>
-            <form wire:submit="registrar" class="grid gap-3 sm:grid-cols-4 items-end">
-                <div class="sm:col-span-2">
-                    <label class="text-xs font-semibold text-gray-600">Indicador</label>
-                    <select wire:model.live="indicador" class="w-full rounded border border-gray-300 p-2">
-                        @foreach ($config['indicadores'] as $k => $i)
-                            <option value="{{ $k }}">{{ $i['nombre'] }} ({{ $i['unidad'] }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                @if ($indicador === 'presion_arterial')
-                    <input wire:model="sistolica" type="number" step="any" placeholder="Sistólica" class="rounded border border-gray-300 p-2" required>
-                    <input wire:model="diastolica" type="number" step="any" placeholder="Diastólica" class="rounded border border-gray-300 p-2" required>
-                @else
-                    <input wire:model="valor" type="number" step="any" placeholder="Valor" class="rounded border border-gray-300 p-2 sm:col-span-2" required>
-                @endif
-                <button class="bg-nasa-blue text-white rounded px-4 py-2 font-semibold hover:bg-nasa-navy sm:col-span-4">Registrar</button>
-            </form>
-
-            @foreach ($errores as $e)
-                <p class="mt-2 text-sm text-nasa-red">{{ $e }}</p>
-            @endforeach
-            @if ($aviso)
-                <p class="mt-3 rounded bg-nasa-light p-3 text-sm"><b>Recomendación:</b> {{ $aviso }}</p>
             @endif
 
-            <div class="mt-4 flex flex-wrap gap-2 border-t pt-3 text-sm">
-                <span class="text-gray-500 self-center">Simulador:</span>
-                <button wire:click="simular(0)" class="rounded border border-estado-normal text-estado-normal px-3 py-1">Valores normales</button>
-                <button wire:click="simular(0.5)" class="rounded border border-estado-precaucion text-estado-precaucion px-3 py-1">Deriva a precaución</button>
-                <button wire:click="simular(1)" class="rounded border border-estado-critico text-estado-critico px-3 py-1">Deriva a crítico</button>
-                <button wire:click="limpiar" wire:confirm="¿Borrar todas las mediciones de este astronauta?" class="ml-auto text-xs text-gray-500 underline">Limpiar historial</button>
-            </div>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-            @foreach ($config['indicadores'] as $clave => $def)
-                @php
-                    $ev = $ultimas[$clave] ?? null;
-                    $serie = $series[$clave] ?? [];
-                    $puntos = '';
-                    if (count($serie) > 1) {
-                        $min = min($serie); $max = max($serie); $rango = max($max - $min, 1e-9);
-                        foreach ($serie as $i => $v) {
-                            $puntos .= round($i * 160 / (count($serie) - 1), 1).','.round(34 - ($v - $min) / $rango * 30, 1).' ';
-                        }
-                    }
-                @endphp
-                <article class="rounded-lg border border-gray-200 p-4" style="border-left: 6px solid {{ $color($ev?->estado) }}">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h3 class="font-semibold">{{ $def['nombre'] }}</h3>
-                            <p class="text-xs text-gray-500">{{ $def['unidad'] }}</p>
-                        </div>
-                        <span class="rounded-full px-2 py-0.5 text-xs font-bold text-white" style="background: {{ $color($ev?->estado) }}">
-                            {{ $ev ? $etiqueta[$ev->estado] : 'Sin datos' }}
-                        </span>
+            @unless ($cargando)
+                <section class="panel-chequeo" aria-label="Autochequeo guiado">
+                    <div class="panel-chequeo-cab">
+                        <span class="icono panel-chequeo-ic">fact_check</span>
+                        <span class="panel-chequeo-t">Autochequeo guiado</span>
+                        <span class="panel-chequeo-paso mono">{{ $chequeo['hecho'] ? 'COMPLETADO' : 'PREGUNTA '.($chequeo['n'] + 1).' DE '.count($preguntas) }}</span>
                     </div>
-                    @if ($ev)
-                        <p class="mt-2 text-2xl font-bold">
-                            {{ collect($ev->medicion->valores)->implode(' / ') }}
-                            <span class="text-sm font-normal text-gray-500">
-                                {{ ['subiendo' => '↑ subiendo', 'bajando' => '↓ bajando', 'estable' => '→ estable'][$ev->tendencia] }}
-                            </span>
-                        </p>
-                        <p class="mt-1 text-sm text-gray-700">{{ $ev->recomendacion }}</p>
-                        @if ($puntos)
-                            <svg viewBox="0 0 160 38" class="mt-2 w-full h-10"><polyline points="{{ $puntos }}" fill="none" stroke="{{ $color($ev->estado) }}" stroke-width="2"/></svg>
-                        @endif
+                    <div role="progressbar" class="panel-progreso" aria-valuemin="0" aria-valuemax="{{ count($preguntas) }}" aria-valuenow="{{ $chequeo['n'] }}" aria-label="Progreso del autochequeo">
+                        <div class="panel-progreso-barra" style="width: {{ round($chequeo['n'] / count($preguntas) * 100) }}%"></div>
+                    </div>
+
+                    @unless ($chequeo['hecho'])
+                        <div class="panel-pregunta">
+                            <span class="panel-pregunta-t">{{ $preguntas[min($chequeo['n'], count($preguntas) - 1)] }}</span>
+                            <div class="panel-si-no">
+                                <button type="button" class="panel-btn panel-btn--sn" wire:click="responder('y')">Sí</button>
+                                <button type="button" class="panel-btn panel-btn--sn" wire:click="responder('n')">No</button>
+                            </div>
+                            @if ($chequeo['n'] > 0)
+                                <button type="button" class="panel-btn-atras" wire:click="preguntaAnterior"><span class="icono">arrow_back</span>Pregunta anterior</button>
+                            @endif
+                        </div>
                     @else
-                        <p class="mt-2 text-sm text-gray-400">Aún no hay mediciones.</p>
-                    @endif
-                </article>
-            @endforeach
-        </div>
-    </section>
-</div>
+                        @php($r = $chequeo['res'])
+                        <div role="status" class="panel-resultado" data-estado="{{ $r['k'] }}">
+                            <div class="panel-resultado-cab">
+                                <span class="icono panel-resultado-ic">{{ $r['ic'] }}</span>
+                                <div class="panel-resultado-tt"><span class="panel-resultado-et mono">RESULTADO</span><span class="panel-resultado-t">{{ $r['titulo'] }}</span></div>
+                            </div>
+                            <span class="panel-resultado-txt">{{ $r['texto'] }}</span>
+                            <div class="panel-botones">
+                                @if ($chequeo['rk'] === 'red')
+                                    <button type="button" class="panel-btn panel-btn--aviso is-crit" wire:click="avisarATierra('chk')" @disabled($chequeo['avisado'])>
+                                        <span class="icono">{{ $iconoEnvio($chequeo['avisado']) }}</span>{{ $chequeo['avisado'] ? ($conEnlace ? 'Aviso enviado a tierra' : 'En cola · se enviará al recuperar enlace') : ($conEnlace ? 'Avisar a tierra ahora' : 'Encolar aviso a tierra') }}
+                                    </button>
+                                @endif
+                                <button type="button" class="panel-btn" wire:click="reiniciarChequeo"><span class="icono">restart_alt</span>Repetir autochequeo</button>
+                            </div>
+                        </div>
+                    @endunless
+                </section>
+            @endunless
+
+            <p role="note" class="panel-nota"><span class="icono">info</span>Esta herramienta orienta, no diagnostica. Ante cualquier duda, contacta a tierra.</p>
+        </aside>
+    </main>
+    @endif
 </div>

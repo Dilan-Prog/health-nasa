@@ -2,146 +2,148 @@
 
 namespace App\Livewire;
 
+use App\Models\AlertaSaliente;
 use App\Models\Astronauta;
 use App\Models\Evaluacion;
-use App\Models\Medicion;
-use App\Models\Mision;
 use App\Services\Salud\EnvioATierra;
-use App\Services\Salud\Estado;
-use App\Services\Salud\IndiceSistemaCorporal;
-use App\Services\Salud\ProcesadorMediciones;
-use App\Services\Salud\SimuladorMediciones;
-use Illuminate\Validation\ValidationException;
+use App\Services\Salud\ResumenTripulante;
+use App\Support\TripulanteActual;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
+/**
+ * Pantalla Panel (diseño "Panel tripulación"): figura + 10 indicadores + "Qué hacer ahora".
+ * El tripulante sale de TripulanteActual (selector del layout); la herramienta orienta, no diagnostica.
+ */
 #[Layout('layouts.app')]
 class Panel extends Component
 {
-    /** 0 = astronautas sin misión asignada (datos anteriores a las misiones). */
-    public int $misionId = 0;
-    public ?int $astronautaId = null;
-    public string $indicador = 'frecuencia_cardiaca';
-    public string $valor = '';
-    public string $sistolica = '';
-    public string $diastolica = '';
-    public ?string $aviso = null;
-    public array $errores = [];
+    public const PREGUNTAS = [
+        '¿Sientes mareo o inestabilidad?',
+        '¿Tienes dolor de cabeza?',
+        '¿Te falta el aire o respiras con esfuerzo?',
+        '¿Notas palpitaciones o el corazón acelerado?',
+        '¿Tienes visión borrosa o ves puntos de luz?',
+    ];
+
+    public const RESULTADOS = [
+        'green' => ['k' => 'ok', 'ic' => 'visibility', 'titulo' => 'Vigilar', 'texto' => 'Sin síntomas. Sigue con tu rutina y repite el autochequeo si algo cambia.'],
+        'orange' => ['k' => 'warn', 'ic' => 'front_hand', 'titulo' => 'Aplicar medida', 'texto' => 'Aplica las acciones de las tarjetas y repite el autochequeo en 15 min.'],
+        'red' => ['k' => 'crit', 'ic' => 'emergency', 'titulo' => 'Contactar a tierra ahora', 'texto' => 'Tus síntomas necesitan valoración del flight surgeon. Avisa a tierra y mantente en reposo.'],
+    ];
+
+    /** Indicador seleccionado (clave de config/panel.php) o null. */
+    #[Url(as: 'sel', except: '')]
+    public ?string $sel = null;
+
+    /** Para demos: "sinenlace" fuerza el aspecto sin enlace; "carga" muestra los esqueletos. */
+    #[Url(as: 'estado', except: '')]
+    public string $estado = '';
+
+    /** Respuestas del autochequeo: 'y' | 'n'. */
+    public array $respuestas = [];
+
+    /** Acciones marcadas: "<astronauta>.<clave>.<n>" => true. */
+    public array $hechas = [];
+
+    /** Avisos a tierra pedidos desde esta pantalla: "<astronauta>.<clave|chk>" => true. */
+    public array $avisados = [];
 
     public function mount(): void
     {
-        $this->misionId = (int) (Mision::orderBy('id')->value('id') ?? 0);
-        $this->astronautaId = $this->tripulantesQuery()->orderBy('id')->value('id');
-    }
-
-    private function tripulantesQuery()
-    {
-        return Astronauta::query()->when(
-            $this->misionId > 0,
-            fn ($q) => $q->where('mision_id', $this->misionId),
-            fn ($q) => $q->whereNull('mision_id'),
-        );
-    }
-
-    public function updatedMisionId(): void
-    {
-        $this->reset('aviso', 'errores');
-        $this->astronautaId = $this->tripulantesQuery()->orderBy('id')->value('id');
-    }
-
-    public function seleccionar(int $id): void
-    {
-        if ($this->tripulantesQuery()->whereKey($id)->exists()) {
-            $this->astronautaId = $id;
-            $this->reset('aviso', 'errores');
+        if ($this->sel !== null && ! array_key_exists($this->sel, config('panel.indicadores', []))) {
+            $this->sel = null;
         }
     }
 
-    /**
-     * Resumen de estado por tripulante a partir de la última evaluación de cada indicador.
-     * @return array<int, array{peor: ?string, precaucion: int, critico: int, con_datos: int}>
-     */
-    private function resumenTripulacion($tripulantes): array
+    public function seleccionar(string $clave): void
     {
-        $ids = $tripulantes->pluck('id');
-        $resumen = $ids->mapWithKeys(fn ($id) => [$id => ['peor' => null, 'precaucion' => 0, 'critico' => 0, 'con_datos' => 0]])->all();
-        if ($ids->isEmpty()) {
-            return $resumen;
+        if (! array_key_exists($clave, config('panel.indicadores', []))) {
+            return;
         }
-
-        $ultimas = Evaluacion::query()
-            ->join('mediciones', 'mediciones.id', '=', 'evaluaciones.medicion_id')
-            ->whereIn('mediciones.astronauta_id', $ids)
-            ->groupBy('mediciones.astronauta_id', 'mediciones.indicador')
-            ->selectRaw('max(evaluaciones.id) as id')->pluck('id');
-
-        $rango = ['normal' => 1, 'precaucion' => 2, 'critico' => 3];
-        foreach (Evaluacion::whereIn('id', $ultimas)->with('medicion:id,astronauta_id')->get() as $ev) {
-            $r = &$resumen[$ev->medicion->astronauta_id];
-            $r['con_datos']++;
-            if ($ev->estado !== 'normal') {
-                $r[$ev->estado]++;
-            }
-            if ($r['peor'] === null || $rango[$ev->estado] > $rango[$r['peor']]) {
-                $r['peor'] = $ev->estado;
-            }
-            unset($r);
-        }
-
-        return $resumen;
+        $this->sel = $this->sel === $clave ? null : $clave;
     }
 
-    public function updatedAstronautaId(): void
+    public function quitarSeleccion(): void
     {
-        $this->reset('aviso', 'errores');
+        $this->sel = null;
     }
 
-    public function registrar(): void
+    public function repetirMedicion(string $clave): void
     {
-        $this->reset('aviso', 'errores');
-        $astronauta = Astronauta::find($this->astronautaId);
-        if (! $astronauta) {
+        if (! array_key_exists($clave, config('panel.indicadores', []))) {
+            return;
+        }
+        $this->sel = $clave;
+        $this->dispatch('abrir-registro', indicador: $clave);
+    }
+
+    public function alternarAccion(string $clave, int $n): void
+    {
+        $k = $this->clave($clave.'.'.$n);
+        $this->hechas[$k] = ! ($this->hechas[$k] ?? false);
+    }
+
+    public function responder(string $r): void
+    {
+        if (count($this->respuestas) < count(self::PREGUNTAS) && in_array($r, ['y', 'n'], true)) {
+            $this->respuestas[] = $r;
+        }
+    }
+
+    public function preguntaAnterior(): void
+    {
+        array_pop($this->respuestas);
+        $this->respuestas = array_values($this->respuestas);
+    }
+
+    public function reiniciarChequeo(): void
+    {
+        $this->respuestas = [];
+        unset($this->avisados[$this->clave('chk')]);
+    }
+
+    /** Encola (o envía, si hay enlace) un aviso real a tierra para un indicador o para el autochequeo ('chk'). */
+    public function avisarATierra(string $clave): void
+    {
+        $astronauta = TripulanteActual::obtener();
+        if (! $astronauta || ($clave !== 'chk' && ! array_key_exists($clave, config('panel.indicadores', [])))) {
+            return;
+        }
+        $k = $this->clave($clave);
+        if ($this->avisados[$k] ?? false) {
             return;
         }
 
-        $valores = $this->indicador === 'presion_arterial'
-            ? ['sistolica' => $this->sistolica, 'diastolica' => $this->diastolica]
-            : ['valor' => $this->valor];
-        $valores = array_map(fn ($v) => is_numeric($v) ? $v + 0 : $v, $valores);
-
-        try {
-            $ev = ProcesadorMediciones::make()->registrar($astronauta, $this->indicador, $valores);
-            $this->aviso = $ev->recomendacion;
-            $this->reset('valor', 'sistolica', 'diastolica');
-        } catch (ValidationException $e) {
-            $this->errores = collect($e->errors())->flatten()->all();
+        $evaluacion = Evaluacion::query()
+            ->whereHas('medicion', fn ($q) => $q->where('astronauta_id', $astronauta->id)
+                ->when($clave !== 'chk', fn ($q) => $q->where('indicador', $clave)))
+            ->with('medicion')->latest('id')->first();
+        if (! $evaluacion) {
+            return; // sin evaluación no hay a qué colgar el aviso (alertas_salientes.evaluacion_id es obligatorio)
         }
-    }
 
-    /** Genera una medición simulada de cada indicador. $deriva > 0 empuja hacia precaución/crítico. */
-    public function simular(float $deriva = 0.0): void
-    {
-        $this->reset('aviso', 'errores');
-        $astronauta = Astronauta::find($this->astronautaId);
-        if (! $astronauta) {
-            return;
+        $etiqueta = $clave === 'chk' ? 'Autochequeo de síntomas' : config('panel.indicadores.'.$clave.'.etiqueta');
+        $carga = [
+            'astronauta' => $astronauta->nombre,
+            'indicador' => $etiqueta,
+            'valores' => $evaluacion->medicion->valores,
+            'estado' => $evaluacion->estado,
+            'accion' => $clave === 'chk' ? 'contactar_tierra' : $evaluacion->accion,
+            'origen' => $clave === 'chk' ? 'autochequeo' : 'panel',
+            'medido_en' => $evaluacion->medicion->medido_en?->toIso8601String(),
+        ];
+        if ($clave === 'chk') {
+            $carga['respuestas'] = $this->respuestas;
         }
-        $sim = new SimuladorMediciones(config('umbrales'));
-        $proc = ProcesadorMediciones::make();
-        foreach (array_keys(config('umbrales.indicadores')) as $clave) {
-            try {
-                $proc->registrar($astronauta, $clave, $sim->generar($clave, $deriva), 'simulado');
-            } catch (ValidationException) {
-                // Duplicado exacto en menos de un minuto: se omite.
-            }
-        }
-    }
+        AlertaSaliente::create(['evaluacion_id' => $evaluacion->id, 'carga' => $carga]);
+        $this->avisados[$k] = true;
 
-    public function limpiar(): void
-    {
-        Medicion::where('astronauta_id', $this->astronautaId)->delete();
-        $this->reset('aviso', 'errores');
+        if ($this->enlaceVisible()) {
+            app(EnvioATierra::class)->enviarPendientes();
+        }
     }
 
     public function alternarEnlace(): void
@@ -153,49 +155,89 @@ class Panel extends Component
         }
     }
 
-    public function enviarAhora(): void
+    #[On('tripulante-cambiado')]
+    public function alCambiarTripulante(): void
     {
-        app(EnvioATierra::class)->enviarPendientes();
+        $this->reset('sel', 'respuestas', 'hechas', 'avisados');
     }
 
     #[On('medicion-registrada')]
+    #[On('medicion-guardada')]
     public function refrescar(): void
     {
-        // Re-renderiza con los datos más recientes.
+        // Re-renderiza con los datos más recientes (Echo/Reverb o el modal de registro).
+    }
+
+    private function clave(string $sufijo): string
+    {
+        return (TripulanteActual::obtener()?->id ?? 0).'.'.$sufijo;
+    }
+
+    private function enlaceVisible(): bool
+    {
+        return $this->estado !== 'sinenlace' && app(EnvioATierra::class)->enlaceActivo();
+    }
+
+    /** Polilínea y línea base del gráfico de tendencia (misma escala que `trend` del diseño, viewBox 280×56). */
+    public static function tendenciaSvg(array $puntos, float $base): array
+    {
+        $lo = min(min($puntos), $base);
+        $hi = max(max($puntos), $base);
+        $pad = (($hi - $lo) ?: 1) * 0.18;
+        $y = fn (float $x) => round(50 - ($x - $lo + $pad) / ($hi - $lo + 2 * $pad) * 44, 1);
+        $n = max(count($puntos) - 1, 1);
+        $pts = [];
+        foreach (array_values($puntos) as $i => $x) {
+            $pts[] = round($i * 280 / $n, 1).','.$y((float) $x);
+        }
+
+        return ['pts' => implode(' ', $pts), 'baseY' => $y($base)];
     }
 
     public function render()
     {
-        $config = config('umbrales');
-        $astronauta = $this->astronautaId ? Astronauta::find($this->astronautaId) : null;
-        $ultimas = $astronauta ? ProcesadorMediciones::make()->ultimas($astronauta) : [];
-        $estados = array_map(fn ($ev) => Estado::from($ev->estado), $ultimas);
-        $indice = (new IndiceSistemaCorporal($config))->calcular($estados);
+        $astronauta = TripulanteActual::obtener();
+        $resumen = $astronauta ? ResumenTripulante::make()->de($astronauta) : null;
+        $indicadores = $resumen ? collect($resumen['indicadores'])->keyBy('clave') : collect();
 
-        $series = [];
-        if ($astronauta) {
-            foreach ($config['indicadores'] as $clave => $_) {
-                $series[$clave] = $astronauta->mediciones()->where('indicador', $clave)
-                    ->orderByDesc('medido_en')->limit(20)->get()->reverse()
-                    ->map(fn ($m) => (float) ($m->valores['valor'] ?? $m->valores['sistolica']))->values()->all();
-            }
+        $musculos = $this->sel && isset($indicadores[$this->sel])
+            ? $indicadores[$this->sel]['musculos']
+            : ($resumen['musculos_activos'] ?? []);
+
+        $tarjetas = [];
+        foreach ($resumen['incidencias'] ?? [] as $i) {
+            $tarjetas[] = $i + [
+                'svg' => self::tendenciaSvg($i['tendencia']['puntos'], (float) $i['tendencia']['base']),
+                'avisado' => $this->avisados[$this->clave($i['clave'])] ?? false,
+            ];
         }
 
+        $n = count($this->respuestas);
+        $si = count(array_filter($this->respuestas, fn ($r) => $r === 'y'));
+        $hecho = $n >= count(self::PREGUNTAS);
+        $rk = ! $hecho ? null : (($this->respuestas[2] ?? null) === 'y' || $si >= 3 ? 'red' : ($si ? 'orange' : 'green'));
+
         $envio = app(EnvioATierra::class);
-        $tripulantes = $this->tripulantesQuery()->orderBy('id')->get();
 
         return view('livewire.panel', [
-            'config' => $config,
-            'misiones' => Mision::orderBy('id')->get(),
-            'hayAstronautasSinMision' => Astronauta::whereNull('mision_id')->exists(),
-            'mision' => $this->misionId > 0 ? Mision::find($this->misionId) : null,
-            'astronautas' => $tripulantes,
-            'resumenTripulacion' => $this->resumenTripulacion($tripulantes),
-            'ultimas' => $ultimas,
-            'indice' => $indice,
-            'series' => $series,
-            'alertasPendientes' => $envio->pendientes(),
-            'enlace' => $envio->enlaceActivo(),
+            'astronauta' => $astronauta,
+            'resumen' => $resumen,
+            'indicadores' => $indicadores->values()->all(),
+            'tarjetas' => $tarjetas,
+            'musculos' => $musculos,
+            'seleccionado' => $this->sel ? ($indicadores[$this->sel] ?? null) : null,
+            'conEnlace' => $this->enlaceVisible(),
+            'enlaceReal' => $envio->enlaceActivo(),
+            'cargando' => $this->estado === 'carga',
+            'retardo' => max(1, $astronauta?->retardoMin() ?? 1),
+            'preguntas' => self::PREGUNTAS,
+            'chequeo' => [
+                'n' => $n,
+                'hecho' => $hecho,
+                'rk' => $rk,
+                'res' => $rk ? self::RESULTADOS[$rk] : null,
+                'avisado' => $this->avisados[$this->clave('chk')] ?? false,
+            ],
         ]);
     }
 }

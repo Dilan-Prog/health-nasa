@@ -13,7 +13,12 @@ class Astronauta extends Model
 
     protected $table = 'astronautas';
 
-    protected $fillable = ['user_id', 'mision_id', 'nombre', 'mision', 'entorno'];
+    protected $fillable = [
+        'user_id', 'mision_id', 'nombre', 'mision', 'entorno',
+        'rol', 'edad', 'altura_m', 'peso_kg', 'grupo_sanguineo', 'evas',
+    ];
+
+    protected $casts = ['altura_m' => 'float', 'peso_kg' => 'float'];
 
     /** Misión a la que pertenece (no se llama `mision` para no chocar con la columna de texto del mismo nombre). */
     public function misionDeVuelo(): BelongsTo
