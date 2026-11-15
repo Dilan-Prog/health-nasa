@@ -9,7 +9,7 @@ class AlertaSaliente extends Model
 {
     protected $table = 'alertas_salientes';
 
-    protected $fillable = ['evaluacion_id', 'carga', 'estado', 'enviada_en'];
+    protected $fillable = ['evaluacion_id', 'astronauta_id', 'carga', 'estado', 'enviada_en'];
 
     protected $casts = ['carga' => 'array', 'enviada_en' => 'datetime'];
 

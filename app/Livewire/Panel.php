@@ -121,24 +121,25 @@ class Panel extends Component
             ->whereHas('medicion', fn ($q) => $q->where('astronauta_id', $astronauta->id)
                 ->when($clave !== 'chk', fn ($q) => $q->where('indicador', $clave)))
             ->with('medicion')->latest('id')->first();
-        if (! $evaluacion) {
-            return; // sin evaluación no hay a qué colgar el aviso (alertas_salientes.evaluacion_id es obligatorio)
-        }
-
         $etiqueta = $clave === 'chk' ? 'Autochequeo de síntomas' : config('panel.indicadores.'.$clave.'.etiqueta');
+        // Sin evaluación previa el aviso viaja igual (evaluacion_id es opcional): solo sin valores ni estado.
         $carga = [
             'astronauta' => $astronauta->nombre,
             'indicador' => $etiqueta,
-            'valores' => $evaluacion->medicion->valores,
-            'estado' => $evaluacion->estado,
-            'accion' => $clave === 'chk' ? 'contactar_tierra' : $evaluacion->accion,
+            'valores' => $evaluacion?->medicion?->valores,
+            'estado' => $evaluacion?->estado,
+            'accion' => $clave === 'chk' ? 'contactar_tierra' : ($evaluacion?->accion ?? 'contactar_tierra'),
             'origen' => $clave === 'chk' ? 'autochequeo' : 'panel',
-            'medido_en' => $evaluacion->medicion->medido_en?->toIso8601String(),
+            'medido_en' => $evaluacion?->medicion?->medido_en?->toIso8601String(),
         ];
         if ($clave === 'chk') {
             $carga['respuestas'] = $this->respuestas;
         }
-        AlertaSaliente::create(['evaluacion_id' => $evaluacion->id, 'carga' => $carga]);
+        AlertaSaliente::create([
+            'evaluacion_id' => $evaluacion?->id,
+            'astronauta_id' => $astronauta->id,
+            'carga' => $carga,
+        ]);
         $this->avisados[$k] = true;
 
         if ($this->enlaceVisible()) {

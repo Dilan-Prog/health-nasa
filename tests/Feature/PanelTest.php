@@ -97,6 +97,23 @@ class PanelTest extends TestCase
         $this->assertSame($antes + 1, AlertaSaliente::count());
     }
 
+    public function test_avisar_a_tierra_funciona_sin_ninguna_evaluacion_previa(): void
+    {
+        $m = Mision::create(['nombre' => 'PT-SinEval', 'entorno' => 'estacion']);
+        $a = \App\Models\Astronauta::create(['mision_id' => $m->id, 'nombre' => 'PT Nuevo', 'mision' => 'PT-SinEval', 'entorno' => 'estacion']);
+        session(['mision_id' => $m->id, 'astronauta_id' => $a->id]);
+
+        Livewire::test(Panel::class)
+            ->call('avisarATierra', 'perdida_osea')
+            ->call('responder', 'y')->call('avisarATierra', 'chk');
+
+        $alertas = AlertaSaliente::where('astronauta_id', $a->id)->get();
+        $this->assertCount(2, $alertas);
+        $this->assertNull($alertas->first()->evaluacion_id);
+        $this->assertSame('PT Nuevo', $alertas->first()->carga['astronauta']);
+        $this->assertSame('contactar_tierra', $alertas->first()->carga['accion']);
+    }
+
     public function test_repetir_medicion_selecciona_y_despacha_abrir_registro(): void
     {
         $this->tripulacion();
