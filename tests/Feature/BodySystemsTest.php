@@ -11,48 +11,48 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class SistemasTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never deletes the local database data. */
+class BodySystemsTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function fijarTripulante(): void
+    private function pinCrewMember(): void
     {
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        TripulanteActual::fijar(Astronauta::where('mision_id', $mision->id)->firstOrFail()->id);
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        TripulanteActual::fijar(Astronauta::where('mision_id', $mission->id)->firstOrFail()->id);
     }
 
-    public function test_muestra_una_tarjeta_por_sistema_con_titulo_y_aviso(): void
+    public function test_shows_one_card_per_system_with_title_and_notice(): void
     {
-        $this->fijarTripulante();
+        $this->pinCrewMember();
         Livewire::test(Sistemas::class)
-            ->assertSee('Sistemas corporales')
-            ->assertSee('Cardiovascular')
-            ->assertSee('Sensorial y vestibular')
-            ->assertSee('Sin cobertura todavía')
-            ->assertSee('Orienta, no diagnostica')
+            ->assertSee('Body systems')
+            ->assertSee(config('sistemas.grupos.0.titulo'))
+            ->assertSee(collect(config('sistemas.grupos'))->firstWhere('clave', 'sensorial')['titulo'])
+            ->assertSee('No coverage yet')
+            ->assertSee('Guidance only')
             ->assertViewHas('tarjetas', fn ($t) => count($t) === 11);
     }
 
-    public function test_cada_marcador_del_catalogo_esta_en_un_solo_grupo(): void
+    public function test_each_catalog_marker_is_in_exactly_one_group(): void
     {
-        $claves = collect(config('sistemas.grupos'))->pluck('marcadores')->flatten()->all();
-        $this->assertEqualsCanonicalizing(array_keys(config('indicadores.marcadores')), $claves);
+        $keys = collect(config('sistemas.grupos'))->pluck('marcadores')->flatten()->all();
+        $this->assertEqualsCanonicalizing(array_keys(config('indicadores.marcadores')), $keys);
     }
 
-    public function test_el_color_y_la_pildora_de_cada_tarjeta_son_el_peor_estado(): void
+    public function test_card_color_and_pill_reflect_the_worst_state(): void
     {
-        $this->fijarTripulante();
-        Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($tarjetas) {
-            foreach ($tarjetas as $t) {
+        $this->pinCrewMember();
+        Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($cards) {
+            foreach ($cards as $t) {
                 if ($t['sin_cobertura']) {
-                    continue; // sin indicadores: no hay "peor estado" (se prueba en SistemasFuenteUnicaTest)
+                    continue; // no indicators: there is no "worst state" (covered in BodySystemsSingleSourceTest)
                 }
-                $orden = collect($t['filas'])->pluck('estado')->map(fn ($e) => Sistemas::ESTADOS[$e][2]);
-                $peor = array_search($orden->min(), array_column(Sistemas::ESTADOS, 2), true);
-                if ($t['estado'] !== array_keys(Sistemas::ESTADOS)[$peor] || $t['estado_txt'] !== Sistemas::ESTADOS[$t['estado']][0]) {
+                $order = collect($t['filas'])->pluck('estado')->map(fn ($e) => Sistemas::ESTADOS[$e][2]);
+                $worst = array_search($order->min(), array_column(Sistemas::ESTADOS, 2), true);
+                if ($t['estado'] !== array_keys(Sistemas::ESTADOS)[$worst] || $t['estado_txt'] !== Sistemas::ESTADOS[$t['estado']][0]) {
                     return false;
                 }
             }
@@ -61,27 +61,27 @@ class SistemasTest extends TestCase
         });
     }
 
-    public function test_las_filas_enlazan_al_indicador_con_su_id(): void
+    public function test_rows_link_to_the_indicator_by_id(): void
     {
-        $this->fijarTripulante();
-        $c = Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($tarjetas) {
-            $filas = collect($tarjetas)->pluck('filas')->flatten(1);
+        $this->pinCrewMember();
+        $c = Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($cards) {
+            $rows = collect($cards)->pluck('filas')->flatten(1);
 
-            return $filas->count() === 14
-                && $filas->every(fn ($f) => $f['url'] === route('indicador', ['id' => $f['clave']]));
+            return $rows->count() === 14
+                && $rows->every(fn ($f) => $f['url'] === route('indicador', ['id' => $f['clave']]));
         });
         $c->assertSeeHtml('href="'.route('indicador', ['id' => 'presion_arterial']).'"');
         $c->assertSeeHtml('href="'.route('indicador', ['id' => 'vision_sans']).'"');
     }
 
-    public function test_sin_tripulante_muestra_el_estado_vacio(): void
+    public function test_without_crew_member_shows_the_empty_state(): void
     {
         session()->forget(['astronauta_id', 'mision_id']);
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        Astronauta::query()->delete(); // dentro de la transacción de la prueba: se revierte
+        Astronauta::query()->delete(); // inside the test transaction: rolled back
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
         Livewire::test(Sistemas::class)
-            ->assertSee('Sin tripulante seleccionado')
+            ->assertSee('No crew member selected')
             ->assertViewHas('tarjetas', []);
     }
 }

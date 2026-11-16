@@ -8,7 +8,7 @@ use App\Services\Salud\SimuladorMediciones;
 use App\Services\Salud\ValidadorMedicion;
 use PHPUnit\Framework\TestCase;
 
-class SimuladorTest extends TestCase
+class SimulatorTest extends TestCase
 {
     private array $config;
 
@@ -17,22 +17,22 @@ class SimuladorTest extends TestCase
         $this->config = require __DIR__.'/../../../config/umbrales.php';
     }
 
-    public function test_sin_deriva_genera_mediciones_validas_y_normales(): void
+    public function test_without_drift_generates_valid_normal_measurements(): void
     {
         $sim = new SimuladorMediciones($this->config);
         $val = new ValidadorMedicion($this->config);
         $eva = new EvaluadorEstado($this->config);
 
         foreach (array_keys($this->config['indicadores']) as $clave) {
-            foreach (range(1, 30) as $semilla) {
-                $v = $sim->generar($clave, 0.0, $semilla);
-                $this->assertSame([], $val->validar($clave, $v), "{$clave} semilla {$semilla}");
-                $this->assertSame(Estado::Normal, $eva->evaluar($clave, $v), "{$clave} semilla {$semilla}");
+            foreach (range(1, 30) as $seed) {
+                $v = $sim->generar($clave, 0.0, $seed);
+                $this->assertSame([], $val->validar($clave, $v), "{$clave} seed {$seed}");
+                $this->assertSame(Estado::Normal, $eva->evaluar($clave, $v), "{$clave} seed {$seed}");
             }
         }
     }
 
-    public function test_con_deriva_fuerte_se_sale_de_lo_normal_pero_sigue_siendo_valido(): void
+    public function test_strong_drift_leaves_normal_but_stays_valid(): void
     {
         $sim = new SimuladorMediciones($this->config);
         $val = new ValidadorMedicion($this->config);
@@ -43,7 +43,7 @@ class SimuladorTest extends TestCase
         $this->assertNotSame(Estado::Normal, $eva->evaluar('frecuencia_cardiaca', $v));
     }
 
-    public function test_es_determinista_con_semilla(): void
+    public function test_is_deterministic_with_seed(): void
     {
         $sim = new SimuladorMediciones($this->config);
         $this->assertSame($sim->generar('glucosa', 0.3, 42), $sim->generar('glucosa', 0.3, 42));

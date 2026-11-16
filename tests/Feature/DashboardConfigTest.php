@@ -5,40 +5,40 @@ namespace Tests\Feature;
 use App\Support\MusculosCuerpo;
 use Tests\TestCase;
 
-class PanelConfigTest extends TestCase
+class DashboardConfigTest extends TestCase
 {
-    private const CLAVES = [
+    private const KEYS = [
         'presion_arterial', 'frecuencia_cardiaca', 'saturacion_o2', 'glucosa', 'temperatura',
         'imc', 'perdida_osea', 'masa_muscular', 'radiacion_diaria', 'dosis_acumulada',
     ];
 
-    public function test_diez_indicadores_en_orden_y_todos_existen_en_umbrales(): void
+    public function test_ten_indicators_in_order_and_all_exist_in_thresholds(): void
     {
-        $this->assertSame(self::CLAVES, array_keys(config('panel.indicadores')));
-        foreach (self::CLAVES as $clave) {
-            $this->assertArrayHasKey($clave, config('umbrales.indicadores'));
+        $this->assertSame(self::KEYS, array_keys(config('panel.indicadores')));
+        foreach (self::KEYS as $key) {
+            $this->assertArrayHasKey($key, config('umbrales.indicadores'));
         }
         $this->assertSame(408, config('panel.orbita_km'));
     }
 
-    public function test_cada_indicador_tiene_los_campos_del_contrato(): void
+    public function test_every_indicator_has_the_contract_fields(): void
     {
-        foreach (config('panel.indicadores') as $clave => $i) {
-            foreach (['etiqueta', 'icono', 'unidad', 'rango', 'zona', 'musculos', 'acciones', 'base'] as $campo) {
-                $this->assertNotEmpty($i[$campo], "{$clave}.{$campo}");
+        foreach (config('panel.indicadores') as $key => $i) {
+            foreach (['etiqueta', 'icono', 'unidad', 'rango', 'zona', 'musculos', 'acciones', 'base'] as $field) {
+                $this->assertNotEmpty($i[$field], "{$key}.{$field}");
             }
-            $this->assertIsBool($i['perdida'], "{$clave}.perdida");
+            $this->assertIsBool($i['perdida'], "{$key}.perdida");
             $this->assertGreaterThanOrEqual(2, count($i['acciones']));
             $this->assertLessThanOrEqual(3, count($i['acciones']));
         }
     }
 
-    public function test_todos_los_musculos_existen_en_la_silueta(): void
+    public function test_all_muscles_exist_in_the_silhouette(): void
     {
-        $validos = MusculosCuerpo::ids();
-        foreach (config('panel.indicadores') as $clave => $i) {
+        $valid = MusculosCuerpo::ids();
+        foreach (config('panel.indicadores') as $key => $i) {
             foreach ($i['musculos'] as $id) {
-                $this->assertContains($id, $validos, "{$clave}: músculo '{$id}' no existe en MusculosCuerpo");
+                $this->assertContains($id, $valid, "{$key}: muscle '{$id}' does not exist in MusculosCuerpo");
             }
         }
     }

@@ -12,7 +12,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // La caché estática del resolvedor sobrevive entre tests, pero las filas se revierten con la transacción.
+        // The resolver static cache survives between tests, but the rows are rolled back with the transaction.
         ResolvedorRequisito::olvidar();
     }
 }

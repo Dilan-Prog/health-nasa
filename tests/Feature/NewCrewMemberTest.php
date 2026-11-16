@@ -11,124 +11,124 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class NuevoTripulanteTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database data. */
+class NewCrewMemberTest extends TestCase
 {
     use DatabaseTransactions;
 
-    /** Misión de prueba propia con 2 tripulantes (cupo libre); no depende de los datos de la BD local. */
-    private function expedicion(int $tripulantes = 2): Mision
+    /** Own test mission with 2 crew members (free slots); does not depend on the local database data. */
+    private function expedition(int $crewCount = 2): Mision
     {
-        $mision = Mision::create(['nombre' => 'Misión NT '.uniqid(), 'entorno' => 'estacion', 'inicio_en' => now()->subDays(10), 'duracion_dias' => 180]);
-        for ($i = 1; $i <= $tripulantes; $i++) {
-            Astronauta::create(['mision_id' => $mision->id, 'mision' => $mision->nombre, 'entorno' => 'estacion', 'nombre' => 'Tripulante '.$i]);
+        $mission = Mision::create(['nombre' => 'Mission NT '.uniqid(), 'entorno' => 'estacion', 'inicio_en' => now()->subDays(10), 'duracion_dias' => 180]);
+        for ($i = 1; $i <= $crewCount; $i++) {
+            Astronauta::create(['mision_id' => $mission->id, 'mision' => $mission->nombre, 'entorno' => 'estacion', 'nombre' => 'Crew member '.$i]);
         }
-        session(['mision_id' => $mision->id]);
+        session(['mision_id' => $mission->id]);
 
-        return $mision;
+        return $mission;
     }
 
-    public function test_con_el_cupo_lleno_bloquea_el_asistente_y_no_guarda(): void
+    public function test_full_crew_blocks_the_wizard_and_does_not_save(): void
     {
-        $mision = $this->expedicion(5);
+        $mission = $this->expedition(5);
 
-        Livewire::test(NuevoTripulante::class)->assertSee('Tripulación completa')->call('guardar');
-        $this->assertSame(5, Astronauta::where('mision_id', $mision->id)->count());
-        $this->get(route('tripulacion'))->assertSee('Tripulación completa')->assertSee('5 / 5');
+        Livewire::test(NuevoTripulante::class)->assertSee('Crew full')->call('guardar');
+        $this->assertSame(5, Astronauta::where('mision_id', $mission->id)->count());
+        $this->get(route('tripulacion'))->assertSee('Crew full')->assertSee('5 / 5');
     }
 
-    private function paso1(\Livewire\Features\SupportTesting\Testable $t): \Livewire\Features\SupportTesting\Testable
+    private function step1(\Livewire\Features\SupportTesting\Testable $t): \Livewire\Features\SupportTesting\Testable
     {
         return $t->set('nombre', 'Nora Lindqvist')->set('fecha_nacimiento', '1988-04-12')->set('sexo', 'femenino')
-            ->set('nacionalidad', 'Sueca')->set('agencia', 'ESA')->set('rol', 'Piloto')->set('fecha_ingreso', '2015-06-01');
+            ->set('nacionalidad', 'Swedish')->set('agencia', 'ESA')->set('rol', 'Pilot')->set('fecha_ingreso', '2015-06-01');
     }
 
-    public function test_muestra_el_asistente_en_el_paso_uno(): void
+    public function test_shows_the_wizard_on_step_one(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(NuevoTripulante::class)
             ->assertSet('paso', 1)
-            ->assertSee('Paso 1 de 5')->assertSee('Nombre completo')->assertSee('Fecha de nacimiento');
+            ->assertSee('Step 1 of 5')->assertSee('Full name')->assertSee('Date of birth');
     }
 
-    public function test_sin_mision_muestra_el_bloqueo_y_no_avanza_ni_guarda(): void
+    public function test_without_a_mission_shows_the_block_and_neither_advances_nor_saves(): void
     {
-        Astronauta::query()->update(['mision_id' => null]); // dentro de la transacción: se revierte
-        $antes = Astronauta::count();
+        Astronauta::query()->update(['mision_id' => null]); // inside the transaction: it is rolled back
+        $before = Astronauta::count();
 
-        $this->paso1(Livewire::test(NuevoTripulante::class))
-            ->assertSee('No hay una misión activa')
+        $this->step1(Livewire::test(NuevoTripulante::class))
+            ->assertSee('There is no active mission')
             ->call('siguiente')->assertSet('paso', 1)
             ->call('guardar')->assertNoRedirect();
 
-        $this->assertSame($antes, Astronauta::count());
+        $this->assertSame($before, Astronauta::count());
     }
 
-    public function test_el_paso_uno_bloquea_el_avance_si_faltan_datos_obligatorios(): void
+    public function test_step_one_blocks_advancing_when_required_data_is_missing(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(NuevoTripulante::class)
             ->call('siguiente')
             ->assertSet('paso', 1)
             ->assertHasErrors(['nombre', 'fecha_nacimiento', 'sexo'])
-            ->assertSee('El campo nombre es obligatorio.');
+            ->assertSee('The name field is required.');
     }
 
-    public function test_rechaza_menores_de_edad_y_valores_fuera_de_rango(): void
+    public function test_rejects_minors_and_out_of_range_values(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         $t = Livewire::test(NuevoTripulante::class)
-            ->set('nombre', 'Joven')->set('fecha_nacimiento', now()->subYears(10)->toDateString())->set('sexo', 'otro')
+            ->set('nombre', 'Young')->set('fecha_nacimiento', now()->subYears(10)->toDateString())->set('sexo', 'otro')
             ->call('siguiente')->assertSet('paso', 1)->assertHasErrors(['fecha_nacimiento']);
 
-        $this->paso1($t)->call('siguiente')->assertSet('paso', 2)->assertHasNoErrors()
+        $this->step1($t)->call('siguiente')->assertSet('paso', 2)->assertHasNoErrors()
             ->set('altura_m', '5')->call('siguiente')->assertSet('paso', 2)->assertHasErrors(['altura_m']);
     }
 
-    public function test_navegacion_anterior_e_ir_a_paso_solo_a_pasos_validos(): void
+    public function test_previous_and_go_to_step_navigation_only_reaches_valid_steps(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         $t = Livewire::test(NuevoTripulante::class)->call('irAPaso', 3)->assertSet('paso', 1);
-        $this->paso1($t)->call('siguiente')->assertSet('paso', 2)->assertSet('pasosValidos', [1])
-            ->call('irAPaso', 3)->assertSet('paso', 2)      // el 2 aún no está validado
+        $this->step1($t)->call('siguiente')->assertSet('paso', 2)->assertSet('pasosValidos', [1])
+            ->call('irAPaso', 3)->assertSet('paso', 2)      // step 2 is not validated yet
             ->call('irAPaso', 1)->assertSet('paso', 1)
             ->call('irAPaso', 2)->assertSet('paso', 2)
             ->call('anterior')->assertSet('paso', 1)
             ->call('anterior')->assertSet('paso', 1);
     }
 
-    public function test_la_edad_y_el_imc_se_calculan_en_vivo(): void
+    public function test_age_and_bmi_are_calculated_live(): void
     {
-        $this->expedicion();
-        $nac = now()->subYears(40)->subDays(3)->toDateString();
+        $this->expedition();
+        $birth = now()->subYears(40)->subDays(3)->toDateString();
 
-        $t = Livewire::test(NuevoTripulante::class)->set('fecha_nacimiento', $nac)->set('altura_m', '1,80')->set('peso_kg', '81');
+        $t = Livewire::test(NuevoTripulante::class)->set('fecha_nacimiento', $birth)->set('altura_m', '1,80')->set('peso_kg', '81');
 
         $this->assertSame(40, $t->get('edad'));
         $this->assertSame(25.0, $t->get('imc'));
-        $t->set('fecha_nacimiento', 'no-es-fecha')->set('peso_kg', '');
+        $t->set('fecha_nacimiento', 'not-a-date')->set('peso_kg', '');
         $this->assertNull($t->get('edad'));
         $this->assertNull($t->get('imc'));
     }
 
-    public function test_precarga_de_linea_base_con_los_valores_base_y_sin_pisar_lo_escrito(): void
+    public function test_baseline_preload_uses_default_values_without_overwriting_typed_input(): void
     {
-        $this->expedicion();
-        $marcadores = config('indicadores.marcadores');
+        $this->expedition();
+        $markers = config('indicadores.marcadores');
 
         $t = Livewire::test(NuevoTripulante::class);
-        $this->assertSame(array_keys($marcadores), array_keys($t->get('linea_base')));
+        $this->assertSame(array_keys($markers), array_keys($t->get('linea_base')));
         $this->assertSame('', $t->get('linea_base.glucosa'));
 
         $t->set('linea_base.glucosa', '90')->call('precargarLineaBase');
         $lb = $t->get('linea_base');
-        $this->assertSame('90', $lb['glucosa']);                 // lo escrito se conserva
-        $this->assertSame('36.7', $lb['temperatura']);           // base 36.7, 1 decimal
-        $this->assertSame('116', $lb['presion_arterial']);       // base 116, 0 decimales
+        $this->assertSame('90', $lb['glucosa']);                 // typed input is kept
+        $this->assertSame('36.7', $lb['temperatura']);           // default 36.7, 1 decimal
+        $this->assertSame('116', $lb['presion_arterial']);       // default 116, 0 decimals
         foreach ($lb as $v) {
             $this->assertNotSame('', $v);
         }
@@ -137,14 +137,14 @@ class NuevoTripulanteTest extends TestCase
         $this->assertSame('', $t->get('linea_base.glucosa'));
     }
 
-    public function test_listas_repetibles_agregan_y_quitan_filas(): void
+    public function test_repeatable_lists_add_and_remove_rows(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(NuevoTripulante::class)
             ->call('agregarAlergia')->call('agregarAlergia')->assertCount('alergias', 2)
-            ->set('alergias.1.sustancia', 'Penicilina')->call('quitarAlergia', 0)
-            ->assertCount('alergias', 1)->assertSet('alergias.0.sustancia', 'Penicilina')
+            ->set('alergias.1.sustancia', 'Penicillin')->call('quitarAlergia', 0)
+            ->assertCount('alergias', 1)->assertSet('alergias.0.sustancia', 'Penicillin')
             ->call('agregarCondicion')->assertCount('condiciones', 1)->call('quitarCondicion', 0)->assertCount('condiciones', 0)
             ->call('agregarMedicamento')->assertCount('medicamentos', 1)->assertSet('medicamentos.0.activo', true)
             ->call('quitarMedicamento', 0)->assertCount('medicamentos', 0)
@@ -152,9 +152,9 @@ class NuevoTripulanteTest extends TestCase
             ->call('quitarAlergia', 99)->assertCount('alergias', 1);
     }
 
-    public function test_las_listas_respetan_el_maximo_configurado(): void
+    public function test_lists_respect_the_configured_maximum(): void
     {
-        $this->expedicion();
+        $this->expedition();
         $max = config('expediente.max_items.contactos');
 
         $t = Livewire::test(NuevoTripulante::class);
@@ -164,9 +164,9 @@ class NuevoTripulanteTest extends TestCase
         $t->assertCount('contactos', $max);
     }
 
-    public function test_solo_un_contacto_puede_ser_principal(): void
+    public function test_only_one_contact_can_be_primary(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         $t = Livewire::test(NuevoTripulante::class)
             ->call('agregarContacto')->call('agregarContacto')->call('agregarContacto')
@@ -176,14 +176,14 @@ class NuevoTripulanteTest extends TestCase
 
         $this->assertCount(1, array_filter($t->get('contactos'), fn ($c) => $c['principal']));
 
-        // Al quitar el principal, otro lo hereda.
+        // When the primary is removed, another one inherits it.
         $t->call('quitarContacto', 2);
         $this->assertCount(1, array_filter($t->get('contactos'), fn ($c) => $c['principal']));
     }
 
-    public function test_el_paso_de_contactos_exige_telefono_y_un_principal(): void
+    public function test_the_contacts_step_requires_a_phone_and_a_primary_contact(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(NuevoTripulante::class)->set('paso', 4)
             ->call('agregarContacto')->set('contactos.0.nombre', 'Ana')->set('contactos.0.parentesco', 'pareja')->set('contactos.0.telefono', 'abc')
@@ -191,11 +191,11 @@ class NuevoTripulanteTest extends TestCase
             ->set('contactos.0.telefono', '+34 600 111 222')->call('siguiente')->assertSet('paso', 5)->assertHasNoErrors();
     }
 
-    public function test_flujo_completo_crea_astronauta_y_expediente(): void
+    public function test_full_flow_creates_the_astronaut_and_record(): void
     {
-        $mision = $this->expedicion();
+        $mission = $this->expedition();
 
-        $t = $this->paso1(Livewire::test(NuevoTripulante::class))
+        $t = $this->step1(Livewire::test(NuevoTripulante::class))
             ->call('siguiente')->assertSet('paso', 2)
             ->set('altura_m', '1.70')->set('peso_kg', '62,5')->set('grupo_sanguineo', 'O+')->set('evas', '3')
             ->set('fc_reposo', '58')->set('presion_basal_sis', '112')->set('presion_basal_dia', '72')
@@ -203,19 +203,19 @@ class NuevoTripulanteTest extends TestCase
             ->call('precargarLineaBase')
             ->call('siguiente')->assertSet('paso', 3)
             ->set('aptitud_vuelo', 'apto')->set('ultimo_examen_en', '2026-10-01')
-            ->call('agregarAlergia')->set('alergias.0.sustancia', 'Penicilina')->set('alergias.0.gravedad', 'grave')
-            ->call('agregarCondicion')->set('condiciones.0.nombre', 'Asma leve')->set('condiciones.0.estado', 'controlada')
+            ->call('agregarAlergia')->set('alergias.0.sustancia', 'Penicillin')->set('alergias.0.gravedad', 'grave')
+            ->call('agregarCondicion')->set('condiciones.0.nombre', 'Mild asthma')->set('condiciones.0.estado', 'controlada')
             ->call('agregarMedicamento')->set('medicamentos.0.nombre', 'Salbutamol')->set('medicamentos.0.dosis_texto', '100 mcg')
-            ->call('agregarAntecedente')->set('antecedentes.0.parentesco', 'madre')->set('antecedentes.0.condicion', 'Hipertensión')->set('antecedentes.0.edad_aparicion', '55')
+            ->call('agregarAntecedente')->set('antecedentes.0.parentesco', 'madre')->set('antecedentes.0.condicion', 'Hypertension')->set('antecedentes.0.edad_aparicion', '55')
             ->call('siguiente')->assertSet('paso', 4)
             ->call('agregarContacto')->set('contactos.0.nombre', 'Erik')->set('contactos.0.parentesco', 'pareja')->set('contactos.0.telefono', '+46 70 123 45 67')
             ->call('siguiente')->assertSet('paso', 5)
-            ->assertSee('Nora Lindqvist')->assertSee('Penicilina')->assertSee('Expediente completo al');
+            ->assertSee('Nora Lindqvist')->assertSee('Penicillin')->assertSee('Record complete at');
 
         $t->call('guardar')->assertHasNoErrors()->assertDispatched('tripulante-cambiado')->assertRedirect(route('tripulacion'));
 
         $a = Astronauta::where('nombre', 'Nora Lindqvist')->firstOrFail();
-        $this->assertSame($mision->id, $a->mision_id);
+        $this->assertSame($mission->id, $a->mision_id);
         $this->assertSame('ESA', $a->agencia);
         $this->assertSame('O+', $a->grupo_sanguineo);
         $this->assertEquals(62.5, $a->peso_kg);
@@ -229,87 +229,87 @@ class NuevoTripulanteTest extends TestCase
         $this->assertSame('ocasional', $e->alcohol);
         $this->assertFalse((bool) $e->fumador);
         $this->assertEquals(116, $e->linea_base['presion_arterial']);
-        $this->assertSame('Penicilina', $a->alergias->first()->sustancia);
+        $this->assertSame('Penicillin', $a->alergias->first()->sustancia);
         $this->assertSame('controlada', $a->condiciones->first()->estado);
         $this->assertSame('Salbutamol', $a->medicamentos->first()->nombre);
         $this->assertSame('madre', $a->antecedentes->first()->parentesco);
         $this->assertTrue($a->contactos->first()->principal);
     }
 
-    public function test_guardar_vuelve_al_primer_paso_con_errores(): void
+    public function test_saving_returns_to_the_first_step_on_errors(): void
     {
-        $this->expedicion();
-        $antes = Astronauta::count();
+        $this->expedition();
+        $before = Astronauta::count();
 
         Livewire::test(NuevoTripulante::class)->set('paso', 5)
-            ->set('nombre', 'Sin Datos')
+            ->set('nombre', 'No Data')
             ->call('guardar')
             ->assertSet('paso', 1)->assertHasErrors(['fecha_nacimiento', 'sexo'])->assertNoRedirect();
 
-        $this->assertSame($antes, Astronauta::count());
+        $this->assertSame($before, Astronauta::count());
     }
 
-    public function test_cancelar_redirige_a_tripulacion_sin_guardar(): void
+    public function test_cancel_redirects_to_crew_without_saving(): void
     {
-        $this->expedicion();
-        $antes = Astronauta::count();
+        $this->expedition();
+        $before = Astronauta::count();
 
-        $this->paso1(Livewire::test(NuevoTripulante::class))->call('cancelar')->assertRedirect(route('tripulacion'));
+        $this->step1(Livewire::test(NuevoTripulante::class))->call('cancelar')->assertRedirect(route('tripulacion'));
 
-        $this->assertSame($antes, Astronauta::count());
+        $this->assertSame($before, Astronauta::count());
     }
 
-    public function test_la_pantalla_tripulacion_muestra_el_enlace_y_el_aviso_de_exito(): void
+    public function test_the_crew_screen_shows_the_link_and_the_success_notice(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(Tripulacion::class)
-            ->assertSee('Nuevo tripulante')
+            ->assertSee('New crew member')
             ->assertSeeHtml('href="'.route('tripulacion.nuevo').'"')
-            ->assertDontSee('registrado correctamente');
+            ->assertDontSee('registered successfully');
 
         session()->flash('tripulante_creado', 'Nora Lindqvist');
-        Livewire::test(Tripulacion::class)->assertSee('Nora Lindqvist')->assertSee('registrado correctamente');
+        Livewire::test(Tripulacion::class)->assertSee('Nora Lindqvist')->assertSee('registered successfully');
     }
 
-    public function test_la_ruta_responde(): void
+    public function test_route_responds(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
-        $this->get(route('tripulacion.nuevo'))->assertOk()->assertSee('Nuevo tripulante');
+        $this->get(route('tripulacion.nuevo'))->assertOk()->assertSee('New crew member');
     }
 
-    public function test_el_resumen_de_errores_lista_cada_campo_con_su_enlace_y_el_foco_va_al_resumen(): void
+    public function test_error_summary_lists_each_field_with_its_link_and_focus_goes_to_the_summary(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         $t = Livewire::test(NuevoTripulante::class)->call('siguiente');
         $t->assertDispatched('nt-foco', destino: 'errores')
-            ->assertSee('Revisa los 3 campos marcados')
+            ->assertSee('Review the 3 marked fields')
             ->assertSeeHtml('href="#nt-nombre"')
             ->assertSeeHtml('href="#nt-fecha_nacimiento"')
             ->assertSeeHtml('id="resumen-errores"');
-        $claves = collect($t->get('erroresResumen'))->pluck('clave')->all();
-        $this->assertContains('nombre', $claves);
-        $this->assertSame('Fecha de nacimiento', collect($t->get('erroresResumen'))->firstWhere('clave', 'fecha_nacimiento')['etiqueta']);
+        $keys = collect($t->get('erroresResumen'))->pluck('clave')->all();
+        $this->assertContains('nombre', $keys);
+        $this->assertSame('Date of birth', collect($t->get('erroresResumen'))->firstWhere('clave', 'fecha_nacimiento')['etiqueta']);
     }
 
-    public function test_cambiar_de_paso_enfoca_el_titulo_y_marca_el_paso_actual(): void
+    public function test_changing_step_focuses_the_title_and_marks_the_current_step(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
-        $t = $this->paso1(Livewire::test(NuevoTripulante::class))->call('siguiente');
+        $t = $this->step1(Livewire::test(NuevoTripulante::class))->call('siguiente');
         $t->assertSet('paso', 2)
             ->assertDispatched('nt-foco', destino: 'titulo')
             ->assertSeeHtml('id="paso-titulo"')
             ->assertSeeHtml('aria-current="step"')
-            ->assertSee('Medidas, hábitos y valores en reposo antes de la misión.');
+            ->assertSee('Measurements, habits, and resting values before the mission.');
         $this->assertSame([1 => 'completo', 2 => 'actual', 3 => 'pendiente', 4 => 'pendiente', 5 => 'pendiente'], $t->get('estadosPasos'));
     }
 
-    public function test_el_resumen_muestra_iniciales_edad_imc_con_tono_y_completitud(): void
+    public function test_summary_shows_initials_age_bmi_with_tone_and_completeness(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         $t = Livewire::test(NuevoTripulante::class)->set('nombre', 'nora lindqvist ruiz')
             ->set('altura_m', '1,80')->set('peso_kg', '75');
@@ -322,12 +322,12 @@ class NuevoTripulanteTest extends TestCase
         $t->set('altura_m', '');
         $this->assertNull($t->get('tonoImc'));
         $this->assertSame('··', $t->set('nombre', '')->get('iniciales'));
-        $t->assertSee('Resumen del expediente')->assertSee('Rol sin definir')->assertSeeHtml('role="progressbar"');
+        $t->assertSee('Record summary')->assertSee('Role not set')->assertSeeHtml('role="progressbar"');
     }
 
-    public function test_los_bloqueos_usan_el_panel_de_aviso(): void
+    public function test_blocks_use_the_notice_panel(): void
     {
-        $this->expedicion(5);
-        Livewire::test(NuevoTripulante::class)->assertSeeHtml('nt-bloqueo')->assertSee('Volver a Tripulación')->assertDontSeeHtml('class="nt-form"');
+        $this->expedition(5);
+        Livewire::test(NuevoTripulante::class)->assertSeeHtml('nt-bloqueo')->assertSee('Back to Crew')->assertDontSeeHtml('class="nt-form"');
     }
 }

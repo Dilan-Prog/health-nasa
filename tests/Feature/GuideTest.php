@@ -11,8 +11,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class GuiaTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database data. */
+class GuideTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -20,28 +20,28 @@ class GuiaTest extends TestCase
     {
         parent::setUp();
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        TripulanteActual::fijar(Astronauta::where('mision_id', $mision->id)->firstOrFail()->id);
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        TripulanteActual::fijar(Astronauta::where('mision_id', $mission->id)->firstOrFail()->id);
     }
 
-    public function test_muestra_la_guia_con_los_14_indicadores_y_el_aviso(): void
+    public function test_shows_the_guide_with_the_14_indicators_and_the_notice(): void
     {
         Livewire::test(Guia::class)
-            ->assertSee('Cómo afecta el espacio a tu cuerpo')
-            ->assertSee('Pérdida ósea (cadera)')
-            ->assertSee('Orienta, no diagnostica')
+            ->assertSee('How space affects your body')
+            ->assertSee('Bone loss (hip)')
+            ->assertSee('Guidance only, not a diagnosis')
             ->assertViewHas('tarjetas', fn ($t) => count($t) === 14 && collect($t)->every(fn ($x) => $x['texto'] !== '' && $x['rec'] !== ''));
     }
 
-    public function test_cada_marcador_del_catalogo_tiene_contenido_en_la_guia(): void
+    public function test_every_catalog_marker_has_guide_content(): void
     {
         $this->assertSame(array_keys(config('indicadores.marcadores')), array_keys(config('guia.marcadores')));
     }
 
-    public function test_sin_tripulante_sigue_mostrando_el_contenido(): void
+    public function test_still_shows_the_content_without_a_crew_member(): void
     {
         session()->forget(['astronauta_id', 'mision_id']);
-        Livewire::test(Guia::class)->assertSee('Cómo afecta el espacio a tu cuerpo');
+        Livewire::test(Guia::class)->assertSee('How space affects your body');
     }
 }

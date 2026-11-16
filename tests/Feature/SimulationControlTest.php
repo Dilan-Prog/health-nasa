@@ -15,8 +15,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use InvalidArgumentException;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class ControlSimulacionTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase): never wipes the local DB data. */
+class SimulationControlTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -26,28 +26,28 @@ class ControlSimulacionTest extends TestCase
     {
         parent::setUp();
         $this->seed(ExpedicionSeeder::class);
-        // Solo el tripulante de prueba queda activo dentro de la transacción.
+        // Only the test crew member stays active inside the transaction.
         SimulacionTripulante::query()->update(['activa' => false]);
         $this->a = Astronauta::create(['nombre' => 'Sim Test', 'mision' => 'T-1', 'entorno' => 'estacion']);
-        // SimulacionMotor::actual() asume id 1 (el id no es fillable); en una BD de pruebas con autoincrement avanzado hay que fijarlo.
+        // SimulacionMotor::actual() assumes id 1 (id is not fillable); on a test DB with an advanced auto-increment it has to be pinned.
         \DB::table('simulacion_motor')->delete();
         \DB::table('simulacion_motor')->insert(['id' => 1, 'activa' => false, 'velocidad' => 60, 'intervalo' => 5, 'created_at' => now(), 'updated_at' => now()]);
         SimulacionMotor::actual()->update(['activa' => true, 'velocidad' => 360, 'intervalo' => 5, 'latido_en' => null]);
         SimulacionTripulante::de($this->a)->update(['activa' => true, 'fuente' => 'simulado']);
     }
 
-    private function ticks(int $n, int $cadaS = 300): array
+    private function ticks(int $n, int $everyS = 300): array
     {
         $t0 = now();
         $r = null;
         for ($i = 0; $i <= $n; $i++) {
-            $r = ControlSimulacion::tick($t0->copy()->addSeconds($i * $cadaS));
+            $r = ControlSimulacion::tick($t0->copy()->addSeconds($i * $everyS));
         }
 
         return $r;
     }
 
-    public function test_tick_genera_mediciones_simuladas_y_marca_latido(): void
+    public function test_tick_generates_simulated_measurements_and_marks_heartbeat(): void
     {
         $this->assertNull(SimulacionMotor::actual()->latido_en);
         $r = $this->ticks(4);
@@ -60,7 +60,7 @@ class ControlSimulacionTest extends TestCase
         $this->assertSame($n, Medicion::where('astronauta_id', $this->a->id)->count());
     }
 
-    public function test_motor_apagado_no_genera_pero_si_late(): void
+    public function test_stopped_engine_generates_nothing_but_still_beats(): void
     {
         SimulacionMotor::actual()->update(['activa' => false]);
         $r = $this->ticks(3);
@@ -70,7 +70,7 @@ class ControlSimulacionTest extends TestCase
         $this->assertNotNull(SimulacionMotor::actual()->latido_en);
     }
 
-    public function test_tripulante_con_reloj_nunca_se_simula(): void
+    public function test_crew_member_with_watch_is_never_simulated(): void
     {
         $this->a->forceFill(['token_dispositivo' => hash('sha256', 'x')])->save();
         SimulacionTripulante::de($this->a)->update(['activa' => true, 'fuente' => 'reloj']);
@@ -83,7 +83,7 @@ class ControlSimulacionTest extends TestCase
         ControlSimulacion::iniciar($this->a, 'fiebre');
     }
 
-    public function test_iniciar_y_cancelar_escribe_el_evento(): void
+    public function test_start_and_cancel_write_the_event(): void
     {
         $ev = ControlSimulacion::iniciar($this->a, 'fiebre');
         $this->assertNull($ev->fin_en);
@@ -92,7 +92,7 @@ class ControlSimulacionTest extends TestCase
         $this->assertGreaterThan(0, $t->escenario_dura_s);
         $this->assertNotNull(ControlSimulacion::restanteReal($t, SimulacionMotor::actual()));
 
-        ControlSimulacion::iniciar($this->a, 'hipoxia'); // cierra el anterior como cancelado
+        ControlSimulacion::iniciar($this->a, 'hipoxia'); // closes the previous one as cancelled
         $this->assertSame('cancelado', $ev->fresh()->motivo_fin);
 
         ControlSimulacion::cancelar($this->a);
@@ -103,33 +103,33 @@ class ControlSimulacionTest extends TestCase
         ControlSimulacion::cancelar($this->a); // no-op
     }
 
-    public function test_escenario_desconocido_falla(): void
+    public function test_unknown_scenario_fails(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ControlSimulacion::iniciar($this->a, 'no_existe');
     }
 
-    public function test_hipoxia_lleva_a_alerta_y_genera_una_sola_alerta_a_tierra_por_indicador(): void
+    public function test_hypoxia_reaches_alert_and_queues_one_ground_alert_per_indicator(): void
     {
         $t0 = now();
-        ControlSimulacion::tick($t0); // ancla el reloj
+        ControlSimulacion::tick($t0); // anchors the clock
         ControlSimulacion::iniciar($this->a, 'hipoxia');
         for ($i = 1; $i <= 12; $i++) {
             ControlSimulacion::tick($t0->copy()->addSeconds($i * 120));
         }
 
-        $malos = Medicion::where('astronauta_id', $this->a->id)
+        $bad = Medicion::where('astronauta_id', $this->a->id)
             ->whereHas('evaluacion', fn ($q) => $q->whereIn('estado', ['precaucion', 'critico']))->count();
-        $this->assertGreaterThan(0, $malos, 'El escenario debe llevar algún indicador a precaución/crítico');
+        $this->assertGreaterThan(0, $bad, 'The scenario must take at least one indicator to caution/critical');
 
-        $porIndicador = AlertaSaliente::where('astronauta_id', $this->a->id)->get()->groupBy(fn ($al) => $al->carga['indicador']);
-        $this->assertGreaterThan(0, $porIndicador->count());
-        foreach ($porIndicador as $nombre => $alertas) {
-            $this->assertCount(1, $alertas, "Más de una alerta a tierra para {$nombre}");
+        $perIndicator = AlertaSaliente::where('astronauta_id', $this->a->id)->get()->groupBy(fn ($al) => $al->carga['indicador']);
+        $this->assertGreaterThan(0, $perIndicator->count());
+        foreach ($perIndicator as $nombre => $alerts) {
+            $this->assertCount(1, $alerts, "More than one ground alert for {$nombre}");
         }
     }
 
-    public function test_los_escenarios_del_catalogo_existen(): void
+    public function test_catalog_scenarios_exist(): void
     {
         $e = (new SimuladorVivo())->escenarios();
         $this->assertArrayHasKey('fiebre', $e);

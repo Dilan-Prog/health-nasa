@@ -8,33 +8,33 @@ use App\Services\Salud\ValidadorMedicion;
 use Database\Seeders\ExpedicionSeeder;
 use PHPUnit\Framework\TestCase;
 
-/** Los 50 valores del diseño (5 tripulantes x 10 indicadores) deben dar exactamente su estado. */
-class EstadosDisenoTest extends TestCase
+/** The 50 design values (5 crew members x 10 indicators) must each yield exactly their state. */
+class DesignStatesTest extends TestCase
 {
     private const UI = ['ok' => Estado::Normal, 'warn' => Estado::Precaucion, 'crit' => Estado::Critico];
 
-    public function test_los_50_estados_del_diseno(): void
+    public function test_the_50_design_states(): void
     {
         $config = require __DIR__.'/../../../config/umbrales.php';
-        $evaluador = new EvaluadorEstado($config);
-        $validador = new ValidadorMedicion($config);
+        $evaluator = new EvaluadorEstado($config);
+        $validator = new ValidadorMedicion($config);
         $total = 0;
 
         foreach (ExpedicionSeeder::TRIPULACION as $t) {
             foreach (ExpedicionSeeder::CLAVES as $k => $clave) {
                 $m = $t['m'][$k];
-                $valores = $clave === 'presion_arterial'
+                $values = $clave === 'presion_arterial'
                     ? ['sistolica' => $m[0], 'diastolica' => $m[1]]
                     : ['valor' => $m[0]];
-                $esperado = self::UI[end($m)];
-                // Nivel 2: la temperatura de Lucas (37.3) es normal por salto sobre su base móvil; este test no
-                // lleva base personal, así que aquí rige el rango absoluto de respaldo (precaución).
+                $expected = self::UI[end($m)];
+                // Level 2: Lucas's temperature (37.3) is normal because of the jump over his rolling baseline; this test
+                // carries no personal baseline, so the fallback absolute range (caution) applies here.
                 if ($t['nombre'] === 'Lucas Ferreira' && $clave === 'temperatura') {
-                    $esperado = Estado::Precaucion;
+                    $expected = Estado::Precaucion;
                 }
 
-                $this->assertSame([], $validador->validar($clave, $valores), "{$t['nombre']} {$clave} es válido");
-                $this->assertSame($esperado, $evaluador->evaluar($clave, $valores), "{$t['nombre']} · {$clave}");
+                $this->assertSame([], $validator->validar($clave, $values), "{$t['nombre']} {$clave} is valid");
+                $this->assertSame($expected, $evaluator->evaluar($clave, $values), "{$t['nombre']} · {$clave}");
                 $total++;
             }
         }
@@ -42,7 +42,7 @@ class EstadosDisenoTest extends TestCase
         $this->assertSame(50, $total);
     }
 
-    public function test_valores_negativos_son_validos_y_se_evaluan_con_signo(): void
+    public function test_negative_values_are_valid_and_evaluated_with_sign(): void
     {
         $config = require __DIR__.'/../../../config/umbrales.php';
         $e = new EvaluadorEstado($config);

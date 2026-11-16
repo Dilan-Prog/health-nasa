@@ -8,87 +8,92 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class FiltroSeguridadTest extends TestCase
+/**
+ * DatabaseTransactions (not RefreshDatabase): never wipes the local database data.
+ *
+ * The sample sentences passed to the filter are intentionally Spanish fixtures: the deterministic filter matches
+ * Spanish dose, drug and diagnosis wording, so its inputs must stay in that language.
+ */
+class SafetyFilterTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function filtro(): FiltroSeguridad
+    private function filter(): FiltroSeguridad
     {
         return new FiltroSeguridad();
     }
 
-    #[DataProvider('dosis')]
-    public function test_rechaza_dosis_y_unidades_de_dosis(string $texto): void
+    #[DataProvider('doses')]
+    public function test_rejects_doses_and_dose_units(string $text): void
     {
-        $this->assertSame(FiltroSeguridad::DOSIS, $this->filtro()->revisar($texto));
+        $this->assertSame(FiltroSeguridad::DOSIS, $this->filter()->revisar($text));
     }
 
-    public static function dosis(): array
+    public static function doses(): array
     {
         return [
             'mg' => ['Repite la medición y toma 500 mg si persiste.'],
             'mcg' => ['Una pauta de 20 mcg al día.'],
             'ml' => ['Bebe 250 ml cada hora.'],
-            'comprimidos' => ['Dos comprimidos cada 8 horas: 2 comprimidos.'],
-            'un comprimido' => ['1 comprimido por la noche.'],
-            'palabra dosis' => ['Ajusta la dosis según el peso.'],
+            'tablets' => ['Dos comprimidos cada 8 horas: 2 comprimidos.'],
+            'one tablet' => ['1 comprimido por la noche.'],
+            'the word dose' => ['Ajusta la dosis según el peso.'],
         ];
     }
 
-    public function test_rechaza_nombres_de_medicamentos_del_botiquin_como_recomendacion(): void
+    public function test_rejects_kit_drug_names_as_a_recommendation(): void
     {
-        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filtro()->revisar('Considera usar ibuprofeno para el malestar.'));
-        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filtro()->revisar('IBUPROFENO ayudaría.'), 'mayúsculas');
-        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filtro()->revisar('Una opción es la melatonina.'));
-        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filtro()->revisar('Podría servir el ONDANSETRON.'), 'sin tilde');
+        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filter()->revisar('Considera usar ibuprofeno para el malestar.'));
+        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filter()->revisar('IBUPROFENO ayudaría.'), 'uppercase');
+        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filter()->revisar('Una opción es la melatonina.'));
+        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filter()->revisar('Podría servir el ONDANSETRON.'), 'without accent');
     }
 
-    public function test_rechaza_medicamentos_que_estan_en_la_tabla_del_botiquin(): void
+    public function test_rejects_drugs_that_are_in_the_medical_kit_table(): void
     {
         BotiquinItem::create(['nombre' => 'Farmaco de prueba XQ', 'grupo' => 'Emergencias', 'stock' => 1, 'unidad' => 'u']);
 
-        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filtro()->revisar('Usa farmaco de prueba XQ ahora.'));
+        $this->assertSame(FiltroSeguridad::MEDICAMENTO, $this->filter()->revisar('Usa farmaco de prueba XQ ahora.'));
     }
 
-    #[DataProvider('diagnosticos')]
-    public function test_rechaza_lenguaje_de_diagnostico_definitivo(string $texto): void
+    #[DataProvider('diagnoses')]
+    public function test_rejects_definitive_diagnosis_language(string $text): void
     {
-        $this->assertSame(FiltroSeguridad::DIAGNOSTICO, $this->filtro()->revisar($texto));
+        $this->assertSame(FiltroSeguridad::DIAGNOSTICO, $this->filter()->revisar($text));
     }
 
-    public static function diagnosticos(): array
+    public static function diagnoses(): array
     {
         return [
-            'tienes' => ['Tienes hipoxia.'],
-            'padeces' => ['Padeces una infección.'],
-            'diagnostico:' => ['Diagnóstico: deshidratación.'],
-            'diagnosticado' => ['Has sido diagnosticado con arritmia.'],
-            'estas enfermo' => ['Estás enfermo.'],
-            'tratamiento con' => ['Inicia un tratamiento con antibióticos.'],
+            'you have' => ['Tienes hipoxia.'],
+            'you suffer from' => ['Padeces una infección.'],
+            'diagnosis colon' => ['Diagnóstico: deshidratación.'],
+            'diagnosed' => ['Has sido diagnosticado con arritmia.'],
+            'you are sick' => ['Estás enfermo.'],
+            'treatment with' => ['Inicia un tratamiento con antibióticos.'],
         ];
     }
 
-    public function test_permite_lenguaje_de_hipotesis_y_unidades_de_medida(): void
+    public function test_allows_hypothesis_language_and_measurement_units(): void
     {
-        $f = $this->filtro();
+        $f = $this->filter();
         $this->assertNull($f->revisar('Posible hipoxia: la saturación está en precaución. Confirma con el médico de vuelo.'));
-        $this->assertNull($f->revisar('Glucosa 98 mg/dL, dentro de la base personal.'), 'mg/dL es una unidad de medida');
+        $this->assertNull($f->revisar('Glucosa 98 mg/dL, dentro de la base personal.'), 'mg/dL is a measurement unit');
         $this->assertNull($f->revisar('Dosis acumulada de radiación dentro del límite de misión.'));
         $this->assertTrue($f->permitido('Repite la medición en unos minutos y registra cómo te sientes.'));
     }
 
-    public function test_permite_la_medicacion_registrada_como_contexto_pero_no_como_recomendacion(): void
+    public function test_allows_logged_medication_as_context_but_not_as_a_recommendation(): void
     {
-        $f = $this->filtro();
+        $f = $this->filter();
         $this->assertNull($f->revisar('Medicación registrada: Ibuprofeno (motivo: dolor de espalda)'));
         $this->assertSame(FiltroSeguridad::MEDICAMENTO, $f->revisar('Se sugiere ibuprofeno.'));
-        $this->assertSame(FiltroSeguridad::DOSIS, $f->revisar('Medicación registrada: Ibuprofeno 400 mg'), 'el contexto tampoco lleva dosis');
+        $this->assertSame(FiltroSeguridad::DOSIS, $f->revisar('Medicación registrada: Ibuprofeno 400 mg'), 'the context must not carry doses either');
     }
 
-    public function test_revisar_todos_devuelve_la_primera_causa(): void
+    public function test_review_all_returns_the_first_cause(): void
     {
-        $this->assertNull($this->filtro()->revisarTodos(['Posible fiebre.', 'Repite la medición.']));
-        $this->assertSame(FiltroSeguridad::DIAGNOSTICO, $this->filtro()->revisarTodos(['Posible fiebre.', 'Tienes fiebre.']));
+        $this->assertNull($this->filter()->revisarTodos(['Posible fiebre.', 'Repite la medición.']));
+        $this->assertSame(FiltroSeguridad::DIAGNOSTICO, $this->filter()->revisarTodos(['Posible fiebre.', 'Tienes fiebre.']));
     }
 }

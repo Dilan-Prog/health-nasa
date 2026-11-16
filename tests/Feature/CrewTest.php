@@ -11,58 +11,58 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class TripulacionTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never deletes the local database data. */
+class CrewTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function expedicion(): Mision
+    private function expedition(): Mision
     {
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        // Aísla el test de tripulantes extra que existan en la BD local (se revierte con la transacción).
-        Astronauta::where('mision_id', $mision->id)->whereNotIn('nombre', array_column(ExpedicionSeeder::TRIPULACION, 'nombre'))->delete();
-        session(['mision_id' => $mision->id]);
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        // Isolates the test from extra crew members in the local database (rolled back with the transaction).
+        Astronauta::where('mision_id', $mission->id)->whereNotIn('nombre', array_column(ExpedicionSeeder::TRIPULACION, 'nombre'))->delete();
+        session(['mision_id' => $mission->id]);
 
-        return $mision;
+        return $mission;
     }
 
-    public function test_la_ruta_responde_con_la_pantalla(): void
+    public function test_route_responds_with_the_screen(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
-        $this->get(route('tripulacion'))->assertOk()->assertSee('Expedición 74 · 5 tripulantes', false);
+        $this->get(route('tripulacion'))->assertOk()->assertSee(ExpedicionSeeder::MISION.' · 5 crew members', false);
     }
 
-    public function test_muestra_los_tripulantes_de_la_mision_con_perfil_y_estado_de_medicion(): void
+    public function test_shows_the_mission_crew_with_profile_and_measurement_status(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(Tripulacion::class)
             ->assertSee('Dilan García')->assertSee('Elena Moreau')->assertSee('Kenji Arai')
             ->assertSee('Amara Osei')->assertSee('Lucas Ferreira')
-            ->assertSee('Especialista de misión · 36 años')
+            ->assertSee('Mission Specialist · 36 yr')
             ->assertSee('1.78 m')->assertSee('73.4 kg')->assertSee('A+')
-            ->assertSee('MEDIDO 07:31')->assertSee('PENDIENTE')
-            ->assertSee('Abrir panel de Kenji Arai · Medición pendiente de hoy')
-            ->assertSee('Abrir panel de Dilan García · Medición realizada · 07:31 UTC');
+            ->assertSee('MEASURED 07:31')->assertSee('PENDING')
+            ->assertSee('Open dashboard for Kenji Arai · Measurement pending today')
+            ->assertSee('Open dashboard for Dilan García · Measurement taken · 07:31 UTC');
     }
 
-    public function test_los_conteos_son_los_del_resumen(): void
+    public function test_counts_match_the_summary(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
-        // Dilan: 2 críticos, 1 a revisar, 7 bien (Nivel 2: radiación y dosis pasan a normal).
+        // Dilan: 2 critical, 1 caution, 7 normal (Level 2: radiation and dose become normal).
         Livewire::test(Tripulacion::class)
-            ->assertSeeInOrder(['Dilan García', '2 Crítico', '1 Revisar', '7 Bien', 'Elena Moreau'])
-            // Amara: todo en rango, sin chips de crítico/revisar.
-            ->assertSeeInOrder(['Amara Osei', '10 Bien', 'Lucas Ferreira']);
+            ->assertSeeInOrder(['Dilan García', '2 Critical', '1 Caution', '7 Normal', 'Elena Moreau'])
+            // Amara: everything in range, no critical/caution chips.
+            ->assertSeeInOrder(['Amara Osei', '10 Normal', 'Lucas Ferreira']);
     }
 
-    public function test_clic_en_la_tarjeta_fija_el_tripulante_y_redirige_al_panel(): void
+    public function test_clicking_a_card_selects_the_crew_member_and_redirects_to_the_dashboard(): void
     {
-        $mision = $this->expedicion();
-        $kenji = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Kenji Arai')->firstOrFail();
+        $mission = $this->expedition();
+        $kenji = Astronauta::where('mision_id', $mission->id)->where('nombre', 'Kenji Arai')->firstOrFail();
 
         Livewire::test(Tripulacion::class)
             ->call('abrir', $kenji->id)
@@ -72,21 +72,21 @@ class TripulacionTest extends TestCase
         $this->assertSame($kenji->id, session('astronauta_id'));
     }
 
-    public function test_no_abre_un_tripulante_ajeno_a_la_mision(): void
+    public function test_does_not_open_a_crew_member_from_another_mission(): void
     {
-        $this->expedicion();
-        $otra = Mision::create(['nombre' => 'Otra misión', 'entorno' => 'estacion']);
-        $ajeno = Astronauta::create(['mision_id' => $otra->id, 'nombre' => 'Zeta Zeta', 'mision' => 'X', 'entorno' => 'estacion']);
+        $this->expedition();
+        $other = Mision::create(['nombre' => 'Other mission', 'entorno' => 'estacion']);
+        $outsider = Astronauta::create(['mision_id' => $other->id, 'nombre' => 'Zeta Zeta', 'mision' => 'X', 'entorno' => 'estacion']);
 
-        Livewire::test(Tripulacion::class)->call('abrir', $ajeno->id)->assertNoRedirect();
+        Livewire::test(Tripulacion::class)->call('abrir', $outsider->id)->assertNoRedirect();
 
-        $this->assertNotSame($ajeno->id, session('astronauta_id'));
+        $this->assertNotSame($outsider->id, session('astronauta_id'));
     }
 
-    public function test_cambiar_la_vista_de_una_tarjeta_no_cambia_el_tripulante(): void
+    public function test_changing_a_card_view_does_not_change_the_crew_member(): void
     {
-        $mision = $this->expedicion();
-        $ids = Astronauta::where('mision_id', $mision->id)->orderBy('id')->pluck('id');
+        $mission = $this->expedition();
+        $ids = Astronauta::where('mision_id', $mission->id)->orderBy('id')->pluck('id');
         session(['astronauta_id' => $ids[0]]);
 
         Livewire::test(Tripulacion::class)
@@ -100,64 +100,64 @@ class TripulacionTest extends TestCase
         $this->assertSame($ids[0], session('astronauta_id'));
     }
 
-    public function test_misiones_sin_tripulantes_muestran_el_estado_vacio(): void
+    public function test_mission_without_crew_shows_the_empty_state(): void
     {
-        Astronauta::query()->update(['mision_id' => null]); // dentro de la transacción: se revierte
-        Livewire::test(Tripulacion::class)->assertSee('aún no tiene tripulantes');
+        Astronauta::query()->update(['mision_id' => null]); // inside the transaction: rolled back
+        Livewire::test(Tripulacion::class)->assertSee('has no crew members yet');
     }
 
-    public function test_estado_vacio_con_enlace_para_crear_tripulante(): void
+    public function test_empty_state_has_a_link_to_create_a_crew_member(): void
     {
         Astronauta::query()->update(['mision_id' => null]);
 
         Livewire::test(Tripulacion::class)
-            ->assertSee('Esta misión aún no tiene tripulantes')
+            ->assertSee('This mission has no crew members yet')
             ->assertSee(route('tripulacion.nuevo'), false);
     }
 
-    public function test_el_aviso_de_alta_resalta_la_tarjeta_y_se_puede_cerrar(): void
+    public function test_creation_notice_highlights_the_card_and_can_be_dismissed(): void
     {
-        $mision = $this->expedicion();
-        $kenji = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Kenji Arai')->firstOrFail();
+        $mission = $this->expedition();
+        $kenji = Astronauta::where('mision_id', $mission->id)->where('nombre', 'Kenji Arai')->firstOrFail();
         session(['astronauta_id' => $kenji->id]);
         session()->flash('tripulante_creado', 'Kenji Arai');
 
         Livewire::test(Tripulacion::class)
-            ->assertSee('Tripulante creado')
-            ->assertSee('Tripulante «Kenji Arai» registrado correctamente.', false)
+            ->assertSee('Crew member created')
+            ->assertSee('Crew member “Kenji Arai” registered successfully.', false)
             ->assertSet('nuevoId', $kenji->id)
             ->assertSee('is-nueva')
             ->call('cerrarAviso')
-            ->assertDontSee('Tripulante creado');
+            ->assertDontSee('Crew member created');
     }
 
-    public function test_sin_flash_no_hay_aviso_ni_resalte(): void
+    public function test_without_flash_there_is_no_notice_or_highlight(): void
     {
-        $this->expedicion();
+        $this->expedition();
 
         Livewire::test(Tripulacion::class)->assertSet('aviso', null)->assertSet('nuevoId', null)->assertDontSee('is-nueva');
     }
 
-    public function test_cada_tarjeta_enlaza_al_expediente_si_existe_la_ruta(): void
+    public function test_each_card_links_to_the_record_if_the_route_exists(): void
     {
-        $mision = $this->expedicion();
+        $mission = $this->expedition();
         if (! Route::has('tripulacion.ficha')) {
-            $this->markTestSkipped('La ruta tripulacion.ficha aún no existe.');
+            $this->markTestSkipped('The tripulacion.ficha route does not exist yet.');
         }
-        $kenji = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Kenji Arai')->firstOrFail();
+        $kenji = Astronauta::where('mision_id', $mission->id)->where('nombre', 'Kenji Arai')->firstOrFail();
 
         Livewire::test(Tripulacion::class)
             ->assertSee(route('tripulacion.ficha', $kenji), false)
-            ->assertSee('Expediente de Kenji Arai');
+            ->assertSee('Record of Kenji Arai');
     }
 
-    public function test_con_la_tripulacion_completa_el_boton_queda_desactivado(): void
+    public function test_with_a_full_crew_the_button_is_disabled(): void
     {
-        $this->expedicion(); // el seeder crea 5 = máximo
+        $this->expedition(); // the seeder creates 5 = the maximum
 
         Livewire::test(Tripulacion::class)
-            ->assertSee('Tripulación completa')
-            ->assertSee('5 / 5 tripulantes')
-            ->assertDontSee('Nuevo tripulante');
+            ->assertSee('Crew full')
+            ->assertSee('5 / 5 crew')
+            ->assertDontSee('New crew member');
     }
 }

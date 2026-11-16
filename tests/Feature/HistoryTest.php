@@ -12,8 +12,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. Hora fijada: domingo 15 nov 2026, 10:15 UTC. */
-class HistorialTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database data. Fixed time: Sunday 15 Nov 2026, 10:15 UTC. */
+class HistoryTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -22,9 +22,9 @@ class HistorialTest extends TestCase
         parent::setUp();
         Carbon::setTestNow(Carbon::parse('2026-11-15 10:15:00', 'UTC'));
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        $dilan = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Dilan García')->firstOrFail();
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        $dilan = Astronauta::where('mision_id', $mission->id)->where('nombre', 'Dilan García')->firstOrFail();
         TripulanteActual::fijar($dilan->id);
     }
 
@@ -34,40 +34,40 @@ class HistorialTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_renderiza_cuatro_graficas_por_defecto(): void
+    public function test_renders_four_charts_by_default(): void
     {
         $c = Livewire::test(Historial::class)
-            ->assertSee('Historial')->assertSee('Tripulante Dilan García')
-            ->assertSee('Últimos 7 días')->assertSee('Toda la misión')->assertSee('Personalizado')
-            ->assertSee('Orienta, no diagnostica')
+            ->assertSee('History')->assertSee('Crew member Dilan García')
+            ->assertSee('Last 7 days')->assertSee('Entire mission')->assertSee('Custom')
+            ->assertSee('Guidance only, not a diagnosis')
             ->assertSet('preset', '30')
             ->assertSet('charts', [['presion_arterial', 'line'], ['perdida_osea', 'area'], ['radiacion_diaria', 'bar'], ['glucosa', 'dots']]);
         $html = $c->html();
         $this->assertSame(4, substr_count($html, 'class="hist-grafica"') + substr_count($html, 'class="hist-grafica '));
-        $this->assertStringContainsString('Indicador de la gráfica 4', $html);
-        $this->assertStringContainsString('Mostrando días 113–142', $html);
+        $this->assertStringContainsString('Indicator for chart 4', $html);
+        $this->assertStringContainsString('Showing days 113–142', $html);
     }
 
-    public function test_cambiar_de_periodo(): void
+    public function test_changing_the_period(): void
     {
         Livewire::test(Historial::class)
-            ->call('elegirPreset', '7')->assertSet('preset', '7')->assertSee('Mostrando días 136–142')
-            ->call('elegirPreset', 'all')->assertSee('Mostrando días 1–142')
-            ->call('elegirPreset', 'inventado')->assertSet('preset', '30');
+            ->call('elegirPreset', '7')->assertSet('preset', '7')->assertSee('Showing days 136–142')
+            ->call('elegirPreset', 'all')->assertSee('Showing days 1–142')
+            ->call('elegirPreset', 'invented')->assertSet('preset', '30');
     }
 
-    public function test_rango_personalizado_invalido_muestra_mensaje(): void
+    public function test_invalid_custom_range_shows_a_message(): void
     {
         Livewire::test(Historial::class)
             ->call('elegirPreset', 'custom')
-            ->assertSee('Desde día')->assertSee('Hasta día')
+            ->assertSee('From day')->assertSee('To day')
             ->set('desde', 50)->set('hasta', 20)
-            ->assertSee('Rango no válido')
+            ->assertSee('Invalid range')
             ->set('desde', 20)->set('hasta', 50)
-            ->assertDontSee('Rango no válido')->assertSee('Mostrando días 20–50 de la misión');
+            ->assertDontSee('Invalid range')->assertSee('Showing days 20–50 of the mission');
     }
 
-    public function test_cambiar_tipo_e_indicador_de_una_grafica(): void
+    public function test_changing_the_type_and_indicator_of_a_chart(): void
     {
         Livewire::test(Historial::class)
             ->call('cambiarTipo', 0, 'bar')->assertSet('charts.0.1', 'bar')
@@ -77,11 +77,11 @@ class HistorialTest extends TestCase
             ->call('cambiarTipo', 9, 'line')->assertSet('charts', [['presion_arterial', 'bar'], ['sueno', 'area'], ['radiacion_diaria', 'bar'], ['glucosa', 'dots']]);
     }
 
-    public function test_la_ruta_historial_responde_si_esta_conectada(): void
+    public function test_history_route_responds_when_connected(): void
     {
         if (! \Illuminate\Support\Facades\Route::has('historial')) {
-            $this->markTestSkipped('La ruta historial aún no está conectada.');
+            $this->markTestSkipped('The history route is not connected yet.');
         }
-        $this->get(route('historial'))->assertOk()->assertSee('Historial');
+        $this->get(route('historial'))->assertOk()->assertSee('History');
     }
 }

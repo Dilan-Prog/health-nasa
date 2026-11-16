@@ -14,8 +14,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** Línea base pre-vuelo. DatabaseTransactions: nunca borra datos de la BD. Los números son de ejemplo. */
-class LineaBaseTest extends TestCase
+/** Pre-flight baseline. DatabaseTransactions: never wipes database data. The numbers are examples. */
+class BaselineTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -23,8 +23,8 @@ class LineaBaseTest extends TestCase
     {
         $m = Mision::create(['nombre' => 'Test LB '.uniqid(), 'entorno' => 'nave', 'inicio_en' => '2027-03-01', 'duracion_dias' => 100]);
         $a = app(AltaTripulante::class)->registrar([
-            'nombre' => 'Tripulante LB', 'fecha_nacimiento' => now()->subYears(35)->toDateString(), 'sexo' => 'femenino',
-            'rol' => 'Piloto', 'agencia' => 'AEM', 'nacionalidad' => 'Mexicana', 'altura_m' => 1.7, 'peso_kg' => 65, 'grupo_sanguineo' => 'O+',
+            'nombre' => 'Crew member LB', 'fecha_nacimiento' => now()->subYears(35)->toDateString(), 'sexo' => 'femenino',
+            'rol' => 'Pilot', 'agencia' => 'AEM', 'nacionalidad' => 'Mexican', 'altura_m' => 1.7, 'peso_kg' => 65, 'grupo_sanguineo' => 'O+',
             'aptitud_vuelo' => 'apto',
         ], $m);
         session(['mision_id' => $m->id]);
@@ -32,25 +32,25 @@ class LineaBaseTest extends TestCase
         return [$m, $a];
     }
 
-    public static function casos(): array
+    public static function deviationCases(): array
     {
         return [
-            'sube 10 %' => [100.0, 110.0, 10.0],
-            'baja 20 %' => [50.0, 40.0, -20.0],
-            'sin cambio' => [37.0, 37.0, 0.0],
-            'base cero' => [0.0, 5.0, null],
-            'sin base' => [null, 5.0, null],
+            'rises 10 %' => [100.0, 110.0, 10.0],
+            'drops 20 %' => [50.0, 40.0, -20.0],
+            'no change' => [37.0, 37.0, 0.0],
+            'zero baseline' => [0.0, 5.0, null],
+            'no baseline' => [null, 5.0, null],
         ];
     }
 
-    /** @dataProvider casos */
-    public function test_calculo_de_la_desviacion(?float $base, float $actual, ?float $esperado): void
+    /** @dataProvider deviationCases */
+    public function test_deviation_calculation(?float $base, float $actual, ?float $expected): void
     {
         $r = DesviacionBase::calcular($base, $actual);
-        $esperado === null ? $this->assertNull($r) : $this->assertEqualsWithDelta($esperado, $r, 1e-9);
+        $expected === null ? $this->assertNull($r) : $this->assertEqualsWithDelta($expected, $r, 1e-9);
     }
 
-    public function test_porcentaje_usa_linea_base_y_sin_base_es_null(): void
+    public function test_percentage_uses_the_baseline_and_is_null_without_one(): void
     {
         [, $a] = $this->crew();
         $this->assertNull(DesviacionBase::valorBase($a, 'fuerza'));
@@ -61,7 +61,7 @@ class LineaBaseTest extends TestCase
         $this->assertEqualsWithDelta(-10.0, DesviacionBase::porcentaje($a, 'fuerza', 180), 1e-9);
     }
 
-    public function test_base_del_expediente_y_prioridad_de_linea_base(): void
+    public function test_record_baseline_and_baseline_table_priority(): void
     {
         [, $a] = $this->crew();
         ExpedienteMedico::updateOrCreate(['astronauta_id' => $a->id], ['vo2max' => 45.0, 'temperatura_basal' => 36.5]);
@@ -70,15 +70,15 @@ class LineaBaseTest extends TestCase
         $this->assertSame(36.5, DesviacionBase::valorBase($a, 'temperatura_basal'));
 
         LineaBase::create(['astronauta_id' => $a->id, 'metrica' => 'vo2max', 'valor' => 50]);
-        $this->assertSame(50.0, DesviacionBase::valorBase($a, 'vo2max')); // linea_base gana al expediente
-        $this->assertNull(DesviacionBase::valorBase($a, 'dmo_cadera'));   // sin campo equivalente
+        $this->assertSame(50.0, DesviacionBase::valorBase($a, 'vo2max')); // linea_base wins over the record
+        $this->assertNull(DesviacionBase::valorBase($a, 'dmo_cadera'));   // no equivalent field
     }
 
-    public function test_temperatura_usa_la_base_pre_vuelo_si_existe(): void
+    public function test_temperature_uses_the_pre_flight_baseline_when_present(): void
     {
         [, $a] = $this->crew();
         $this->assertNull(DesviacionBase::paraIndicador($a, 'temperatura', 37.0));
-        $this->assertNull(DesviacionBase::paraIndicador($a, 'glucosa', 90.0)); // sin métrica asociada
+        $this->assertNull(DesviacionBase::paraIndicador($a, 'glucosa', 90.0)); // no associated metric
 
         ExpedienteMedico::updateOrCreate(['astronauta_id' => $a->id], ['temperatura_basal' => 36.0]);
         $this->assertSame(['metrica' => 'temperatura_basal', 'base' => 36.0, 'pct' => 2.8], DesviacionBase::paraIndicador($a, 'temperatura', 37.0));
@@ -87,13 +87,13 @@ class LineaBaseTest extends TestCase
         $this->assertSame(['metrica' => 'temperatura_basal', 'base' => 37.0, 'pct' => 0.0], DesviacionBase::paraIndicador($a, 'temperatura', 37.0));
     }
 
-    public function test_el_payload_del_indicador_trae_desv_solo_con_base_y_medicion(): void
+    public function test_indicator_payload_has_deviation_only_with_a_baseline_and_a_measurement(): void
     {
         [, $a] = $this->crew();
         $desv = fn () => collect(DatosIndicador::para($a)['marcadores'])->keyBy('id')['temperatura']['desv'] ?? null;
 
         LineaBase::create(['astronauta_id' => $a->id, 'metrica' => 'temperatura_basal', 'valor' => 36.0]);
-        $this->assertNull($desv()); // hay base pero no medición real
+        $this->assertNull($desv()); // there is a baseline but no real measurement
 
         Medicion::create(['astronauta_id' => $a->id, 'indicador' => 'temperatura', 'valores' => ['valor' => 36.72], 'medido_en' => now('UTC'), 'origen' => 'manual']);
         $d = $desv();
@@ -101,7 +101,7 @@ class LineaBaseTest extends TestCase
         $this->assertSame(2.0, $d['pct']);
     }
 
-    public function test_reglas_preparadas_se_evaluan_con_valores_directos(): void
+    public function test_prepared_rules_are_evaluated_with_direct_values(): void
     {
         $this->assertTrue(DesviacionBase::evaluarRegla('dmo_80', 1.0, 0.79));
         $this->assertFalse(DesviacionBase::evaluarRegla('dmo_80', 1.0, 0.80));
@@ -113,35 +113,35 @@ class LineaBaseTest extends TestCase
         $this->assertNull(DesviacionBase::evaluarRegla('no_existe', 1, 1));
 
         $r = DesviacionBase::evaluarReglas(['dmo_cadera' => 1.0, 'grosor_retina_um' => 250], ['dmo_cadera' => 0.7, 'grosor_retina_um' => 255]);
-        $this->assertSame([['regla' => 'dmo_80', 'metrica' => 'dmo_cadera', 'texto' => 'Densidad mineral ósea por debajo del 80 % de la base']], $r);
+        $this->assertSame([['regla' => 'dmo_80', 'metrica' => 'dmo_cadera', 'texto' => config('linea_base.reglas.dmo_80.texto')]], $r);
     }
 
-    public function test_ficha_precarga_ventana_y_guarda_la_linea_base(): void
+    public function test_sheet_preloads_the_window_and_saves_the_baseline(): void
     {
         [, $a] = $this->crew();
 
         Livewire::test(FichaTripulante::class, ['astronauta' => $a])
             ->assertSet('lb.vo2max.desde', '2026-09-02')   // 2027-03-01 - 180 d
             ->assertSet('lb.vo2max.hasta', '2027-01-30')   // 2027-03-01 - 30 d
-            ->assertSee('Línea base pre-vuelo')
+            ->assertSee('Pre-flight baseline')
             ->set('lb.vo2max.valor', '44,5')
-            ->set('lb.vo2max.fuente', 'Prueba de esfuerzo')
+            ->set('lb.vo2max.fuente', 'Stress test')
             ->call('guardarLineaBase')
             ->assertHasNoErrors()
-            ->assertSee('Línea base guardada.');
+            ->assertSee('Baseline saved.');
 
         $f = LineaBase::where('astronauta_id', $a->id)->where('metrica', 'vo2max')->firstOrFail();
         $this->assertSame(44.5, $f->valor);
-        $this->assertSame('Prueba de esfuerzo', $f->fuente);
+        $this->assertSame('Stress test', $f->fuente);
         $this->assertSame('2026-09-02', $f->ventana_desde->toDateString());
-        $this->assertSame(1, LineaBase::where('astronauta_id', $a->id)->count()); // las vacías no crean fila
+        $this->assertSame(1, LineaBase::where('astronauta_id', $a->id)->count()); // empty ones do not create a row
 
         Livewire::test(FichaTripulante::class, ['astronauta' => $a])
             ->set('lb.vo2max.valor', '')->call('guardarLineaBase');
         $this->assertSame(0, LineaBase::where('astronauta_id', $a->id)->count());
     }
 
-    public function test_ficha_valida_la_linea_base(): void
+    public function test_sheet_validates_the_baseline(): void
     {
         [, $a] = $this->crew();
 
@@ -157,12 +157,12 @@ class LineaBaseTest extends TestCase
         $this->assertSame(0, LineaBase::where('astronauta_id', $a->id)->count());
     }
 
-    public function test_ficha_muestra_la_desviacion_actual(): void
+    public function test_sheet_shows_the_current_deviation(): void
     {
         [, $a] = $this->crew();
         LineaBase::create(['astronauta_id' => $a->id, 'metrica' => 'temperatura_basal', 'valor' => 36.0]);
         Medicion::create(['astronauta_id' => $a->id, 'indicador' => 'temperatura', 'valores' => ['valor' => 36.72], 'medido_en' => now('UTC'), 'origen' => 'manual']);
 
-        Livewire::test(FichaTripulante::class, ['astronauta' => $a])->assertSee('Desviación:')->assertSee('+2.0 %');
+        Livewire::test(FichaTripulante::class, ['astronauta' => $a])->assertSee('Deviation:')->assertSee('+2.0 %');
     }
 }

@@ -13,19 +13,19 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class TrazabilidadTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never deletes the local database data. */
+class TraceabilityTest extends TestCase
 {
     use DatabaseTransactions;
 
-    /** Indicadores de config/umbrales.php que NO tienen requisito en el seeder, con el motivo. */
-    private const SIN_REQUISITO = [
-        'saturacion_o2' => 'el seeder no tiene fila de saturación',
-        'glucosa' => 'el seeder no tiene fila de glucosa',
-        'imc' => 'el seeder no tiene fila de IMC',
-        'masa_muscular' => 'solo existe «fuerza», que es otra medida',
-        'estres_cognitivo' => 'solo existe el requisito cualitativo de conducta, sin número',
-        'animo' => 'el seeder no tiene fila de ánimo',
+    /** Indicators in config/umbrales.php that have NO requirement in the seeder, with the reason. */
+    private const WITHOUT_REQUIREMENT = [
+        'saturacion_o2' => 'the seeder has no saturation row',
+        'glucosa' => 'the seeder has no glucose row',
+        'imc' => 'the seeder has no BMI row',
+        'masa_muscular' => 'only "strength" exists, which is a different measure',
+        'estres_cognitivo' => 'only the qualitative behavior requirement exists, with no number',
+        'animo' => 'the seeder has no mood row',
     ];
 
     protected function setUp(): void
@@ -41,7 +41,7 @@ class TrazabilidadTest extends TestCase
         parent::tearDown();
     }
 
-    public static function tipos(): array
+    public static function types(): array
     {
         return [
             'radiacion_diaria' => ['radiacion_diaria', 'norma'],
@@ -56,54 +56,54 @@ class TrazabilidadTest extends TestCase
         ];
     }
 
-    /** @dataProvider tipos */
-    public function test_cada_indicador_mapeado_resuelve_el_tipo_esperado(string $indicador, string $tipo): void
+    /** @dataProvider types */
+    public function test_each_mapped_indicator_resolves_to_the_expected_type(string $indicator, string $type): void
     {
-        $this->assertSame($tipo, ResolvedorRequisito::para($indicador)?->tipo);
+        $this->assertSame($type, ResolvedorRequisito::para($indicator)?->tipo);
     }
 
-    public static function contextos(): array
+    public static function contexts(): array
     {
         return [
-            'GCR espacio libre' => ['radiacion_diaria', ['entorno' => 'espacio_libre'], 1.3],
-            'GCR superficie' => ['radiacion_diaria', ['entorno' => 'superficie'], 0.9],
-            'evento solar' => ['dosis_acumulada', ['condicion' => 'evento_solar'], 250.0],
-            'evento solar en la diaria' => ['radiacion_diaria', ['condicion' => 'evento_solar'], 250.0],
-            'carrera' => ['dosis_acumulada', [], 600.0],
-            'presión crisis' => ['presion_arterial', ['banda' => 'crisis'], null],
-            'salto de temperatura' => ['temperatura', ['condicion' => 'salto'], null],
+            'GCR free space' => ['radiacion_diaria', ['entorno' => 'espacio_libre'], 1.3],
+            'GCR surface' => ['radiacion_diaria', ['entorno' => 'superficie'], 0.9],
+            'solar event' => ['dosis_acumulada', ['condicion' => 'evento_solar'], 250.0],
+            'solar event in the daily' => ['radiacion_diaria', ['condicion' => 'evento_solar'], 250.0],
+            'career' => ['dosis_acumulada', [], 600.0],
+            'pressure crisis' => ['presion_arterial', ['banda' => 'crisis'], null],
+            'temperature jump' => ['temperatura', ['condicion' => 'salto'], null],
         ];
     }
 
-    /** @dataProvider contextos */
-    public function test_resuelve_por_contexto(string $indicador, array $contexto, ?float $valor): void
+    /** @dataProvider contexts */
+    public function test_resolves_by_context(string $indicator, array $context, ?float $value): void
     {
-        $r = ResolvedorRequisito::para($indicador, $contexto);
+        $r = ResolvedorRequisito::para($indicator, $context);
         $this->assertNotNull($r);
-        if ($valor !== null) {
-            $this->assertSame($valor, $r->valor);
+        if ($value !== null) {
+            $this->assertSame($value, $r->valor);
         }
     }
 
-    public function test_banda_desconocida_cae_al_requisito_por_defecto(): void
+    public function test_unknown_band_falls_back_to_the_default_requirement(): void
     {
         $this->assertSame('referencia', ResolvedorRequisito::para('presion_arterial', ['banda' => 'no_existe'])->tipo);
     }
 
-    public function test_perdida_osea_es_proyeccion_hrp_con_referencia_v1_4027(): void
+    public function test_bone_loss_is_an_hrp_projection_with_reference_v1_4027(): void
     {
-        $fuente = ResolvedorRequisito::fuente(ResolvedorRequisito::para('perdida_osea'));
-        $this->assertSame('hrp', $fuente['tipo']);
-        $this->assertTrue($fuente['es_proyeccion']);
-        $this->assertSame('Proyección (HRP)', $fuente['etiqueta']);
+        $source = ResolvedorRequisito::fuente(ResolvedorRequisito::para('perdida_osea'));
+        $this->assertSame('hrp', $source['tipo']);
+        $this->assertTrue($source['es_proyeccion']);
+        $this->assertSame('Projection (HRP)', $source['etiqueta']);
 
-        $ref = ResolvedorRequisito::fuente(ResolvedorRequisito::referenciaDe('perdida_osea'));
-        $this->assertSame('V1 4027', $ref['codigo']);
-        $this->assertSame('norma', $ref['tipo']);
-        $this->assertFalse($ref['es_proyeccion']);
+        $reference = ResolvedorRequisito::fuente(ResolvedorRequisito::referenciaDe('perdida_osea'));
+        $this->assertSame('V1 4027', $reference['codigo']);
+        $this->assertSame('norma', $reference['tipo']);
+        $this->assertFalse($reference['es_proyeccion']);
     }
 
-    public function test_fuente_de_una_norma_no_es_proyeccion_y_null_da_null(): void
+    public function test_source_of_a_standard_is_not_a_projection_and_null_gives_null(): void
     {
         $f = ResolvedorRequisito::fuente(ResolvedorRequisito::para('dosis_acumulada'));
         $this->assertFalse($f['es_proyeccion']);
@@ -112,34 +112,34 @@ class TrazabilidadTest extends TestCase
         $this->assertNull(ResolvedorRequisito::fuente(null));
     }
 
-    public function test_toda_regla_con_umbral_tiene_requisito_salvo_las_declaradas(): void
+    public function test_every_threshold_rule_has_a_requirement_except_the_declared_ones(): void
     {
-        $indicadores = array_keys(config('umbrales.indicadores'));
-        foreach ($indicadores as $i) {
-            if (array_key_exists($i, self::SIN_REQUISITO)) {
-                $this->assertNull(ResolvedorRequisito::para($i), "$i no debería tener requisito: ".self::SIN_REQUISITO[$i]);
+        $indicators = array_keys(config('umbrales.indicadores'));
+        foreach ($indicators as $i) {
+            if (array_key_exists($i, self::WITHOUT_REQUIREMENT)) {
+                $this->assertNull(ResolvedorRequisito::para($i), "$i should not have a requirement: ".self::WITHOUT_REQUIREMENT[$i]);
             } else {
-                $this->assertNotNull(ResolvedorRequisito::para($i), "$i tiene umbral y no tiene requisito");
+                $this->assertNotNull(ResolvedorRequisito::para($i), "$i has a threshold but no requirement");
             }
         }
-        // La lista de excepciones no puede quedarse con claves que ya no existen.
-        $this->assertSame([], array_diff(array_keys(self::SIN_REQUISITO), $indicadores));
+        // The exception list must not keep keys that no longer exist.
+        $this->assertSame([], array_diff(array_keys(self::WITHOUT_REQUIREMENT), $indicators));
     }
 
-    public function test_la_guia_muestra_el_chip_el_rango_de_apolo_y_la_referencia_de_hueso(): void
+    public function test_guide_shows_the_chip_the_apollo_range_and_the_bone_reference(): void
     {
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        TripulanteActual::fijar(Astronauta::where('mision_id', $mision->id)->firstOrFail()->id);
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        TripulanteActual::fijar(Astronauta::where('mision_id', $mission->id)->firstOrFail()->id);
 
         Livewire::test(Guia::class)
-            ->assertSee('Fuente: Referencia clínica')
-            ->assertSee('Fuente: Proyección (HRP)')
+            ->assertSee('Source: Clinical reference')
+            ->assertSee('Source: Projection (HRP)')
             ->assertSee('V1 4027')
-            ->assertSee('66 a 144 lpm')
-            ->assertSee('~96 lpm')
-            ->assertSee('70 a 109 lpm')
-            ->assertSee('Umbral de ejemplo (sin requisito asociado)');
+            ->assertSee('66 to 144 bpm')
+            ->assertSee('~96 bpm')
+            ->assertSee('70 to 109 bpm')
+            ->assertSee('Example threshold (no associated requirement)');
     }
 }

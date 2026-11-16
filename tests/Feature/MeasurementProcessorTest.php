@@ -11,20 +11,20 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class ProcesadorMedicionesTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase): never deletes data from the local database. */
+class MeasurementProcessorTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function astronauta(string $entorno = 'estacion'): Astronauta
+    private function crewMember(string $environment = 'estacion'): Astronauta
     {
-        return Astronauta::create(['nombre' => 'Test', 'mision' => 'T-1', 'entorno' => $entorno]);
+        return Astronauta::create(['nombre' => 'Test', 'mision' => 'T-1', 'entorno' => $environment]);
     }
 
-    public function test_medicion_normal_se_guarda_sin_alerta(): void
+    public function test_normal_measurement_is_saved_without_an_alert(): void
     {
         Event::fake([MedicionRegistrada::class]);
-        $a = $this->astronauta();
+        $a = $this->crewMember();
 
         $ev = ProcesadorMediciones::make()->registrar($a, 'frecuencia_cardiaca', ['valor' => 72]);
 
@@ -34,36 +34,36 @@ class ProcesadorMedicionesTest extends TestCase
         Event::assertDispatched(MedicionRegistrada::class, fn ($e) => $e->astronautaId === $a->id && $e->estado === 'normal');
     }
 
-    public function test_medicion_critica_encola_alerta_a_tierra(): void
+    public function test_critical_measurement_queues_an_alert_to_ground(): void
     {
         Event::fake([MedicionRegistrada::class]);
-        $a = $this->astronauta('base_marciana');
+        $a = $this->crewMember('base_marciana');
 
         $ev = ProcesadorMediciones::make()->registrar($a, 'frecuencia_cardiaca', ['valor' => 150]);
 
         $this->assertSame('critico', $ev->estado);
         $this->assertSame('contactar_tierra', $ev->accion);
-        $alerta = AlertaSaliente::where('evaluacion_id', $ev->id)->first();
-        $this->assertSame('pendiente', $alerta->estado);
-        $this->assertSame('critico', $alerta->carga['estado']);
+        $alert = AlertaSaliente::where('evaluacion_id', $ev->id)->first();
+        $this->assertSame('pendiente', $alert->estado);
+        $this->assertSame('critico', $alert->carga['estado']);
     }
 
-    public function test_valor_imposible_se_rechaza_y_no_guarda(): void
+    public function test_impossible_value_is_rejected_and_not_saved(): void
     {
-        $a = $this->astronauta();
+        $a = $this->crewMember();
 
         try {
             ProcesadorMediciones::make()->registrar($a, 'temperatura', ['valor' => 80]);
-            $this->fail('Debió lanzar ValidationException');
+            $this->fail('Expected a ValidationException');
         } catch (ValidationException) {
             $this->assertSame(0, $a->mediciones()->count());
         }
     }
 
-    public function test_duplicado_en_menos_de_un_minuto_se_rechaza(): void
+    public function test_duplicate_within_one_minute_is_rejected(): void
     {
         Event::fake([MedicionRegistrada::class]);
-        $a = $this->astronauta();
+        $a = $this->crewMember();
         $p = ProcesadorMediciones::make();
 
         $p->registrar($a, 'glucosa', ['valor' => 95]);
@@ -71,10 +71,10 @@ class ProcesadorMedicionesTest extends TestCase
         $p->registrar($a, 'glucosa', ['valor' => 95]);
     }
 
-    public function test_ultimas_devuelve_el_estado_mas_reciente_por_indicador(): void
+    public function test_latest_returns_the_most_recent_state_per_indicator(): void
     {
         Event::fake([MedicionRegistrada::class]);
-        $a = $this->astronauta();
+        $a = $this->crewMember();
         $p = ProcesadorMediciones::make();
 
         $p->registrar($a, 'glucosa', ['valor' => 95], instante: now()->subMinutes(10));

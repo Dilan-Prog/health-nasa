@@ -12,83 +12,87 @@ use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
- * config/sistemas.php es la ÚNICA definición de los sistemas corporales. Estas pruebas impiden que
- * Indicador, Sistemas y el índice por sistema vuelvan a divergir.
+ * config/sistemas.php is the ONLY definition of the body systems. These tests keep
+ * Indicators, Body systems and the per-system index from diverging again.
  */
-class SistemasFuenteUnicaTest extends TestCase
+class BodySystemsSingleSourceTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_son_nueve_secciones_del_documento_y_dos_grupos_del_proyecto(): void
+    public function test_nine_document_sections_and_two_project_groups(): void
     {
-        $grupos = collect(config('sistemas.grupos'));
+        $groups = collect(config('sistemas.grupos'));
 
-        $this->assertCount(9, $grupos->where('origen', 'documento'));
-        $this->assertSame(['metabolico', 'radiacion'], $grupos->where('origen', 'proyecto')->pluck('clave')->values()->all());
+        $this->assertCount(9, $groups->where('origen', 'documento'));
+        $this->assertSame(['metabolico', 'radiacion'], $groups->where('origen', 'proyecto')->pluck('clave')->values()->all());
         $this->assertSame(['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9'],
-            $grupos->where('origen', 'documento')->pluck('seccion')->sort()->values()->all());
-        $this->assertSame($grupos->pluck('clave')->all(), $grupos->pluck('clave')->unique()->values()->all(), 'claves únicas');
+            $groups->where('origen', 'documento')->pluck('seccion')->sort()->values()->all());
+        $this->assertSame($groups->pluck('clave')->all(), $groups->pluck('clave')->unique()->values()->all(), 'unique keys');
     }
 
-    public function test_la_lista_de_indicador_se_deriva_de_la_fuente_unica(): void
+    public function test_indicator_list_is_derived_from_the_single_source(): void
     {
-        $esperado = collect(config('sistemas.grupos'))->map(fn ($g) => [$g['titulo'], $g['ic']])->all();
+        $expected = collect(config('sistemas.grupos'))->map(fn ($g) => [$g['titulo'], $g['ic']])->all();
 
-        $this->assertSame($esperado, config('indicadores.sistemas'));
+        $this->assertSame($expected, config('indicadores.sistemas'));
     }
 
-    public function test_cada_marcador_apunta_al_grupo_que_lo_contiene(): void
+    public function test_each_marker_points_to_the_group_that_contains_it(): void
     {
-        $grupos = config('sistemas.grupos');
+        $groups = config('sistemas.grupos');
         foreach (config('indicadores.marcadores') as $clave => $m) {
-            $this->assertNotNull($m['sys'], "$clave no pertenece a ningún sistema");
-            $this->assertContains($clave, $grupos[$m['sys']]['marcadores'], "$clave apunta a un grupo que no lo contiene");
+            $this->assertNotNull($m['sys'], "$clave does not belong to any system");
+            $this->assertContains($clave, $groups[$m['sys']]['marcadores'], "$clave points to a group that does not contain it");
         }
     }
 
-    public function test_el_sistema_de_umbrales_coincide_con_el_grupo_de_cada_indicador(): void
+    public function test_threshold_system_matches_each_indicators_group(): void
     {
-        $porClave = [];
+        $byKey = [];
         foreach (config('sistemas.grupos') as $g) {
             foreach (array_merge($g['marcadores'], $g['extra'] ?? []) as $clave) {
-                $porClave[$clave] = $g['clave'];
+                $byKey[$clave] = $g['clave'];
             }
         }
 
         foreach (config('umbrales.indicadores') as $clave => $i) {
-            $this->assertSame($porClave[$clave] ?? null, $i['sistema'] ?? null, "$clave: sistema distinto entre umbrales y config/sistemas.php");
+            $this->assertSame($byKey[$clave] ?? null, $i['sistema'] ?? null, "$clave: system differs between thresholds and config/sistemas.php");
         }
         $this->assertSame(array_column(config('sistemas.grupos'), 'clave'), config('umbrales.sistemas'));
-        // El caso que antes se contradecía: la temperatura era "inmune" en umbrales y "Metabólico" en las pantallas.
+        // The case that used to contradict itself: temperature was "immune" in thresholds and "Metabolism" on the screens.
         $this->assertSame('metabolico', config('umbrales.indicadores.temperatura.sistema'));
     }
 
-    public function test_un_sistema_sin_indicadores_declara_que_falta_medir(): void
+    public function test_system_without_indicators_declares_what_is_not_yet_measured(): void
     {
-        $vacios = collect(config('sistemas.grupos'))->filter(fn ($g) => $g['marcadores'] === [] && empty($g['extra']));
+        $empty = collect(config('sistemas.grupos'))->filter(fn ($g) => $g['marcadores'] === [] && empty($g['extra']));
 
-        $this->assertSame(['sensorial', 'inmunologico', 'hematologico'], $vacios->pluck('clave')->values()->all());
-        foreach ($vacios as $g) {
-            $this->assertNotEmpty($g['pendiente'] ?? '', $g['clave'].' debe decir qué falta medir');
+        $this->assertSame(['sensorial', 'inmunologico', 'hematologico'], $empty->pluck('clave')->values()->all());
+        foreach ($empty as $g) {
+            $this->assertNotEmpty($g['pendiente'] ?? '', $g['clave'].' must state what is not yet measured');
         }
     }
 
-    public function test_la_pantalla_marca_sin_cobertura_y_no_normal_a_los_sistemas_vacios(): void
+    public function test_screen_marks_empty_systems_as_no_coverage_not_normal(): void
     {
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        TripulanteActual::fijar(Astronauta::where('mision_id', $mision->id)->firstOrFail()->id);
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        TripulanteActual::fijar(Astronauta::where('mision_id', $mission->id)->firstOrFail()->id);
 
-        Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($tarjetas) {
-            $porTitulo = collect($tarjetas)->keyBy('titulo');
-            foreach (['Sensorial y vestibular', 'Inmunológico', 'Hematológico'] as $t) {
-                if ($porTitulo[$t]['estado'] !== 'sin' || $porTitulo[$t]['estado_txt'] !== 'SIN COBERTURA' || $porTitulo[$t]['filas'] !== []) {
+        $title = fn (string $key) => collect(config('sistemas.grupos'))->firstWhere('clave', $key)['titulo'];
+
+        Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($cards) use ($title) {
+            $byTitle = collect($cards)->keyBy('titulo');
+            foreach (['sensorial', 'inmunologico', 'hematologico'] as $key) {
+                $t = $title($key);
+                if ($byTitle[$t]['estado'] !== 'sin' || $byTitle[$t]['estado_txt'] !== 'NO COVERAGE YET' || $byTitle[$t]['filas'] !== []) {
                     return false;
                 }
             }
+            $respiratory = $byTitle[$title('respiratorio')];
 
-            return $porTitulo['Respiratorio']['estado'] !== 'sin' && count($porTitulo['Respiratorio']['filas']) === 1;
+            return $respiratory['estado'] !== 'sin' && count($respiratory['filas']) === 1;
         });
     }
 }

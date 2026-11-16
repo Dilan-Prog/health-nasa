@@ -10,8 +10,8 @@ use Database\Seeders\ExpedicionSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class SimuladorVivoComandoTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database. */
+class LiveSimulatorCommandTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -19,13 +19,13 @@ class SimuladorVivoComandoTest extends TestCase
     {
         parent::setUp();
         $this->seed(ExpedicionSeeder::class);
-        // SimulacionMotor::actual() asume id 1 (el id no es fillable); en una BD de pruebas con autoincrement avanzado hay que fijarlo.
+        // SimulacionMotor::actual() assumes id 1 (id is not fillable); in a test DB with an advanced autoincrement it must be set explicitly.
         \DB::table('simulacion_motor')->delete();
         \DB::table('simulacion_motor')->insert(['id' => 1, 'activa' => false, 'velocidad' => 60, 'intervalo' => 5, 'created_at' => now(), 'updated_at' => now()]);
         SimulacionTripulante::query()->update(['activa' => false]);
     }
 
-    public function test_once_con_motor_apagado_avisa_y_late(): void
+    public function test_once_with_engine_off_warns_and_beats(): void
     {
         SimulacionMotor::actual()->update(['activa' => false, 'latido_en' => null]);
 
@@ -36,25 +36,25 @@ class SimuladorVivoComandoTest extends TestCase
         $this->assertNotNull(SimulacionMotor::actual()->latido_en);
     }
 
-    public function test_once_con_motor_encendido_imprime_resumen_y_registra(): void
+    public function test_once_with_engine_on_prints_summary_and_records(): void
     {
         $a = Astronauta::create(['nombre' => 'Cmd Test', 'mision' => 'T-1', 'entorno' => 'estacion']);
         SimulacionMotor::actual()->update(['activa' => true, 'velocidad' => 360]);
         SimulacionTripulante::de($a)->update(['activa' => true, 'fuente' => 'simulado', 'virtual_en' => now()->subMinutes(10), 'ultimo_tick' => now()->subMinutes(10)]);
 
         $this->artisan('salud:simulador-vivo', ['--once' => true])
-            ->expectsOutputToContain('activos=1')
+            ->expectsOutputToContain('active=1')
             ->assertSuccessful();
 
         $this->assertGreaterThan(0, Medicion::where('astronauta_id', $a->id)->where('origen', 'simulado')->count());
     }
 
-    public function test_bloqueado_en_produccion(): void
+    public function test_blocked_in_production(): void
     {
         $this->app['env'] = 'production';
 
         $this->artisan('salud:simulador-vivo', ['--once' => true])
-            ->expectsOutputToContain('bloqueada en producción')
+            ->expectsOutputToContain('blocked in production')
             ->assertFailed();
     }
 }

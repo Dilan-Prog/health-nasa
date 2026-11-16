@@ -11,48 +11,48 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class IndicadorTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database data. */
+class IndicatorTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private Mision $mision;
+    private Mision $mission;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed(ExpedicionSeeder::class);
-        $this->mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $this->mision->id]);
+        $this->mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $this->mission->id]);
     }
 
-    private function tripulante(string $nombre): Astronauta
+    private function crewMember(string $name): Astronauta
     {
-        return Astronauta::where('mision_id', $this->mision->id)->where('nombre', $nombre)->firstOrFail();
+        return Astronauta::where('mision_id', $this->mission->id)->where('nombre', $name)->firstOrFail();
     }
 
-    public function test_la_ruta_responde_con_la_pantalla_y_el_menu_enlaza(): void
+    public function test_route_responds_with_the_screen_and_the_menu_links_to_it(): void
     {
         $this->get(route('indicador'))->assertOk()
-            ->assertSee('Orienta, no diagnostica', false)
+            ->assertSee('Guidance only, not a diagnosis', false)
             ->assertSee('href="/indicador"', false)
             ->assertSee('indicador(', false);
     }
 
-    public function test_carga_con_el_tripulante_actual_y_14_marcadores(): void
+    public function test_loads_with_the_current_crew_member_and_14_markers(): void
     {
-        $dilan = $this->tripulante('Dilan García');
+        $dilan = $this->crewMember('Dilan García');
         TripulanteActual::fijar($dilan->id);
 
         Livewire::test(Indicador::class)
-            ->assertSee('Tripulante Dilan García')
+            ->assertSee('Crew member Dilan García')
             ->assertViewHas('astronauta', fn ($a) => $a->id === $dilan->id)
             ->assertViewHas('payload', fn ($p) => count($p['marcadores']) === 14 && isset($p['diaria']['presion_arterial']) && isset($p['horaria']['glucosa']));
     }
 
-    public function test_respeta_la_query_id_y_descarta_valores_invalidos(): void
+    public function test_honors_the_id_query_and_discards_invalid_values(): void
     {
-        Livewire::withQueryParams(['id' => 'glucosa', 'mode' => 'cmp', 'view' => 'heat', 'm' => 'presion_arterial,inventado'])
+        Livewire::withQueryParams(['id' => 'glucosa', 'mode' => 'cmp', 'view' => 'heat', 'm' => 'presion_arterial,invented'])
             ->test(Indicador::class)
             ->assertViewHas('consulta', fn ($c) => $c === ['id' => 'glucosa', 'mode' => 'cmp', 'view' => 'heat', 'm' => 'presion_arterial']);
 
@@ -61,28 +61,28 @@ class IndicadorTest extends TestCase
             ->assertViewHas('consulta', fn ($c) => $c === []);
     }
 
-    public function test_refresca_el_payload_al_cambiar_de_tripulante(): void
+    public function test_refreshes_the_payload_when_the_crew_member_changes(): void
     {
-        $dilan = $this->tripulante('Dilan García');
-        $elena = $this->tripulante('Elena Moreau');
+        $dilan = $this->crewMember('Dilan García');
+        $elena = $this->crewMember('Elena Moreau');
         TripulanteActual::fijar($dilan->id);
 
-        $componente = Livewire::test(Indicador::class)->assertSee('Tripulante Dilan García');
+        $component = Livewire::test(Indicador::class)->assertSee('Crew member Dilan García');
 
         TripulanteActual::fijar($elena->id);
-        $componente->dispatch('tripulante-cambiado')
-            ->assertSee('Tripulante Elena Moreau')
+        $component->dispatch('tripulante-cambiado')
+            ->assertSee('Crew member Elena Moreau')
             ->assertViewHas('astronauta', fn ($a) => $a->id === $elena->id)
             ->assertViewHas('payload', fn ($p) => count($p['marcadores']) === 14);
     }
 
-    public function test_muestra_el_estado_de_error_y_permite_reintentar(): void
+    public function test_shows_the_error_state_and_allows_retrying(): void
     {
-        $this->app->bind(\App\Services\Salud\DatosIndicador::class, fn () => throw new \RuntimeException('falla'));
-        // Forzamos el error en la propiedad: no se calcula el payload y se ofrece "Reintentar".
+        $this->app->bind(\App\Services\Salud\DatosIndicador::class, fn () => throw new \RuntimeException('failure'));
+        // Force the error on the property: the payload is not computed and "Retry" is offered.
         Livewire::test(Indicador::class)
             ->set('error', true)
-            ->assertSee('No se pudieron leer las mediciones')
+            ->assertSee('Could not read the measurements')
             ->call('reintentar')
             ->assertSet('error', false);
     }

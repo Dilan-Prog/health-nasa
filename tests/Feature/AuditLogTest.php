@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\Auditoria as PantallaAuditoria;
+use App\Livewire\Auditoria as AuditScreen;
 use App\Models\Astronauta;
 use App\Models\AuditoriaAcceso;
 use App\Models\Mision;
@@ -14,26 +14,26 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class AuditoriaTest extends TestCase
+class AuditLogTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function usuario(string $rol): User
+    private function user(string $rol): User
     {
-        return User::create(['name' => $rol, 'email' => $rol.'-aud@prueba.test', 'password' => 'Clave-prueba-1', 'rol' => $rol]);
+        return User::create(['name' => $rol, 'email' => $rol.'-aud@example.test', 'password' => 'Test-password-1', 'rol' => $rol]);
     }
 
-    private function tripulante(): Astronauta
+    private function crewMember(): Astronauta
     {
         $m = Mision::create(['nombre' => 'AUD-1', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(10), 'duracion_dias' => 180]);
 
         return Astronauta::create(['nombre' => 'Audit', 'mision' => 'AUD-1', 'entorno' => 'estacion', 'mision_id' => $m->id]);
     }
 
-    public function test_se_registra_el_acceso_anonimo_sin_login(): void
+    public function test_anonymous_access_is_logged_without_login(): void
     {
         config(['mision.exigir_login' => false]);
-        $a = $this->tripulante();
+        $a = $this->crewMember();
 
         $r = Auditoria::registrar('ver', 'ficha', $a->id, $a->id);
 
@@ -42,9 +42,9 @@ class AuditoriaTest extends TestCase
         $this->assertDatabaseHas('auditoria_accesos', ['accion' => 'ver', 'recurso' => 'ficha', 'astronauta_id' => $a->id]);
     }
 
-    public function test_registra_usuario_y_rol(): void
+    public function test_records_user_and_role(): void
     {
-        $u = $this->usuario('cmo');
+        $u = $this->user('cmo');
         $this->actingAs($u);
 
         $r = Auditoria::registrar('exportar', 'expediente', 5, 5);
@@ -53,9 +53,9 @@ class AuditoriaTest extends TestCase
         $this->assertSame('cmo', $r->rol);
     }
 
-    public function test_deduplica_dentro_de_la_ventana_y_registra_fuera(): void
+    public function test_deduplicates_within_window_and_records_outside_it(): void
     {
-        $this->actingAs($this->usuario('tripulante'));
+        $this->actingAs($this->user('tripulante'));
 
         Auditoria::registrar('ver', 'botiquin');
         Auditoria::registrar('ver', 'botiquin');
@@ -69,7 +69,7 @@ class AuditoriaTest extends TestCase
         $this->assertSame(3, AuditoriaAcceso::count());
     }
 
-    public function test_la_ventana_es_configurable(): void
+    public function test_window_is_configurable(): void
     {
         config(['auditoria.ventana_dedup_min' => 1]);
         Auditoria::registrar('ver', 'botiquin');
@@ -79,34 +79,34 @@ class AuditoriaTest extends TestCase
         $this->assertSame(2, AuditoriaAcceso::count());
     }
 
-    public function test_un_fallo_al_auditar_no_rompe(): void
+    public function test_audit_failure_does_not_break(): void
     {
-        // Una acción demasiado larga para la columna provoca un error de BD: se reporta y devuelve null, sin lanzar.
+        // An action too long for the column causes a DB error: it is reported and returns null without throwing.
         $this->assertNull(Auditoria::registrar(str_repeat('a', 500), 'botiquin'));
         $this->assertSame(0, AuditoriaAcceso::count());
     }
 
-    public function test_el_envio_a_tierra_queda_registrado_sin_valores_medicos(): void
+    public function test_ground_send_is_logged_without_medical_values(): void
     {
-        $a = $this->tripulante();
-        ConsultasTierra::enviar($a, 'msg', ['frecuencia_cardiaca'], 'Nota con dolor de pecho 187 lpm');
+        $a = $this->crewMember();
+        ConsultasTierra::enviar($a, 'msg', ['frecuencia_cardiaca'], 'Note with chest pain 187 bpm');
 
-        $fila = AuditoriaAcceso::where('accion', 'enviar')->firstOrFail();
-        $this->assertSame('consultas_tierra', $fila->recurso);
-        $this->assertSame($a->id, $fila->astronauta_id);
-        $volcado = json_encode($fila->getAttributes());
-        $this->assertStringNotContainsString('187', $volcado);
-        $this->assertStringNotContainsString('dolor', $volcado);
-        $this->assertStringNotContainsString('frecuencia_cardiaca', $volcado);
+        $row = AuditoriaAcceso::where('accion', 'enviar')->firstOrFail();
+        $this->assertSame('consultas_tierra', $row->recurso);
+        $this->assertSame($a->id, $row->astronauta_id);
+        $dump = json_encode($row->getAttributes());
+        $this->assertStringNotContainsString('187', $dump);
+        $this->assertStringNotContainsString('chest pain', $dump);
+        $this->assertStringNotContainsString('frecuencia_cardiaca', $dump);
         $this->assertSame(
             ['id', 'user_id', 'rol', 'accion', 'recurso', 'recurso_id', 'astronauta_id', 'ip', 'user_agent', 'ocurrido_en'],
-            array_keys($fila->getAttributes())
+            array_keys($row->getAttributes())
         );
     }
 
-    public function test_pantallas_sensibles_registran_al_montar(): void
+    public function test_sensitive_screens_log_on_mount(): void
     {
-        $a = $this->tripulante();
+        $a = $this->crewMember();
         Livewire::test(\App\Livewire\Botiquin::class);
         Livewire::test(\App\Livewire\ColaTierra::class);
         Livewire::test(\App\Livewire\MedicoVuelo::class);
@@ -118,53 +118,53 @@ class AuditoriaTest extends TestCase
         );
     }
 
-    public function test_el_tripulante_no_puede_abrir_la_auditoria(): void
+    public function test_crew_member_cannot_open_audit_log(): void
     {
         config(['mision.exigir_login' => true]);
-        $this->actingAs($this->usuario('tripulante'));
+        $this->actingAs($this->user('tripulante'));
 
-        Livewire::test(PantallaAuditoria::class)->assertForbidden();
+        Livewire::test(AuditScreen::class)->assertForbidden();
     }
 
-    public function test_el_cmo_tampoco_y_el_flight_surgeon_si(): void
+    public function test_cmo_cannot_either_but_flight_surgeon_can(): void
     {
         config(['mision.exigir_login' => true]);
         Auditoria::registrar('ver', 'botiquin');
 
-        $this->actingAs($this->usuario('cmo'));
-        Livewire::test(PantallaAuditoria::class)->assertForbidden();
+        $this->actingAs($this->user('cmo'));
+        Livewire::test(AuditScreen::class)->assertForbidden();
 
-        $this->actingAs($this->usuario('flight_surgeon'));
-        Livewire::test(PantallaAuditoria::class)->assertOk()->assertSee('botiquin');
+        $this->actingAs($this->user('flight_surgeon'));
+        Livewire::test(AuditScreen::class)->assertOk()->assertSee('botiquin');
     }
 
-    public function test_ruta_auditoria_solo_flight_surgeon(): void
+    public function test_audit_route_is_flight_surgeon_only(): void
     {
         config(['mision.exigir_login' => true]);
 
-        $this->actingAs($this->usuario('tripulante'))->get('/auditoria')->assertForbidden();
-        $this->actingAs($this->usuario('flight_surgeon'))->get('/auditoria')->assertOk()->assertSee('Registro de accesos');
+        $this->actingAs($this->user('tripulante'))->get('/auditoria')->assertForbidden();
+        $this->actingAs($this->user('flight_surgeon'))->get('/auditoria')->assertOk()->assertSee('Audit log');
     }
 
-    public function test_filtros(): void
+    public function test_filters(): void
     {
-        $a = $this->tripulante();
+        $a = $this->crewMember();
         Auditoria::registrar('ver', 'botiquin');
         Auditoria::registrar('enviar', 'consultas_tierra', 1, $a->id);
 
-        Livewire::test(PantallaAuditoria::class)
+        Livewire::test(AuditScreen::class)
             ->set('accion', 'enviar')->assertSeeHtml('<td>consultas_tierra #1</td>')->assertDontSeeHtml('<td>botiquin</td>')
             ->set('accion', '')->set('tripulante', (string) $a->id)->assertSee('consultas_tierra')
-            ->set('tripulante', '')->set('desde', now()->addDay()->toDateString())->assertSee('Sin registros');
+            ->set('tripulante', '')->set('desde', now()->addDay()->toDateString())->assertSee('No records');
     }
 
-    public function test_podar_simula_y_con_confirmar_borra(): void
+    public function test_prune_simulates_and_deletes_with_confirm(): void
     {
         Auditoria::registrar('ver', 'botiquin');
         Auditoria::registrar('ver', 'ficha', 1, 1);
         AuditoriaAcceso::where('recurso', 'botiquin')->update(['ocurrido_en' => now()->subDays(91)]);
 
-        $this->artisan('auditoria:podar')->expectsOutputToContain('Registros a podar: 1')->assertSuccessful();
+        $this->artisan('auditoria:podar')->expectsOutputToContain('Records to prune: 1')->assertSuccessful();
         $this->assertSame(2, AuditoriaAcceso::count());
 
         $this->artisan('auditoria:podar --confirmar')->assertSuccessful();

@@ -9,8 +9,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD. */
-class BotiquinTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never deletes the database data. */
+class MedicalKitTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -20,7 +20,7 @@ class BotiquinTest extends TestCase
         $this->seed(BotiquinSeeder::class);
     }
 
-    public function test_el_seeder_es_idempotente_y_no_pisa_ediciones(): void
+    public function test_seeder_is_idempotent_and_does_not_overwrite_edits(): void
     {
         $total = array_sum(array_map('count', BotiquinItem::GRUPOS));
         $this->assertSame($total, BotiquinItem::count());
@@ -33,19 +33,28 @@ class BotiquinTest extends TestCase
         $this->assertSame(0, BotiquinItem::where('contraindicaciones', '!=', BotiquinItem::PENDIENTE)->count());
     }
 
-    public function test_lista_los_5_grupos_el_aviso_y_la_etiqueta_de_ejemplo(): void
+    public function test_lists_the_five_groups_the_notice_and_the_example_label(): void
     {
         $t = Livewire::test(Botiquin::class)
-            ->assertSee('Inventario informativo. No es una prescripción; consulta al médico de vuelo')
-            ->assertSee('valor de ejemplo')
-            ->assertSee('Pendiente de verificación médica');
-        foreach (array_keys(BotiquinItem::GRUPOS) as $grupo) {
-            $t->assertSee($grupo);
+            ->assertSee('Informational inventory. This is not a prescription; consult the Flight Surgeon')
+            ->assertSee('example value')
+            ->assertSee('Pending medical verification');
+        // Display labels in English; the stored Spanish group keys stay as they are.
+        $labels = [
+            'Mareo por adaptación' => 'Space adaptation (motion sickness)',
+            'Sueño y fatiga' => 'Sleep & fatigue',
+            'Analgesia e inflamación' => 'Pain & inflammation',
+            'Antimicrobianos y antivirales' => 'Antimicrobials & antivirals',
+            'Emergencias' => 'Emergency',
+        ];
+        $this->assertSame(array_keys(BotiquinItem::GRUPOS), array_keys($labels));
+        foreach ($labels as $label) {
+            $t->assertSee($label);
         }
         $this->assertCount(5, BotiquinItem::GRUPOS);
     }
 
-    public function test_el_inventario_no_contiene_unidades_de_dosis(): void
+    public function test_inventory_contains_no_dose_units(): void
     {
         $html = Livewire::test(Botiquin::class)->html();
         $inv = substr($html, (int) strpos($html, 'bq-inventario'));
@@ -55,7 +64,7 @@ class BotiquinTest extends TestCase
         }
     }
 
-    public function test_editar_stock_y_caducidad_persiste_y_quita_la_marca_de_ejemplo(): void
+    public function test_editing_stock_and_expiry_persists_and_removes_example_flag(): void
     {
         $item = BotiquinItem::where('nombre', 'ibuprofeno')->firstOrFail();
 
@@ -73,10 +82,10 @@ class BotiquinTest extends TestCase
         $this->assertFalse($item->valor_ejemplo);
     }
 
-    public function test_valida_stock_y_caducidad(): void
+    public function test_validates_stock_and_expiry(): void
     {
         $item = BotiquinItem::first();
-        $antes = $item->stock;
+        $before = $item->stock;
 
         Livewire::test(Botiquin::class)
             ->call('editar', $item->id)
@@ -84,22 +93,22 @@ class BotiquinTest extends TestCase
             ->set('stock', 'abc')->call('guardar')->assertHasErrors(['stock'])
             ->set('stock', '5')->set('caducidad', 'no-es-fecha')->call('guardar')->assertHasErrors(['caducidad']);
 
-        $this->assertSame($antes, $item->fresh()->stock);
+        $this->assertSame($before, $item->fresh()->stock);
     }
 
-    public function test_estado_de_caducidad(): void
+    public function test_expiry_status(): void
     {
-        $hoy = now();
-        $mk = fn ($d) => (new BotiquinItem)->forceFill(['caducidad' => $d]);
+        $today = now();
+        $make = fn ($d) => (new BotiquinItem)->forceFill(['caducidad' => $d]);
 
-        $this->assertSame('vencido', $mk($hoy->copy()->subDay())->estadoCaducidad($hoy)[0]);
-        $this->assertSame('pronto', $mk($hoy->copy()->addDays(30))->estadoCaducidad($hoy)[0]);
-        $this->assertSame('vigente', $mk($hoy->copy()->addDays(365))->estadoCaducidad($hoy)[0]);
-        $this->assertSame('sin', $mk(null)->estadoCaducidad($hoy)[0]);
+        $this->assertSame('vencido', $make($today->copy()->subDay())->estadoCaducidad($today)[0]);
+        $this->assertSame('pronto', $make($today->copy()->addDays(30))->estadoCaducidad($today)[0]);
+        $this->assertSame('vigente', $make($today->copy()->addDays(365))->estadoCaducidad($today)[0]);
+        $this->assertSame('sin', $make(null)->estadoCaducidad($today)[0]);
     }
 
-    public function test_la_ruta_responde(): void
+    public function test_route_responds(): void
     {
-        $this->get('/botiquin')->assertOk()->assertSee('Botiquín informativo', false);
+        $this->get('/botiquin')->assertOk()->assertSee('Informational medical kit', false);
     }
 }

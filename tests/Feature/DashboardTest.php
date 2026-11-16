@@ -11,25 +11,25 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class PanelTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase): never deletes data from the local database. */
+class DashboardTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function tripulacion()
+    private function crew()
     {
         $this->seed(ExpedicionSeeder::class);
         $m = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
         session(['mision_id' => $m->id]);
-        $t = $m->tripulantes()->orderBy('id')->get();
-        session(['astronauta_id' => $t->first()->id]);
+        $crew = $m->tripulantes()->orderBy('id')->get();
+        session(['astronauta_id' => $crew->first()->id]);
 
-        return $t;
+        return $crew;
     }
 
-    public function test_muestra_los_diez_indicadores_y_los_datos_del_tripulante(): void
+    public function test_shows_the_ten_indicators_and_the_crew_member_data(): void
     {
-        $this->tripulacion();
+        $this->crew();
         $t = Livewire::test(Panel::class)->assertSee('Dilan García')->assertSee('128/84')->assertSee('1.78 m')->assertSee('A+');
         foreach (config('panel.indicadores') as $cfg) {
             $t->assertSee($cfg['etiqueta']);
@@ -37,112 +37,112 @@ class PanelTest extends TestCase
         $this->assertSame(10, substr_count($t->html(), 'class="panel-fila '));
     }
 
-    public function test_seleccionar_fija_sel_resalta_musculos_y_alterna(): void
+    public function test_selecting_sets_sel_highlights_muscles_and_toggles(): void
     {
-        $this->tripulacion();
+        $this->crew();
         $t = Livewire::test(Panel::class)
             ->call('seleccionar', 'glucosa')
             ->assertSet('sel', 'glucosa')
-            ->assertSee('En la figura: Glucosa')
+            ->assertSee('On the figure: '.config('panel.indicadores.glucosa.etiqueta'))
             ->assertSeeHtml('aria-pressed="true"');
         $this->assertSame(config('panel.indicadores.glucosa.musculos'), $t->viewData('musculos'));
 
         $t->call('seleccionar', 'glucosa')->assertSet('sel', null)
             ->call('seleccionar', 'no_existe')->assertSet('sel', null);
-        $this->assertNotEmpty($t->viewData('musculos')); // sin selección: los de las incidencias
+        $this->assertNotEmpty($t->viewData('musculos')); // no selection: the muscles of the incidents
     }
 
-    public function test_tarjetas_con_criticos_primero(): void
+    public function test_cards_with_critical_first(): void
     {
-        $this->tripulacion();
-        $est = collect(Livewire::test(Panel::class)->viewData('tarjetas'))->pluck('estado')->all();
-        $this->assertSame(['crit', 'crit', 'warn'], $est);
+        $this->crew();
+        $states = collect(Livewire::test(Panel::class)->viewData('tarjetas'))->pluck('estado')->all();
+        $this->assertSame(['crit', 'crit', 'warn'], $states);
     }
 
-    public function test_autochequeo_rutas_verde_naranja_roja_y_vuelta_atras(): void
+    public function test_self_check_green_orange_red_paths_and_going_back(): void
     {
-        $this->tripulacion();
-        $t = Livewire::test(Panel::class)->assertSee('PREGUNTA 1 DE 5');
+        $this->crew();
+        $t = Livewire::test(Panel::class)->assertSee('QUESTION 1 OF 5');
         foreach (range(1, 5) as $_) {
             $t->call('responder', 'n');
         }
-        $t->assertSee('Vigilar')->assertDontSee('Contactar a tierra ahora');
+        $t->assertSee('Monitor')->assertDontSee('Contact ground now');
 
         $t->call('reiniciarChequeo');
-        foreach (['y', 'n', 'n', 'n', 'n'] as $r) {
-            $t->call('responder', $r);
+        foreach (['y', 'n', 'n', 'n', 'n'] as $answer) {
+            $t->call('responder', $answer);
         }
-        $t->assertSee('Aplicar medida');
+        $t->assertSee('Apply measure');
 
         $t->call('reiniciarChequeo');
-        foreach (['n', 'n', 'y', 'n', 'n'] as $r) { // falta de aire => roja
-            $t->call('responder', $r);
+        foreach (['n', 'n', 'y', 'n', 'n'] as $answer) { // shortness of breath => red
+            $t->call('responder', $answer);
         }
-        $t->assertSee('Contactar a tierra ahora')->assertSee('Encolar aviso a tierra');
+        $t->assertSee('Contact ground now')->assertSee('Queue alert to ground');
 
         $t->call('reiniciarChequeo')->call('responder', 'y')->call('preguntaAnterior')->assertSet('respuestas', []);
     }
 
-    public function test_avisar_a_tierra_crea_alerta_real_y_cambia_el_texto(): void
+    public function test_alerting_ground_creates_a_real_alert_and_changes_the_text(): void
     {
-        $this->tripulacion();
-        $antes = AlertaSaliente::count();
-        $t = Livewire::test(Panel::class)->assertSee('Encolar aviso a tierra')
+        $this->crew();
+        $before = AlertaSaliente::count();
+        $t = Livewire::test(Panel::class)->assertSee('Queue alert to ground')
             ->call('avisarATierra', 'perdida_osea')
-            ->assertSee('En cola · se enviará al recuperar enlace');
-        $this->assertSame($antes + 1, AlertaSaliente::count());
+            ->assertSee('Queued · will send when link is restored');
+        $this->assertSame($before + 1, AlertaSaliente::count());
         $this->assertSame('panel', AlertaSaliente::latest('id')->first()->carga['origen']);
 
-        $t->call('avisarATierra', 'perdida_osea'); // idempotente
-        $this->assertSame($antes + 1, AlertaSaliente::count());
+        $t->call('avisarATierra', 'perdida_osea'); // idempotent
+        $this->assertSame($before + 1, AlertaSaliente::count());
     }
 
-    public function test_avisar_a_tierra_funciona_sin_ninguna_evaluacion_previa(): void
+    public function test_alerting_ground_works_without_any_prior_evaluation(): void
     {
-        $m = Mision::create(['nombre' => 'PT-SinEval', 'entorno' => 'estacion']);
-        $a = \App\Models\Astronauta::create(['mision_id' => $m->id, 'nombre' => 'PT Nuevo', 'mision' => 'PT-SinEval', 'entorno' => 'estacion']);
+        $m = Mision::create(['nombre' => 'PT-NoEval', 'entorno' => 'estacion']);
+        $a = \App\Models\Astronauta::create(['mision_id' => $m->id, 'nombre' => 'PT New', 'mision' => 'PT-NoEval', 'entorno' => 'estacion']);
         session(['mision_id' => $m->id, 'astronauta_id' => $a->id]);
 
         Livewire::test(Panel::class)
             ->call('avisarATierra', 'perdida_osea')
             ->call('responder', 'y')->call('avisarATierra', 'chk');
 
-        $alertas = AlertaSaliente::where('astronauta_id', $a->id)->get();
-        $this->assertCount(2, $alertas);
-        $this->assertNull($alertas->first()->evaluacion_id);
-        $this->assertSame('PT Nuevo', $alertas->first()->carga['astronauta']);
-        $this->assertSame('contactar_tierra', $alertas->first()->carga['accion']);
+        $alerts = AlertaSaliente::where('astronauta_id', $a->id)->get();
+        $this->assertCount(2, $alerts);
+        $this->assertNull($alerts->first()->evaluacion_id);
+        $this->assertSame('PT New', $alerts->first()->carga['astronauta']);
+        $this->assertSame('contactar_tierra', $alerts->first()->carga['accion']);
     }
 
-    public function test_repetir_medicion_selecciona_y_despacha_abrir_registro(): void
+    public function test_repeat_measurement_selects_and_dispatches_open_log(): void
     {
-        $this->tripulacion();
+        $this->crew();
         Livewire::test(Panel::class)->call('repetirMedicion', 'presion_arterial')
             ->assertSet('sel', 'presion_arterial')->assertDispatched('abrir-registro', indicador: 'presion_arterial');
     }
 
-    public function test_marcar_accion_tacha_el_texto(): void
+    public function test_marking_an_action_strikes_through_the_text(): void
     {
-        $this->tripulacion();
+        $this->crew();
         Livewire::test(Panel::class)->call('alternarAccion', 'presion_arterial', 0)->assertSeeHtml('panel-accion is-hecha');
     }
 
-    public function test_cambiar_de_tripulante_actualiza_y_limpia_la_seleccion(): void
+    public function test_switching_crew_member_updates_and_clears_the_selection(): void
     {
-        $t = $this->tripulacion();
+        $crew = $this->crew();
         $c = Livewire::test(Panel::class)->call('seleccionar', 'glucosa')->assertSee('Dilan García');
-        TripulanteActual::fijar($t[1]->id);
+        TripulanteActual::fijar($crew[1]->id);
         $c->dispatch('tripulante-cambiado')->assertSee('Elena Moreau')->assertSet('sel', null)->assertDontSee('128/84');
     }
 
-    public function test_estado_vacio_para_tripulante_sin_incidencias(): void
+    public function test_empty_state_for_crew_member_without_incidents(): void
     {
-        $t = $this->tripulacion();
-        TripulanteActual::fijar($t[3]->id); // Amara Osei
-        Livewire::test(Panel::class)->assertSee('Todo en rango, sin acciones pendientes')->assertSee('Medición realizada');
+        $crew = $this->crew();
+        TripulanteActual::fijar($crew[3]->id); // Amara Osei
+        Livewire::test(Panel::class)->assertSee('All in range, no pending actions')->assertSee('Measurement done');
     }
 
-    public function test_la_pagina_responde(): void
+    public function test_the_page_responds(): void
     {
         $this->get('/')->assertOk();
     }

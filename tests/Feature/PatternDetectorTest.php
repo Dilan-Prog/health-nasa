@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class DetectorPatronesTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase): never wipes the local DB data. */
+class PatternDetectorTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private function astronauta(): Astronauta
+    private function crewMember(): Astronauta
     {
         Event::fake();
 
@@ -32,49 +32,49 @@ class DetectorPatronesTest extends TestCase
         return Carbon::parse('2026-11-16 08:00:00', 'UTC')->addMinutes($min);
     }
 
-    /** Registra sin disparar el gancho (origen simulado, sin evento) y sin línea base: estados deterministas. */
-    private function reg(Astronauta $a, string $ind, array $valores, int $min, string $origen = 'simulado')
+    /** Records without firing the hook (simulated origin, no event) and without a baseline: deterministic states. */
+    private function record(Astronauta $a, string $ind, array $valores, int $min, string $origen = 'simulado')
     {
         return ProcesadorMediciones::make()->registrar($a, $ind, $valores, $origen, $this->t($min), emitir: false, usarLineaBase: false);
     }
 
-    /** @return array<string, CasoClinico> abiertos por patrón */
-    private function abiertos(Astronauta $a): array
+    /** @return array<string, CasoClinico> open cases keyed by pattern */
+    private function openCases(Astronauta $a): array
     {
         return CasoClinico::abiertos()->where('astronauta_id', $a->id)->get()->keyBy('patron')->all();
     }
 
-    private function alertasPatron(Astronauta $a)
+    private function patternAlerts(Astronauta $a)
     {
-        return AlertaSaliente::where('astronauta_id', $a->id)->get()->filter(fn ($x) => isset($x->carga['caso_id'])); // alerta propia del patrón o aviso crítico enriquecido con el caso
+        return AlertaSaliente::where('astronauta_id', $a->id)->get()->filter(fn ($x) => isset($x->carga['caso_id'])); // the pattern's own alert or a critical notice enriched with the case
     }
 
-    public static function tablaDePatrones(): array
+    public static function patternTable(): array
     {
         return [
-            'fiebre' => ['fiebre', [['temperatura', ['valor' => 37.6], 0]], 'precaucion', 'temperatura'],
-            'hipoxia' => ['hipoxia', [['saturacion_o2', ['valor' => 92], 0]], 'precaucion', 'saturacion_o2'],
-            'deshidratacion' => ['deshidratacion', [['hidratacion', ['valor' => 2.2], 0]], 'precaucion', 'hidratacion'],
-            'estres' => ['estres', [['estres_cognitivo', ['valor' => 65], 0]], 'precaucion', 'estres_cognitivo'],
-            'arritmia' => ['arritmia', [['frecuencia_cardiaca', ['valor' => 110], 0]], 'precaucion', 'frecuencia_cardiaca'],
-            'falta_sueno' => ['falta_sueno', [['sueno', ['valor' => 6.0], 0]], 'precaucion', 'sueno'],
-            'fallo_sensor' => ['fallo_sensor', [['saturacion_o2', ['valor' => 98], 0], ['saturacion_o2', ['valor' => 80], 10]], 'precaucion', 'saturacion_o2'],
+            'fever' => ['fiebre', [['temperatura', ['valor' => 37.6], 0]], 'precaucion', 'temperatura'],
+            'hypoxia' => ['hipoxia', [['saturacion_o2', ['valor' => 92], 0]], 'precaucion', 'saturacion_o2'],
+            'dehydration' => ['deshidratacion', [['hidratacion', ['valor' => 2.2], 0]], 'precaucion', 'hidratacion'],
+            'stress' => ['estres', [['estres_cognitivo', ['valor' => 65], 0]], 'precaucion', 'estres_cognitivo'],
+            'arrhythmia' => ['arritmia', [['frecuencia_cardiaca', ['valor' => 110], 0]], 'precaucion', 'frecuencia_cardiaca'],
+            'sleep_deprivation' => ['falta_sueno', [['sueno', ['valor' => 6.0], 0]], 'precaucion', 'sueno'],
+            'sensor_failure' => ['fallo_sensor', [['saturacion_o2', ['valor' => 98], 0], ['saturacion_o2', ['valor' => 80], 10]], 'precaucion', 'saturacion_o2'],
         ];
     }
 
-    /** @dataProvider tablaDePatrones */
-    public function test_cada_patron_abre_su_caso_con_evidencia(string $patron, array $lecturas, string $severidad, string $indicador): void
+    /** @dataProvider patternTable */
+    public function test_each_pattern_opens_its_case_with_evidence(string $patron, array $lecturas, string $severidad, string $indicador): void
     {
-        $a = $this->astronauta();
+        $a = $this->crewMember();
         foreach ($lecturas as [$ind, $val, $min]) {
-            $this->reg($a, $ind, $val, $min);
+            $this->record($a, $ind, $val, $min);
         }
 
         DetectorPatrones::evaluar($a);
 
-        $abiertos = $this->abiertos($a);
-        $this->assertArrayHasKey($patron, $abiertos);
-        $caso = $abiertos[$patron];
+        $open = $this->openCases($a);
+        $this->assertArrayHasKey($patron, $open);
+        $caso = $open[$patron];
         $this->assertSame($severidad, $caso->severidad);
         $this->assertSame($indicador, $caso->evidencia['senales'][0]['indicador']);
         $this->assertSame((int) config("patrones.{$patron}.ventana_min"), $caso->evidencia['ventana_min']);
@@ -82,22 +82,22 @@ class DetectorPatronesTest extends TestCase
         $this->assertNull($caso->escalado_en);
     }
 
-    /** @dataProvider tablaDePatrones */
-    public function test_una_lectura_normal_no_abre_caso(string $patron, array $lecturas): void
+    /** @dataProvider patternTable */
+    public function test_a_normal_reading_opens_no_case(string $patron, array $lecturas): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 72], 0);
-        $this->reg($a, 'saturacion_o2', ['valor' => 98], 1);
-        $this->reg($a, 'temperatura', ['valor' => 36.6], 2);
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 72], 0);
+        $this->record($a, 'saturacion_o2', ['valor' => 98], 1);
+        $this->record($a, 'temperatura', ['valor' => 36.6], 2);
 
         $this->assertSame([], DetectorPatrones::evaluar($a));
-        $this->assertSame([], $this->abiertos($a));
+        $this->assertSame([], $this->openCases($a));
     }
 
-    public function test_dos_evaluaciones_no_duplican_el_caso(): void
+    public function test_two_evaluations_do_not_duplicate_the_case(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 0);
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 0);
 
         DetectorPatrones::evaluar($a);
         DetectorPatrones::evaluar($a);
@@ -105,216 +105,216 @@ class DetectorPatronesTest extends TestCase
         $this->assertSame(1, CasoClinico::where('astronauta_id', $a->id)->where('patron', 'hipoxia')->count());
     }
 
-    public function test_la_senal_de_apoyo_se_suma_a_la_evidencia(): void
+    public function test_supporting_signal_is_added_to_the_evidence(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 0);
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 5);
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 0);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 5);
 
         DetectorPatrones::evaluar($a);
 
-        $caso = $this->abiertos($a)['hipoxia'];
+        $caso = $this->openCases($a)['hipoxia'];
         $this->assertSame(2, $caso->evidencia['coinciden']);
         $this->assertEqualsCanonicalizing(['saturacion_o2', 'frecuencia_cardiaca'], array_column($caso->evidencia['senales'], 'indicador'));
     }
 
-    public function test_la_severidad_sube_si_empeora_y_no_baja(): void
+    public function test_severity_rises_when_worsening_and_never_drops(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
         DetectorPatrones::evaluar($a);
-        $this->assertSame('precaucion', $this->abiertos($a)['arritmia']->severidad);
-        $this->assertArrayNotHasKey('empeoro', $this->abiertos($a)['arritmia']->evidencia, 'al abrir no hay empeoramiento');
+        $this->assertSame('precaucion', $this->openCases($a)['arritmia']->severidad);
+        $this->assertArrayNotHasKey('empeoro', $this->openCases($a)['arritmia']->evidencia, 'no worsening when the case is opened');
 
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 140], 10);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 140], 10);
         DetectorPatrones::evaluar($a);
-        $this->assertSame('critico', $this->abiertos($a)['arritmia']->severidad);
-        $this->assertTrue($this->abiertos($a)['arritmia']->evidencia['empeoro'], 'la severidad subió: se registra en la evidencia');
+        $this->assertSame('critico', $this->openCases($a)['arritmia']->severidad);
+        $this->assertTrue($this->openCases($a)['arritmia']->evidencia['empeoro'], 'severity rose: it is recorded in the evidence');
         $this->assertSame(1, CasoClinico::where('astronauta_id', $a->id)->where('patron', 'arritmia')->count());
 
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 112], 20);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 112], 20);
         DetectorPatrones::evaluar($a);
-        $this->assertSame('critico', $this->abiertos($a)['arritmia']->severidad, 'un caso abierto no baja de severidad');
-        $this->assertTrue($this->abiertos($a)['arritmia']->evidencia['empeoro'], 'la marca de empeoro se conserva');
+        $this->assertSame('critico', $this->openCases($a)['arritmia']->severidad, 'an open case never drops in severity');
+        $this->assertTrue($this->openCases($a)['arritmia']->evidencia['empeoro'], 'the worsened flag is kept');
     }
 
-    public function test_se_cierra_cuando_las_senales_vuelven_a_normal(): void
+    public function test_closes_when_signals_return_to_normal(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
         DetectorPatrones::evaluar($a);
 
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 80], 10);
-        $tocados = DetectorPatrones::evaluar($a);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 80], 10);
+        $touched = DetectorPatrones::evaluar($a);
 
-        $this->assertSame([], $this->abiertos($a));
+        $this->assertSame([], $this->openCases($a));
         $caso = CasoClinico::where('astronauta_id', $a->id)->where('patron', 'arritmia')->first();
         $this->assertSame('cerrado', $caso->estado);
         $this->assertNotNull($caso->cerrado_en);
-        $this->assertSame('cerrado', $tocados[0]->estado);
+        $this->assertSame('cerrado', $touched[0]->estado);
     }
 
-    public function test_un_caso_cerrado_no_impide_abrir_uno_nuevo(): void
+    public function test_a_closed_case_does_not_prevent_opening_a_new_one(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
         DetectorPatrones::evaluar($a);
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 80], 10);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 80], 10);
         DetectorPatrones::evaluar($a);
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 112], 20);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 112], 20);
         DetectorPatrones::evaluar($a);
 
         $this->assertSame(2, CasoClinico::where('astronauta_id', $a->id)->where('patron', 'arritmia')->count());
-        $this->assertArrayHasKey('arritmia', $this->abiertos($a));
+        $this->assertArrayHasKey('arritmia', $this->openCases($a));
     }
 
-    public function test_una_senal_fuera_de_la_ventana_no_cuenta(): void
+    public function test_a_signal_outside_the_window_does_not_count(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'temperatura', ['valor' => 37.6], 0);
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 72], (int) config('patrones.fiebre.ventana_min') + 60);
+        $a = $this->crewMember();
+        $this->record($a, 'temperatura', ['valor' => 37.6], 0);
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 72], (int) config('patrones.fiebre.ventana_min') + 60);
 
         DetectorPatrones::evaluar($a);
 
-        $this->assertArrayNotHasKey('fiebre', $this->abiertos($a));
+        $this->assertArrayNotHasKey('fiebre', $this->openCases($a));
     }
 
-    public function test_no_dispara_con_datos_sospechosos_salvo_fallo_de_sensor(): void
+    public function test_does_not_fire_on_suspect_data_except_sensor_failure(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 98], 0);
-        $ev = $this->reg($a, 'saturacion_o2', ['valor' => 80], 10); // salto brusco: sospechosa y crítica
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 98], 0);
+        $ev = $this->record($a, 'saturacion_o2', ['valor' => 80], 10); // abrupt jump: suspect and critical
 
         $this->assertSame('sospechosa', $ev->medicion->calidad);
         $this->assertSame('critico', $ev->estado);
 
         DetectorPatrones::evaluar($a);
 
-        $abiertos = $this->abiertos($a);
-        $this->assertArrayNotHasKey('hipoxia', $abiertos);
-        $this->assertArrayHasKey('fallo_sensor', $abiertos);
-        $this->assertSame('precaucion', $abiertos['fallo_sensor']->severidad, 'un fallo de sensor no escala por sí mismo');
-        $this->assertNull($abiertos['fallo_sensor']->escalado_en);
-        $this->assertSame(0, $this->alertasPatron($a)->count());
+        $open = $this->openCases($a);
+        $this->assertArrayNotHasKey('hipoxia', $open);
+        $this->assertArrayHasKey('fallo_sensor', $open);
+        $this->assertSame('precaucion', $open['fallo_sensor']->severidad, 'a sensor failure does not escalate by itself');
+        $this->assertNull($open['fallo_sensor']->escalado_en);
+        $this->assertSame(0, $this->patternAlerts($a)->count());
     }
 
-    public function test_el_fallo_de_sensor_se_cierra_con_una_lectura_buena(): void
+    public function test_sensor_failure_closes_on_a_good_reading(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 98], 0);
-        $this->reg($a, 'saturacion_o2', ['valor' => 80], 10);
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 98], 0);
+        $this->record($a, 'saturacion_o2', ['valor' => 80], 10);
         DetectorPatrones::evaluar($a);
-        $this->assertArrayHasKey('fallo_sensor', $this->abiertos($a));
+        $this->assertArrayHasKey('fallo_sensor', $this->openCases($a));
 
-        $this->reg($a, 'saturacion_o2', ['valor' => 97], 20);
+        $this->record($a, 'saturacion_o2', ['valor' => 97], 20);
         DetectorPatrones::evaluar($a);
 
-        $this->assertArrayNotHasKey('fallo_sensor', $this->abiertos($a));
+        $this->assertArrayNotHasKey('fallo_sensor', $this->openCases($a));
     }
 
-    public function test_un_patron_critico_escala_a_tierra_una_sola_vez(): void
+    public function test_a_critical_pattern_escalates_to_ground_only_once(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 85], 0); // < 90: crítico
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 85], 0); // < 90: critical
 
         DetectorPatrones::evaluar($a);
         DetectorPatrones::evaluar($a);
-        $this->reg($a, 'saturacion_o2', ['valor' => 84], 5);
+        $this->record($a, 'saturacion_o2', ['valor' => 84], 5);
         DetectorPatrones::evaluar($a);
 
-        $caso = $this->abiertos($a)['hipoxia'];
+        $caso = $this->openCases($a)['hipoxia'];
         $this->assertSame('critico', $caso->severidad);
         $this->assertNotNull($caso->escalado_en);
-        $alertas = $this->alertasPatron($a);
-        $this->assertCount(1, $alertas);
-        $carga = $alertas->first()->carga;
-        $this->assertSame('pendiente', $alertas->first()->estado);
-        $this->assertSame('hipoxia', $carga['patron']);
-        $this->assertSame('critico', $carga['severidad']);
-        $this->assertSame($caso->id, $carga['caso_id']);
-        $this->assertSame('Test', $carga['astronauta']);
-        $this->assertArrayHasKey('senales', $carga['evidencia']);
+        $alerts = $this->patternAlerts($a);
+        $this->assertCount(1, $alerts);
+        $payload = $alerts->first()->carga;
+        $this->assertSame('pendiente', $alerts->first()->estado);
+        $this->assertSame('hipoxia', $payload['patron']);
+        $this->assertSame('critico', $payload['severidad']);
+        $this->assertSame($caso->id, $payload['caso_id']);
+        $this->assertSame('Test', $payload['astronauta']);
+        $this->assertArrayHasKey('senales', $payload['evidencia']);
     }
 
-    public function test_un_caso_que_empeora_a_critico_escala_cuando_lo_hace(): void
+    public function test_a_case_that_worsens_to_critical_escalates_when_it_does(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 0);
+        $a = $this->crewMember();
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 0);
         DetectorPatrones::evaluar($a);
-        $this->assertSame(0, $this->alertasPatron($a)->count());
+        $this->assertSame(0, $this->patternAlerts($a)->count());
 
-        $this->reg($a, 'saturacion_o2', ['valor' => 86], 5);
+        $this->record($a, 'saturacion_o2', ['valor' => 86], 5);
         DetectorPatrones::evaluar($a);
 
-        $this->assertSame(1, $this->alertasPatron($a)->count());
+        $this->assertSame(1, $this->patternAlerts($a)->count());
     }
 
-    public function test_enlaza_el_evento_de_simulacion_abierto_del_mismo_escenario(): void
+    public function test_links_the_open_simulation_event_of_the_same_scenario(): void
     {
-        $a = $this->astronauta();
-        $evento = SimulacionEvento::create(['astronauta_id' => $a->id, 'escenario' => 'hipoxia', 'inicio_en' => now()]);
+        $a = $this->crewMember();
+        $event = SimulacionEvento::create(['astronauta_id' => $a->id, 'escenario' => 'hipoxia', 'inicio_en' => now()]);
         SimulacionEvento::create(['astronauta_id' => $a->id, 'escenario' => 'fiebre', 'inicio_en' => now()]);
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 0);
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 0);
 
         DetectorPatrones::evaluar($a);
 
-        $this->assertSame($evento->id, $this->abiertos($a)['hipoxia']->simulacion_evento_id);
+        $this->assertSame($event->id, $this->openCases($a)['hipoxia']->simulacion_evento_id);
     }
 
-    public function test_el_gancho_abre_el_caso_al_registrar_una_medicion(): void
+    public function test_the_hook_opens_the_case_when_a_measurement_is_recorded(): void
     {
-        $a = $this->astronauta();
+        $a = $this->crewMember();
 
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 0, 'manual');
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 0, 'manual');
 
-        $this->assertArrayHasKey('hipoxia', $this->abiertos($a));
+        $this->assertArrayHasKey('hipoxia', $this->openCases($a));
     }
 
-    public function test_el_gancho_retorna_al_instante_si_todo_es_normal(): void
+    public function test_the_hook_returns_immediately_when_everything_is_normal(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 72], 0, 'manual');
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 72], 0, 'manual');
 
-        $this->assertSame([], $this->abiertos($a));
-        $this->assertFalse(Cache::has('patrones.enfriamiento.'.$a->id), 'no evaluó: ni siquiera tocó el enfriamiento');
+        $this->assertSame([], $this->openCases($a));
+        $this->assertFalse(Cache::has('patrones.enfriamiento.'.$a->id), 'it did not evaluate: it did not even touch the cooldown');
     }
 
-    public function test_el_enfriamiento_evita_recalcular_dentro_de_la_ventana(): void
+    public function test_cooldown_prevents_recalculating_within_the_window(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0, 'manual'); // evalúa: arritmia
-        $this->assertArrayHasKey('arritmia', $this->abiertos($a));
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 0, 'manual'); // evaluates: arrhythmia
+        $this->assertArrayHasKey('arritmia', $this->openCases($a));
 
-        $this->reg($a, 'saturacion_o2', ['valor' => 92], 5); // sin gancho
-        DetectorPatrones::alMedir($a, 'saturacion_o2', 'precaucion'); // en enfriamiento
-        $this->assertArrayNotHasKey('hipoxia', $this->abiertos($a));
+        $this->record($a, 'saturacion_o2', ['valor' => 92], 5); // without the hook
+        DetectorPatrones::alMedir($a, 'saturacion_o2', 'precaucion'); // in cooldown
+        $this->assertArrayNotHasKey('hipoxia', $this->openCases($a));
 
         Cache::forget('patrones.enfriamiento.'.$a->id);
         DetectorPatrones::alMedir($a, 'saturacion_o2', 'precaucion');
-        $this->assertArrayHasKey('hipoxia', $this->abiertos($a));
+        $this->assertArrayHasKey('hipoxia', $this->openCases($a));
     }
 
-    public function test_una_lectura_critica_no_espera_al_enfriamiento_si_no_hay_caso_critico(): void
+    public function test_a_critical_reading_does_not_wait_for_cooldown_when_there_is_no_critical_case(): void
     {
-        $a = $this->astronauta();
-        $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0, 'manual'); // abre arritmia (precaución) y arma el enfriamiento
+        $a = $this->crewMember();
+        $this->record($a, 'frecuencia_cardiaca', ['valor' => 110], 0, 'manual'); // opens arrhythmia (caution) and arms the cooldown
 
-        $this->reg($a, 'saturacion_o2', ['valor' => 85], 5, 'manual'); // crítica: evalúa pese al enfriamiento
+        $this->record($a, 'saturacion_o2', ['valor' => 85], 5, 'manual'); // critical: evaluates despite the cooldown
 
-        $this->assertSame('critico', $this->abiertos($a)['hipoxia']->severidad);
-        $this->assertSame(1, $this->alertasPatron($a)->count());
+        $this->assertSame('critico', $this->openCases($a)['hipoxia']->severidad);
+        $this->assertSame(1, $this->patternAlerts($a)->count());
     }
 
-    public function test_el_gancho_nunca_rompe_el_registro_si_el_detector_falla(): void
+    public function test_the_hook_never_breaks_recording_when_the_detector_fails(): void
     {
-        $a = $this->astronauta();
-        config(['patrones' => 'configuracion-rota']);
+        $a = $this->crewMember();
+        config(['patrones' => 'broken-configuration']);
 
-        $ev = $this->reg($a, 'saturacion_o2', ['valor' => 92], 0, 'manual');
+        $ev = $this->record($a, 'saturacion_o2', ['valor' => 92], 0, 'manual');
 
         $this->assertSame('precaucion', $ev->estado);
         $this->assertSame(1, Medicion::where('astronauta_id', $a->id)->count());
-        $this->expectException(\Throwable::class); // evaluar() sí lanza: solo el gancho lo traga
+        $this->expectException(\Throwable::class); // evaluar() does throw: only the hook swallows it
         DetectorPatrones::evaluar($a);
     }
 }

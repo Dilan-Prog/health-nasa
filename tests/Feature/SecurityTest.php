@@ -12,22 +12,22 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class SeguridadTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never wipes the local database. */
+class SecurityTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private const CLAVE = 'clave-de-prueba-123';
+    private const PASSWORD = 'test-password-123';
 
-    private function escenario(): array
+    private function scenario(): array
     {
-        $m1 = Mision::create(['nombre' => 'Misión SG1', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(5), 'duracion_dias' => 30]);
-        $m2 = Mision::create(['nombre' => 'Misión SG2', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(5), 'duracion_dias' => 30]);
+        $m1 = Mision::create(['nombre' => 'Mission SG1', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(5), 'duracion_dias' => 30]);
+        $m2 = Mision::create(['nombre' => 'Mission SG2', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(5), 'duracion_dias' => 30]);
         $mk = fn ($m, $n) => Astronauta::create(['mision_id' => $m->id, 'nombre' => $n, 'mision' => 'SG', 'entorno' => 'estacion']);
         $a1 = $mk($m1, 'Ana SG');
         $a2 = $mk($m1, 'Beto SG');
         $b1 = $mk($m2, 'Carla SG');
-        $u = fn ($rol, $a) => tap(User::create(['name' => ucfirst($rol), 'email' => $rol.'-sg@prueba.test', 'password' => self::CLAVE, 'rol' => $rol]), function ($usr) use ($a) {
+        $u = fn ($role, $a) => tap(User::create(['name' => ucfirst($role), 'email' => $role.'-sg@example.test', 'password' => self::PASSWORD, 'rol' => $role]), function ($usr) use ($a) {
             if ($a) {
                 $a->forceFill(['user_id' => $usr->id])->save();
             }
@@ -39,32 +39,32 @@ class SeguridadTest extends TestCase
         ];
     }
 
-    private function activar(): void
+    private function enableLogin(): void
     {
         config(['mision.exigir_login' => true]);
     }
 
-    public function test_sin_login_redirige_al_acceso(): void
+    public function test_without_login_redirects_to_sign_in(): void
     {
-        $this->activar();
+        $this->enableLogin();
         $this->get('/')->assertRedirect(route('login'));
         $this->get('/alertas')->assertRedirect(route('login'));
         $this->get('/acceso')->assertOk();
         $this->get('/aviso-legal')->assertOk();
     }
 
-    public function test_con_la_bandera_apagada_todo_funciona_sin_login(): void
+    public function test_with_flag_off_everything_works_without_login(): void
     {
         config(['mision.exigir_login' => false]);
-        $this->escenario();
+        $this->scenario();
         $this->get('/')->assertOk();
         $this->assertSame(Astronauta::count(), Astronauta::visiblesPara(null)->count());
     }
 
-    public function test_el_tripulante_solo_ve_lo_suyo(): void
+    public function test_crew_member_sees_only_own_data(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
         $this->actingAs($e['trip']);
 
         $this->assertEquals([$e['a1']->id], Astronauta::visiblesPara($e['trip'])->pluck('id')->all());
@@ -75,20 +75,20 @@ class SeguridadTest extends TestCase
         $this->assertSame($e['a1']->id, TripulanteActual::obtener()->id);
     }
 
-    public function test_si_no_ve_al_fijado_en_sesion_cae_al_primero_visible(): void
+    public function test_falls_back_to_first_visible_when_session_pick_is_not_visible(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
         $this->actingAs($e['trip'])->withSession(['astronauta_id' => $e['a2']->id, 'mision_id' => $e['m1']->id]);
 
         $this->assertSame($e['a1']->id, TripulanteActual::obtener()->id);
         Livewire::test(SelectorTripulante::class)->assertSee('Ana SG')->assertDontSee('Beto SG');
     }
 
-    public function test_el_cmo_ve_su_tripulacion_y_no_otra_mision(): void
+    public function test_cmo_sees_own_crew_and_not_another_mission(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
 
         $ids = Astronauta::visiblesPara($e['cmo'])->pluck('id')->sort()->values()->all();
         $this->assertEquals([$e['a1']->id, $e['a2']->id], $ids);
@@ -98,10 +98,10 @@ class SeguridadTest extends TestCase
         $this->assertSame($e['m1']->id, TripulanteActual::mision()->id);
     }
 
-    public function test_el_flight_surgeon_ve_todo(): void
+    public function test_flight_surgeon_sees_everything(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
         $visibles = Astronauta::visiblesPara($e['fs'])->pluck('id')->all();
 
         $this->assertContains($e['a1']->id, $visibles);
@@ -109,55 +109,55 @@ class SeguridadTest extends TestCase
         $this->assertSame(Astronauta::count(), count($visibles));
     }
 
-    public function test_sin_usuario_y_con_login_exigido_no_se_ve_nada(): void
+    public function test_no_user_with_login_required_sees_nothing(): void
     {
-        $this->escenario();
-        $this->activar();
+        $this->scenario();
+        $this->enableLogin();
         $this->assertSame(0, Astronauta::visiblesPara(null)->count());
     }
 
-    public function test_login_correcto_e_incorrecto(): void
+    public function test_login_succeeds_and_fails_correctly(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
 
         Livewire::test(Login::class)
-            ->set('email', $e['trip']->email)->set('password', 'otra-clave')->call('entrar')
-            ->assertSet('error', 'Correo o contraseña incorrectos.')->assertNoRedirect();
+            ->set('email', $e['trip']->email)->set('password', 'wrong-password')->call('entrar')
+            ->assertSet('error', 'Incorrect email or password.')->assertNoRedirect();
         $this->assertGuest();
 
-        // Correo inexistente: exactamente el mismo mensaje (no revela si existe).
+        // Unknown email: exactly the same message (does not reveal whether it exists).
         Livewire::test(Login::class)
-            ->set('email', 'nadie@prueba.test')->set('password', 'x')->call('entrar')
-            ->assertSet('error', 'Correo o contraseña incorrectos.');
+            ->set('email', 'nobody@example.test')->set('password', 'x')->call('entrar')
+            ->assertSet('error', 'Incorrect email or password.');
 
         Livewire::test(Login::class)
-            ->set('email', $e['trip']->email)->set('password', self::CLAVE)->call('entrar')
+            ->set('email', $e['trip']->email)->set('password', self::PASSWORD)->call('entrar')
             ->assertRedirect('/');
         $this->assertAuthenticatedAs($e['trip']);
     }
 
-    public function test_cerrar_sesion_y_shell_con_nombre_y_rol(): void
+    public function test_sign_out_and_shell_show_name_and_role(): void
     {
-        $e = $this->escenario();
-        $this->activar();
+        $e = $this->scenario();
+        $this->enableLogin();
 
-        $this->actingAs($e['cmo'])->get('/')->assertOk()->assertSee('Cerrar sesión')->assertSee('OFICIAL MÉDICO (CMO)');
+        $this->actingAs($e['cmo'])->get('/')->assertOk()->assertSee('Sign out')->assertSee('CREW MEDICAL OFFICER (CMO)');
         $this->post(route('logout'))->assertRedirect(route('login'));
         $this->assertGuest();
     }
 
-    public function test_sin_sesion_no_hay_boton_cerrar_sesion(): void
+    public function test_without_session_there_is_no_sign_out_button(): void
     {
         config(['mision.exigir_login' => false]);
-        $this->get('/')->assertOk()->assertDontSee('Cerrar sesión');
+        $this->get('/')->assertOk()->assertDontSee('Sign out');
     }
 
-    public function test_la_api_del_reloj_sigue_con_token_y_sin_sesion(): void
+    public function test_watch_api_still_works_with_token_and_without_session(): void
     {
-        $this->activar();
-        $a = Astronauta::create(['nombre' => 'Reloj SG', 'mision' => 'T-1', 'entorno' => 'estacion']);
-        $token = 'token-sg-'.$a->id;
+        $this->enableLogin();
+        $a = Astronauta::create(['nombre' => 'Watch SG', 'mision' => 'T-1', 'entorno' => 'estacion']);
+        $token = 'sg-token-'.$a->id;
         $a->forceFill(['token_dispositivo' => hash('sha256', $token)])->save();
 
         $this->withToken($token)->postJson('/api/mediciones', ['mediciones' => [

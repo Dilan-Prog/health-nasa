@@ -11,7 +11,7 @@ use App\Services\Salud\ReglasEscalamiento;
 use App\Services\Salud\ValidadorMedicion;
 use PHPUnit\Framework\TestCase;
 
-class MotorSaludTest extends TestCase
+class HealthEngineTest extends TestCase
 {
     private array $config;
 
@@ -20,9 +20,9 @@ class MotorSaludTest extends TestCase
         $this->config = require __DIR__.'/../../../config/umbrales.php';
     }
 
-    // ---- Evaluador -------------------------------------------------------
+    // ---- Evaluator -------------------------------------------------------
 
-    public function test_valor_simple_normal_precaucion_y_critico(): void
+    public function test_simple_value_normal_caution_and_critical(): void
     {
         $e = new EvaluadorEstado($this->config);
 
@@ -31,7 +31,7 @@ class MotorSaludTest extends TestCase
         $this->assertSame(Estado::Critico, $e->evaluar('frecuencia_cardiaca', ['valor' => 150]));
     }
 
-    public function test_limites_exactos_son_inclusivos(): void
+    public function test_exact_limits_are_inclusive(): void
     {
         $e = new EvaluadorEstado($this->config);
 
@@ -45,85 +45,85 @@ class MotorSaludTest extends TestCase
         $this->assertSame(Estado::Critico, $e->evaluar('frecuencia_cardiaca', ['valor' => 121]));
     }
 
-    public function test_presion_compuesta_toma_el_peor_componente(): void
+    public function test_composite_pressure_takes_the_worst_component(): void
     {
         $e = new EvaluadorEstado($this->config);
 
         $this->assertSame(Estado::Normal, $e->evaluar('presion_arterial', ['sistolica' => 118, 'diastolica' => 76]));
-        // Sistólica normal, diastólica en precaución -> precaución.
+        // Normal systolic, caution-level diastolic -> caution.
         $this->assertSame(Estado::Precaucion, $e->evaluar('presion_arterial', ['sistolica' => 118, 'diastolica' => 86]));
-        // Sistólica crítica manda aunque la diastólica sea normal.
+        // A critical systolic dominates even if the diastolic is normal.
         $this->assertSame(Estado::Critico, $e->evaluar('presion_arterial', ['sistolica' => 185, 'diastolica' => 80]));
     }
 
-    public function test_evaluar_sin_componente_lanza_excepcion(): void
+    public function test_evaluating_without_a_component_throws(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         (new EvaluadorEstado($this->config))->evaluar('presion_arterial', ['sistolica' => 120]);
     }
 
-    public function test_indicador_desconocido_lanza_excepcion(): void
+    public function test_unknown_indicator_throws(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         (new EvaluadorEstado($this->config))->evaluar('inexistente', ['valor' => 1]);
     }
 
-    public function test_tendencias(): void
+    public function test_trends(): void
     {
         $e = new EvaluadorEstado($this->config);
 
         $this->assertSame('subiendo', $e->tendencia([70, 72, 80, 88, 95, 100]));
         $this->assertSame('bajando', $e->tendencia([8, 7.5, 6, 5, 4.5, 4]));
         $this->assertSame('estable', $e->tendencia([72, 73, 72, 71, 72, 73]));
-        $this->assertSame('estable', $e->tendencia([70, 100]), 'poca historia no marca tendencia');
+        $this->assertSame('estable', $e->tendencia([70, 100]), 'little history does not set a trend');
     }
 
-    // ---- Validador -------------------------------------------------------
+    // ---- Validator -------------------------------------------------------
 
-    public function test_validador_acepta_medicion_correcta(): void
+    public function test_validator_accepts_a_correct_measurement(): void
     {
         $v = new ValidadorMedicion($this->config);
         $this->assertSame([], $v->validar('presion_arterial', ['sistolica' => 120, 'diastolica' => 80]));
     }
 
-    public function test_validador_detecta_imposibles_faltantes_y_no_numericos(): void
+    public function test_validator_detects_impossible_missing_and_non_numeric_values(): void
     {
         $v = new ValidadorMedicion($this->config);
 
-        $this->assertNotEmpty($v->validar('temperatura', ['valor' => 80]), 'imposible');
-        $this->assertNotEmpty($v->validar('temperatura', []), 'faltante');
-        $this->assertNotEmpty($v->validar('temperatura', ['valor' => 'abc']), 'no numérico');
-        $this->assertNotEmpty($v->validar('presion_arterial', ['sistolica' => 80, 'diastolica' => 90]), 'diastólica >= sistólica');
+        $this->assertNotEmpty($v->validar('temperatura', ['valor' => 80]), 'impossible');
+        $this->assertNotEmpty($v->validar('temperatura', []), 'missing');
+        $this->assertNotEmpty($v->validar('temperatura', ['valor' => 'abc']), 'non-numeric');
+        $this->assertNotEmpty($v->validar('presion_arterial', ['sistolica' => 80, 'diastolica' => 90]), 'diastolic >= systolic');
     }
 
-    public function test_validador_detecta_duplicados(): void
+    public function test_validator_detects_duplicates(): void
     {
         $v = new ValidadorMedicion($this->config);
-        $previas = [['instante' => 1000, 'valores' => ['valor' => 72]]];
+        $previous = [['instante' => 1000, 'valores' => ['valor' => 72]]];
 
-        $this->assertTrue($v->esDuplicada(['valor' => 72], 1030, $previas));
-        $this->assertFalse($v->esDuplicada(['valor' => 72], 1200, $previas), 'fuera de la ventana');
-        $this->assertFalse($v->esDuplicada(['valor' => 73], 1030, $previas), 'otro valor');
+        $this->assertTrue($v->esDuplicada(['valor' => 72], 1030, $previous));
+        $this->assertFalse($v->esDuplicada(['valor' => 72], 1200, $previous), 'outside the window');
+        $this->assertFalse($v->esDuplicada(['valor' => 73], 1030, $previous), 'different value');
     }
 
-    // ---- Línea base ------------------------------------------------------
+    // ---- Baseline ------------------------------------------------------
 
-    public function test_linea_base_requiere_historial_minimo(): void
+    public function test_baseline_requires_minimum_history(): void
     {
         $this->assertNull((new LineaBasePersonal())->calcular([70, 71], 72));
     }
 
-    public function test_linea_base_agrava_un_normal_muy_alejado_de_su_habito(): void
+    public function test_baseline_escalates_a_normal_far_from_the_usual(): void
     {
         $lb = new LineaBasePersonal();
-        $historial = [58, 60, 59, 61, 60, 59, 60]; // astronauta con pulso bajo habitual
+        $history = [58, 60, 59, 61, 60, 59, 60]; // astronaut with a habitually low pulse
 
-        $base = $lb->calcular($historial, 95); // 95 lpm es normal en población, pero atípico para él
+        $base = $lb->calcular($history, 95); // 95 bpm is normal for the population but atypical for him
         $this->assertGreaterThanOrEqual(2.0, abs($base['z']));
         $this->assertSame(Estado::Precaucion, $lb->ajustar(Estado::Normal, $base));
     }
 
-    public function test_linea_base_no_degrada_un_estado_grave(): void
+    public function test_baseline_does_not_downgrade_a_severe_state(): void
     {
         $lb = new LineaBasePersonal();
         $base = $lb->calcular([60, 61, 60, 62, 61], 61);
@@ -132,15 +132,15 @@ class MotorSaludTest extends TestCase
         $this->assertSame(Estado::Normal, $lb->ajustar(Estado::Normal, $base));
     }
 
-    public function test_linea_base_constante_no_produce_z_infinito(): void
+    public function test_constant_baseline_does_not_produce_infinite_z(): void
     {
         $base = (new LineaBasePersonal())->calcular([60, 60, 60, 60, 60], 60);
         $this->assertEquals(0.0, $base['z']);
     }
 
-    // ---- Escalamiento ----------------------------------------------------
+    // ---- Escalation ----------------------------------------------------
 
-    public function test_escalamiento_por_estado(): void
+    public function test_escalation_by_state(): void
     {
         $r = new ReglasEscalamiento();
 
@@ -150,38 +150,38 @@ class MotorSaludTest extends TestCase
         $this->assertSame('contactar_tierra', $r->decidir(Estado::Critico)['accion']);
     }
 
-    public function test_critico_con_retardo_alto_se_atiende_primero_a_bordo(): void
+    public function test_critical_with_high_delay_is_handled_on_board_first(): void
     {
         $r = new ReglasEscalamiento();
 
-        $cerca = $r->decidir(Estado::Critico, 'estable', 0);
-        $marte = $r->decidir(Estado::Critico, 'estable', 20);
+        $near = $r->decidir(Estado::Critico, 'estable', 0);
+        $mars = $r->decidir(Estado::Critico, 'estable', 20);
 
-        $this->assertFalse($cerca['a_bordo']);
-        $this->assertTrue($marte['a_bordo']);
-        $this->assertTrue($cerca['encolar_tierra']);
-        $this->assertTrue($marte['encolar_tierra']);
+        $this->assertFalse($near['a_bordo']);
+        $this->assertTrue($mars['a_bordo']);
+        $this->assertTrue($near['encolar_tierra']);
+        $this->assertTrue($mars['encolar_tierra']);
     }
 
-    public function test_un_normal_nunca_se_encola_a_tierra(): void
+    public function test_a_normal_is_never_queued_to_ground(): void
     {
         $this->assertFalse((new ReglasEscalamiento())->decidir(Estado::Normal)['encolar_tierra']);
     }
 
-    // ---- Recomendaciones -------------------------------------------------
+    // ---- Recommendations -------------------------------------------------
 
-    public function test_recomendaciones_especificas_y_generales(): void
+    public function test_specific_and_general_recommendations(): void
     {
         $c = new CatalogoRecomendaciones();
 
-        $this->assertStringContainsString('reposo', $c->para('frecuencia_cardiaca', Estado::Precaucion));
-        $this->assertStringContainsString('flight surgeon', $c->para('frecuencia_cardiaca', Estado::Critico));
+        $this->assertStringContainsString('at rest', $c->para('frecuencia_cardiaca', Estado::Precaucion));
+        $this->assertStringContainsString('Flight Surgeon', $c->para('frecuencia_cardiaca', Estado::Critico));
         $this->assertNotSame('', $c->para('animo', Estado::Normal));
     }
 
-    // ---- Índice por sistema ---------------------------------------------
+    // ---- Per-system index ---------------------------------------------
 
-    public function test_indice_por_sistema(): void
+    public function test_per_system_index(): void
     {
         $i = (new IndiceSistemaCorporal($this->config))->calcular([
             'frecuencia_cardiaca' => Estado::Normal,
@@ -193,10 +193,10 @@ class MotorSaludTest extends TestCase
         $this->assertSame(Estado::Precaucion, $i['cardiovascular']['estado']);
         $this->assertSame(Estado::Critico, $i['metabolico']['estado']);
         $this->assertLessThanOrEqual(40, $i['metabolico']['puntaje']);
-        $this->assertNull($i['musculoesqueletico']['puntaje'], 'sin datos');
+        $this->assertNull($i['musculoesqueletico']['puntaje'], 'no data');
     }
 
-    public function test_un_critico_no_se_oculta_por_el_promedio(): void
+    public function test_a_critical_is_not_hidden_by_the_average(): void
     {
         $i = (new IndiceSistemaCorporal($this->config))->calcular([
             'frecuencia_cardiaca' => Estado::Normal,

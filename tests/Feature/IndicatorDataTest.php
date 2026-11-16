@@ -12,8 +12,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class DatosIndicadorTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase): never wipes the local DB data. */
+class IndicatorDataTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -22,14 +22,14 @@ class DatosIndicadorTest extends TestCase
         'perdida_osea', 'masa_muscular', 'radiacion_diaria', 'dosis_acumulada', 'sueno', 'estres_cognitivo', 'vision_sans',
     ];
 
-    /** Estados de la maqueta (S0) para Dilan. */
+    /** Mockup states (S0) for Dilan. */
     private const S0 = [
         'presion_arterial' => 'warn', 'frecuencia_cardiaca' => 'ok', 'saturacion_o2' => 'ok', 'glucosa' => 'ok', 'temperatura' => 'ok',
         'imc' => 'ok', 'hidratacion' => 'warn', 'perdida_osea' => 'crit', 'masa_muscular' => 'crit', 'radiacion_diaria' => 'ok',
         'dosis_acumulada' => 'ok', 'sueno' => 'crit', 'estres_cognitivo' => 'ok', 'vision_sans' => 'warn',
     ];
 
-    private function tripulacion()
+    private function crew()
     {
         $this->seed(ExpedicionSeeder::class);
         $this->seed(HistorialExpedicionSeeder::class);
@@ -37,39 +37,39 @@ class DatosIndicadorTest extends TestCase
         return Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail()->tripulantes()->orderBy('id')->get();
     }
 
-    /** Una sola siembra por prueba (el historial son ~11.500 filas): todas las comprobaciones del payload van juntas. */
-    public function test_payload_completo_del_historial_de_la_expedicion(): void
+    /** One seeding per test (the history is ~11,500 rows): all payload checks run together. */
+    public function test_full_payload_of_the_expedition_history(): void
     {
-        $trip = $this->tripulacion();
-        $dilan = $trip->first();
+        $crew = $this->crew();
+        $dilan = $crew->first();
         $p = DatosIndicador::para($dilan);
 
-        $this->comprobarForma($p);
-        $this->comprobarSeries($p);
-        $this->comprobarEstadosDilan($p, $dilan);
-        $this->comprobarTripulacion($trip);
+        $this->checkShape($p);
+        $this->checkSeries($p);
+        $this->checkDilanStates($p, $dilan);
+        $this->checkCrew($crew);
 
         DB::flushQueryLog();
         DB::enableQueryLog();
         DatosIndicador::para($dilan);
-        $this->assertLessThanOrEqual(4, count(DB::getQueryLog())); // 3 + 1 de línea base (temperatura)
+        $this->assertLessThanOrEqual(4, count(DB::getQueryLog())); // 3 + 1 for the baseline (temperature)
     }
 
-    private function comprobarForma(array $p): void
+    private function checkShape(array $p): void
     {
 
         $this->assertSame(['hoy', 'dias', 'sistemas', 'marcadores', 'diaria', 'horaria'], array_keys($p));
         $this->assertSame(now('UTC')->toDateString(), $p['hoy']);
         $this->assertSame(142, $p['dias']);
-        $this->assertCount(count(config('sistemas.grupos')), $p['sistemas']); // fuente única: config/sistemas.php
-        $this->assertSame(['Cardiovascular', 'cardiology'], $p['sistemas'][0]);
+        $this->assertCount(count(config('sistemas.grupos')), $p['sistemas']); // single source: config/sistemas.php
+        $this->assertSame([config('sistemas.grupos.0.titulo'), config('sistemas.grupos.0.ic')], $p['sistemas'][0]);
         $this->assertSame(self::IDS, array_column($p['marcadores'], 'id'));
         $this->assertSame(self::IDS, array_keys($p['diaria']));
         $this->assertSame(self::IDS, array_keys($p['horaria']));
 
         $pa = $p['marcadores'][0];
         $this->assertSame(['id', 'label', 'ic', 'unit', 'sys', 'val', 'disp', 'lo', 'hi', 'base', 'dec', 'rec', 'estado', 'loss', 'cum', 'signo'], array_keys($pa));
-        $this->assertSame('Presión arterial', $pa['label']);
+        $this->assertSame(config('indicadores.marcadores.presion_arterial.label'), $pa['label']);
         $this->assertSame('monitor_heart', $pa['ic']);
         $this->assertEquals(128, $pa['val']);
         $this->assertSame('128/84', $pa['disp']);
@@ -82,11 +82,11 @@ class DatosIndicadorTest extends TestCase
         $this->assertSame("\u{2212}1.6", $por['perdida_osea']['disp']);
         $this->assertSame('+0.6', $por['vision_sans']['disp']);
         $this->assertSame('76.7', $por['dosis_acumulada']['disp']);
-        // sys = posición del grupo en config/sistemas.php (se deriva de ahí; no se fija a mano)
+        // sys = group position in config/sistemas.php (derived from there; not hard-coded by hand)
         $this->assertSame([0, 0, 1, 9, 9, 9, 9, 2, 2, 10, 10, 8, 7, 4], array_column($p['marcadores'], 'sys'));
     }
 
-    private function comprobarSeries(array $p): void
+    private function checkSeries(array $p): void
     {
 
         foreach ($p['marcadores'] as $m) {
@@ -98,7 +98,7 @@ class DatosIndicadorTest extends TestCase
                 $this->assertIsNumeric($v);
             }
         }
-        // Dosis acumulada: creciente de ~0 al valor actual.
+        // Cumulative dose: increasing from ~0 to the current value.
         $dosis = $p['diaria']['dosis_acumulada'];
         $this->assertEquals(0.0, $dosis[0]);
         $this->assertEquals(76.7, $dosis[141]);
@@ -107,61 +107,61 @@ class DatosIndicadorTest extends TestCase
         }
     }
 
-    private function comprobarEstadosDilan(array $p, $dilan): void
+    private function checkDilanStates(array $p, $dilan): void
     {
 
         foreach ($p['marcadores'] as $m) {
             $this->assertSame(self::S0[$m['id']], $m['estado'], $m['id']);
         }
 
-        // El Panel sigue mostrando los mismos valores y estados del diseño.
+        // The Dashboard still shows the same values and states as the design.
         $r = ResumenTripulante::make()->de($dilan);
-        $this->assertSame(['crit' => 2, 'warn' => 1, 'ok' => 7], $r['conteo']); // Nivel 2: radiación y dosis pasan a normal
+        $this->assertSame(['crit' => 2, 'warn' => 1, 'ok' => 7], $r['conteo']); // Level 2: radiation and dose become normal
         $this->assertSame('128/84', $r['indicadores'][0]['valor']);
         $this->assertTrue($r['medido_hoy']);
         $this->assertSame('07:31', $r['ultima_medicion']->utc()->format('H:i'));
     }
 
-    private function comprobarTripulacion($trip): void
+    private function checkCrew($crew): void
     {
-        $this->assertCount(5, $trip);
-        $esperado = ['presion_arterial' => ['warn', 'ok', 'crit', 'ok', 'warn'], 'sueno' => ['crit', 'ok', 'warn', 'ok', 'warn'], 'dosis_acumulada' => ['ok', 'ok', 'ok', 'ok', 'ok']];
+        $this->assertCount(5, $crew);
+        $expected = ['presion_arterial' => ['warn', 'ok', 'crit', 'ok', 'warn'], 'sueno' => ['crit', 'ok', 'warn', 'ok', 'warn'], 'dosis_acumulada' => ['ok', 'ok', 'ok', 'ok', 'ok']];
 
-        foreach ($trip as $i => $a) {
+        foreach ($crew as $i => $a) {
             $p = DatosIndicador::para($a);
             $por = array_column($p['marcadores'], null, 'id');
-            foreach ($esperado as $clave => $estados) {
-                $this->assertSame($estados[$i], $por[$clave]['estado'], $a->nombre.' '.$clave);
+            foreach ($expected as $key => $states) {
+                $this->assertSame($states[$i], $por[$key]['estado'], $a->nombre.' '.$key);
             }
             foreach (self::IDS as $id) {
                 $this->assertCount(142, $p['diaria'][$id]);
             }
         }
-        // Kenji y Lucas siguen "pendientes" hoy: el historial no añade mediciones de hoy.
-        $this->assertFalse(ResumenTripulante::make()->de($trip[2])['medido_hoy']);
-        $this->assertFalse(ResumenTripulante::make()->de($trip[4])['medido_hoy']);
+        // Kenji and Lucas are still "pending" today: the history adds no measurements for today.
+        $this->assertFalse(ResumenTripulante::make()->de($crew[2])['medido_hoy']);
+        $this->assertFalse(ResumenTripulante::make()->de($crew[4])['medido_hoy']);
     }
 
-    public function test_seeder_idempotente_y_sin_alertas_ni_efectos_fuera_de_los_5(): void
+    public function test_seeder_is_idempotent_with_no_alerts_or_effects_outside_the_5(): void
     {
-        $trip = $this->tripulacion();
-        $ids = $trip->pluck('id');
-        $cuenta = fn () => [
+        $crew = $this->crew();
+        $ids = $crew->pluck('id');
+        $count = fn () => [
             Medicion::whereIn('astronauta_id', $ids)->where('origen', 'historial')->count(),
             DB::table('evaluaciones')->join('mediciones', 'mediciones.id', '=', 'evaluaciones.medicion_id')->whereIn('astronauta_id', $ids)->where('origen', 'historial')->count(),
             Medicion::whereIn('astronauta_id', $ids)->where('origen', '!=', 'historial')->count(),
         ];
-        $alertas = fn () => DB::table('alertas_salientes')->count();
+        $alerts = fn () => DB::table('alertas_salientes')->count();
 
-        $antes = $cuenta();
-        $otras = Medicion::whereNotIn('astronauta_id', $ids)->count();
-        $alertasAntes = $alertas();
+        $before = $count();
+        $others = Medicion::whereNotIn('astronauta_id', $ids)->count();
+        $alertsBefore = $alerts();
         $this->seed(HistorialExpedicionSeeder::class);
 
-        $this->assertSame($antes, $cuenta());
-        $this->assertGreaterThan(10000, $antes[0]);
-        $this->assertSame($antes[0], $antes[1]); // cada medición histórica tiene su evaluación
-        $this->assertSame($otras, Medicion::whereNotIn('astronauta_id', $ids)->count());
-        $this->assertSame($alertasAntes, $alertas()); // el historial no encola alertas a tierra
+        $this->assertSame($before, $count());
+        $this->assertGreaterThan(10000, $before[0]);
+        $this->assertSame($before[0], $before[1]); // every historical measurement has its evaluation
+        $this->assertSame($others, Medicion::whereNotIn('astronauta_id', $ids)->count());
+        $this->assertSame($alertsBefore, $alerts()); // the history queues no ground alerts
     }
 }

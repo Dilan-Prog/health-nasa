@@ -14,14 +14,14 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase). El Orientador se fakea. */
-class PanelCasoTest extends TestCase
+/** DatabaseTransactions (no RefreshDatabase). The Advisor (Orientador) is faked. */
+class DashboardCaseTest extends TestCase
 {
     use DatabaseTransactions;
 
     private Astronauta $a;
 
-    private Astronauta $otro;
+    private Astronauta $other;
 
     private object $fake;
 
@@ -29,9 +29,9 @@ class PanelCasoTest extends TestCase
     {
         parent::setUp();
         $this->seed(ExpedicionSeeder::class);
-        $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
-        session(['mision_id' => $mision->id]);
-        [$this->a, $this->otro] = Astronauta::where('mision_id', $mision->id)->orderBy('id')->take(2)->get()->all();
+        $mission = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        session(['mision_id' => $mission->id]);
+        [$this->a, $this->other] = Astronauta::where('mision_id', $mission->id)->orderBy('id')->take(2)->get()->all();
         TripulanteActual::fijar($this->a->id);
 
         $this->fake = new class implements Orientador
@@ -44,10 +44,10 @@ class PanelCasoTest extends TestCase
 
                 return new Orientacion(
                     casoId: $caso->id, astronautaId: $caso->astronauta_id, patron: $caso->patron, severidad: $caso->severidad,
-                    titulo: 'Posible hipoxia (prueba '.$caso->astronauta_id.')', hallazgo: 'Los valores podrían sugerir un patrón de prueba.',
-                    acciones: [['texto' => 'Descansa y repite la medición', 'fuente' => null]],
+                    titulo: 'Possible hypoxia (test '.$caso->astronauta_id.')', hallazgo: 'The values could suggest a test pattern.',
+                    acciones: [['texto' => 'Rest and repeat the measurement', 'fuente' => null]],
                     historial7d: [['indicador' => 'spo2', 'etiqueta' => 'SpO₂', 'unidad' => '%', 'serie' => [98, 96, 94], 'actual' => '94', 'base' => '98']],
-                    expedienteRelevante: ['Sin antecedentes relacionados'], tratamientos: ['Sin tratamientos registrados'],
+                    expedienteRelevante: ['No related history'], tratamientos: ['No treatments recorded'],
                     fuentes: [], confianza: 60,
                 );
             }
@@ -55,51 +55,51 @@ class PanelCasoTest extends TestCase
         $this->app->instance(Orientador::class, $this->fake);
     }
 
-    private function caso(Astronauta $a, string $estado = 'abierto'): CasoClinico
+    private function clinicalCase(Astronauta $crew, string $status = 'abierto'): CasoClinico
     {
         return CasoClinico::create([
-            'astronauta_id' => $a->id, 'patron' => 'hipoxia', 'severidad' => 'precaucion', 'evidencia' => [], 'estado' => $estado,
-            'detectado_en' => now(), 'cerrado_en' => $estado === 'cerrado' ? now() : null,
+            'astronauta_id' => $crew->id, 'patron' => 'hipoxia', 'severidad' => 'precaucion', 'evidencia' => [], 'estado' => $status,
+            'detectado_en' => now(), 'cerrado_en' => $status === 'cerrado' ? now() : null,
         ]);
     }
 
-    public function test_sin_caso_no_hay_tarjeta(): void
+    public function test_no_case_means_no_card(): void
     {
         Livewire::test(Panel::class)->assertDontSee('panel-caso')->assertViewHas('caso', null);
         $this->assertSame(0, $this->fake->llamadas);
     }
 
-    public function test_un_caso_cerrado_o_de_otro_tripulante_no_genera_tarjeta(): void
+    public function test_a_closed_case_or_another_crew_members_case_does_not_generate_a_card(): void
     {
-        $this->caso($this->a, 'cerrado');
-        $this->caso($this->otro);
-        Livewire::test(Panel::class)->assertDontSee('panel-caso')->assertDontSee('Posible hipoxia (prueba');
+        $this->clinicalCase($this->a, 'cerrado');
+        $this->clinicalCase($this->other);
+        Livewire::test(Panel::class)->assertDontSee('panel-caso')->assertDontSee('Possible hypoxia (test');
     }
 
-    public function test_con_caso_abierto_muestra_la_tarjeta_y_conserva_las_sugerencias(): void
+    public function test_an_open_case_shows_the_card_and_keeps_the_suggestions(): void
     {
-        $this->caso($this->a);
+        $this->clinicalCase($this->a);
         $t = Livewire::test(Panel::class)
-            ->assertSee('Posible hipoxia (prueba '.$this->a->id.')')
-            ->assertSee('Los valores podrían sugerir un patrón de prueba.')
-            ->assertSee('Descansa y repite la medición')
-            ->assertSee('Abrir en Médico de vuelo')
+            ->assertSee('Possible hypoxia (test '.$this->a->id.')')
+            ->assertSee('The values could suggest a test pattern.')
+            ->assertSee('Rest and repeat the measurement')
+            ->assertSee('Open in Flight Surgeon')
             ->assertSee('abrir-medico-flotante', false)
-            ->assertSee('Qué hacer ahora')
-            ->assertSee('Autochequeo guiado')
-            ->assertSee('Esta herramienta orienta, no diagnostica');
-        // Las tarjetas de siempre siguen: la vista recibe las mismas claves que antes.
+            ->assertSee('What to do now')
+            ->assertSee('Guided self-check')
+            ->assertSee('This tool provides guidance only; it does not diagnose');
+        // The usual cards remain: the view receives the same keys as before.
         $t->assertViewHas('tarjetas');
         $t->assertViewHas('caso');
     }
 
-    public function test_el_orientador_no_se_llama_dos_veces_por_el_mismo_caso(): void
+    public function test_the_advisor_is_not_called_twice_for_the_same_case(): void
     {
-        $caso = $this->caso($this->a);
+        $case = $this->clinicalCase($this->a);
         $t = Livewire::test(Panel::class);
         $t->call('refrescar');
-        // También el flotante comparte la misma orientación cacheada.
-        \App\Livewire\MedicoFlotante::orientacionDe($caso->fresh());
+        // The floating widget also shares the same cached guidance.
+        \App\Livewire\MedicoFlotante::orientacionDe($case->fresh());
         $this->assertSame(1, $this->fake->llamadas);
     }
 }

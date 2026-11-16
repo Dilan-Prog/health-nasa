@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class MisionPerfilTest extends TestCase
+class MissionProfileTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -25,8 +25,8 @@ class MisionPerfilTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->m = Mision::create(['nombre' => 'Perfil Test', 'entorno' => 'estacion', 'care_level' => 3, 'mission_phase' => 'vuelo', 'duracion_dias' => 100, 'inicio_en' => now()->subDays(5)]);
-        $this->a = Astronauta::create(['nombre' => 'Perfil Test', 'mision' => 'T-1', 'entorno' => 'estacion', 'mision_id' => $this->m->id]);
+        $this->m = Mision::create(['nombre' => 'Profile Test', 'entorno' => 'estacion', 'care_level' => 3, 'mission_phase' => 'vuelo', 'duracion_dias' => 100, 'inicio_en' => now()->subDays(5)]);
+        $this->a = Astronauta::create(['nombre' => 'Profile Test', 'mision' => 'T-1', 'entorno' => 'estacion', 'mision_id' => $this->m->id]);
         session(['mision_id' => $this->m->id]);
         TripulanteActual::fijar($this->a->id);
         Cache::forever('tierra.enlace', true);
@@ -38,16 +38,16 @@ class MisionPerfilTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_helpers_del_modelo(): void
+    public function test_model_helpers(): void
     {
         $this->assertFalse($this->m->triajeAutonomo());
-        $this->assertStringContainsString('Telemedicina síncrona', $this->m->etiquetaCareLevel());
+        $this->assertStringContainsString('Synchronous telemedicine', $this->m->etiquetaCareLevel());
         $this->m->care_level = 4;
         $this->assertTrue($this->m->triajeAutonomo());
-        $this->assertStringContainsString('Triaje autónomo local', $this->m->etiquetaCareLevel());
+        $this->assertStringContainsString('Local autonomous triage', $this->m->etiquetaCareLevel());
     }
 
-    public function test_el_selector_guarda_nivel_y_fase(): void
+    public function test_selector_saves_level_and_phase(): void
     {
         Livewire::test(ContextoMision::class)
             ->assertSet('careLevel', 3)
@@ -59,7 +59,7 @@ class MisionPerfilTest extends TestCase
         $this->assertSame('posvuelo', $this->m->mission_phase);
     }
 
-    public function test_valores_invalidos_no_se_guardan(): void
+    public function test_invalid_values_are_not_saved(): void
     {
         Livewire::test(ContextoMision::class)
             ->set('careLevel', 2)->assertHasErrors('careLevel')
@@ -69,35 +69,35 @@ class MisionPerfilTest extends TestCase
         $this->assertSame('vuelo', $this->m->mission_phase);
     }
 
-    public function test_medico_nivel_3_ofrece_videoconsulta(): void
+    public function test_flight_surgeon_level_3_offers_video_consultation(): void
     {
         Livewire::test(MedicoVuelo::class)
-            ->assertSee('Solicitar videoconsulta')
-            ->assertSee('Telemedicina síncrona')
-            ->assertDontSee('Triaje autónomo local: orientación inmediata');
+            ->assertSee('Request video consultation')
+            ->assertSee('Synchronous telemedicine')
+            ->assertDontSee('Local autonomous triage: immediate on-board guidance');
     }
 
-    public function test_medico_nivel_4_y_5_no_ofrece_videoconsulta(): void
+    public function test_flight_surgeon_level_4_and_5_do_not_offer_video_consultation(): void
     {
         foreach ([4, 5] as $n) {
             $this->m->update(['care_level' => $n]);
             Livewire::test(MedicoVuelo::class)
-                ->assertDontSee('Solicitar videoconsulta')
-                ->assertSee('Triaje autónomo local: orientación inmediata a bordo y mensaje asíncrono a tierra')
-                ->assertSee('Enviar mensaje');
+                ->assertDontSee('Request video consultation')
+                ->assertSee('Local autonomous triage: immediate on-board guidance and an asynchronous message to the ground')
+                ->assertSee('Send message');
         }
     }
 
-    public function test_consultas_tierra_video_con_triaje_autonomo_lanza_excepcion(): void
+    public function test_ground_consultations_video_with_autonomous_triage_throws_exception(): void
     {
         $this->m->update(['care_level' => 4]);
         $this->a->refresh();
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Triaje autónomo local');
+        $this->expectExceptionMessage('Local autonomous triage');
         ConsultasTierra::enviar($this->a, 'video', ['glucosa']);
     }
 
-    public function test_consultas_tierra_video_nivel_3_y_mensaje_nivel_5_funcionan(): void
+    public function test_ground_consultations_video_level_3_and_message_level_5_work(): void
     {
         $this->assertSame('video', ConsultasTierra::enviar($this->a, 'video', ['glucosa'])->tipo);
         $this->m->update(['care_level' => 5]);
@@ -105,29 +105,29 @@ class MisionPerfilTest extends TestCase
         $this->assertSame('msg', ConsultasTierra::enviar($this->a, 'msg', ['glucosa'])->tipo);
     }
 
-    public function test_sin_enlace_la_consulta_sigue_marcandose_fallida(): void
+    public function test_without_a_link_the_consultation_is_still_marked_failed(): void
     {
         Cache::forever('tierra.enlace', false);
         $this->assertTrue(ConsultasTierra::enviar($this->a, 'video', ['glucosa'])->fallida);
     }
 
-    public function test_la_tarjeta_muestra_fuente_referencia_y_banda(): void
+    public function test_card_shows_source_reference_and_band(): void
     {
-        $tarjeta = [
-            'id' => 'tarjeta-x', 'kind' => 'rule', 'sev' => 'warn', 'finding' => 'Presión alta', 'steps' => ['Descansa'],
-            'banda' => 'Hipertensión 1',
-            'fuente' => ['tipo' => 'proyecto', 'revision' => 'Rev C', 'validado' => false, 'codigo' => null, 'etiqueta' => 'Supuesto del proyecto', 'es_proyeccion' => true],
+        $card = [
+            'id' => 'card-x', 'kind' => 'rule', 'sev' => 'warn', 'finding' => 'High pressure', 'steps' => ['Rest'],
+            'banda' => 'Hypertension stage 1',
+            'fuente' => ['tipo' => 'proyecto', 'revision' => 'Rev C', 'validado' => false, 'codigo' => null, 'etiqueta' => 'Project assumption', 'es_proyeccion' => true],
             'referencia' => ['tipo' => 'norma', 'revision' => 'Rev C', 'validado' => true, 'codigo' => 'V1 4027', 'etiqueta' => 'NASA-STD-3001 V1 4027', 'es_proyeccion' => false],
         ];
         $html = view('livewire.medico-vuelo', [
-            'astronauta' => $this->a, 'tarjetas' => [$tarjeta], 'emergencia' => null, 'hayEmerg' => false, 'nPausa' => 0,
+            'astronauta' => $this->a, 'tarjetas' => [$card], 'emergencia' => null, 'hayEmerg' => false, 'nPausa' => 0,
             'votos' => [], 'compartibles' => [], 'elegidos' => [], 'adjuntos' => [], 'envios' => [], 'retardo' => 0,
-            'enlace' => true, 'puedeVideo' => true, 'autonomo' => false, 'nivelAtencion' => 'Nivel 3',
+            'enlace' => true, 'puedeVideo' => true, 'autonomo' => false, 'nivelAtencion' => 'Level 3',
             'fuente' => [], 'anadidas' => [], 'marcados' => [], 'adjuntosSel' => [], 'nota' => '', 'error' => null, 'anuncio' => '', 'gracias' => [],
         ])->render();
-        $this->assertStringContainsString('Hipertensión 1', $html);
-        $this->assertStringContainsString('Proyección (HRP)', $html);
-        $this->assertStringContainsString('Fuente: Supuesto del proyecto', $html);
+        $this->assertStringContainsString('Hypertension stage 1', $html);
+        $this->assertStringContainsString('Projection (HRP)', $html);
+        $this->assertStringContainsString('Source: Project assumption', $html);
         $this->assertStringContainsString('NASA-STD-3001 V1 4027', $html);
     }
 }

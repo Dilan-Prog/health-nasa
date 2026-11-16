@@ -10,37 +10,37 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** DatabaseTransactions (no RefreshDatabase): nunca borra los datos de la BD local. */
-class ColaTierraTest extends TestCase
+/** DatabaseTransactions (not RefreshDatabase): never deletes the local database data. */
+class GroundQueueTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_lista_avisos_con_estado_y_resumen(): void
+    public function test_lists_alerts_with_status_and_summary(): void
     {
-        $m = Mision::create(['nombre' => 'Expedición CT', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(3), 'duracion_dias' => 30]);
-        $a = Astronauta::create(['mision_id' => $m->id, 'nombre' => 'Zoe Cola', 'mision' => 'CT', 'entorno' => 'estacion']);
+        $m = Mision::create(['nombre' => 'Expedition CT', 'entorno' => 'estacion', 'inicio_en' => now()->subDays(3), 'duracion_dias' => 30]);
+        $a = Astronauta::create(['mision_id' => $m->id, 'nombre' => 'Zoe Queue', 'mision' => 'CT', 'entorno' => 'estacion']);
         AlertaSaliente::create(['astronauta_id' => $a->id, 'estado' => 'pendiente',
-            'carga' => ['indicador' => 'saturacion_o2', 'valor' => '88 %', 'motivo' => 'Saturación baja']]);
+            'carga' => ['indicador' => 'saturacion_o2', 'valor' => '88 %', 'motivo' => 'Low saturation']]);
         AlertaSaliente::create(['astronauta_id' => $a->id, 'estado' => 'enviada', 'enviada_en' => now(),
-            'carga' => ['indicador' => 'pulso', 'valor' => '150 lpm']]);
+            'carga' => ['indicador' => 'pulse', 'valor' => '150 bpm']]);
 
         Livewire::test(ColaTierra::class)
-            ->assertSee('Zoe Cola')
-            ->assertSee('Pendiente')
-            ->assertSee('Enviada')
+            ->assertSee('Zoe Queue')
+            ->assertSee('Pending')
+            ->assertSee('Sent')
             ->assertSee('saturacion_o2')
-            ->assertSee('Saturación baja')
-            ->assertSee('150 lpm');
+            ->assertSee('Low saturation')
+            ->assertSee('150 bpm');
     }
 
-    public function test_cola_sin_avisos_muestra_vacio(): void
+    public function test_queue_without_alerts_shows_empty_state(): void
     {
         AlertaSaliente::query()->delete();
-        Livewire::test(ColaTierra::class)->assertSee('No hay avisos en la cola.');
+        Livewire::test(ColaTierra::class)->assertSee('No alerts in the queue.');
     }
 
-    public function test_muestra_estado_del_enlace_y_la_ruta_responde(): void
+    public function test_shows_link_status_and_route_responds(): void
     {
-        $this->get('/cola-a-tierra')->assertOk()->assertSee('Avisos a tierra');
+        $this->get('/cola-a-tierra')->assertOk()->assertSee('Alerts to ground');
     }
 }
