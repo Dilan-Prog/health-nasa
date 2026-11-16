@@ -35,7 +35,7 @@ class ResumenTripulanteTest extends TestCase
         $this->assertSame(array_keys(config('panel.indicadores')), array_column($r['indicadores'], 'clave'));
 
         $pa = $r['indicadores'][0];
-        $this->assertSame(['clave', 'etiqueta', 'icono', 'unidad', 'rango', 'zona', 'musculos', 'acciones', 'valor', 'estado', 'razon', 'medido_en', 'tendencia', 'base'], array_keys($pa));
+        $this->assertSame(['clave', 'etiqueta', 'icono', 'unidad', 'rango', 'zona', 'musculos', 'acciones', 'valor', 'sospechoso', 'estado', 'razon', 'medido_en', 'tendencia', 'base'], array_keys($pa));
         $this->assertSame('128/84', $pa['valor']);
         $this->assertSame('warn', $pa['estado']);
         $this->assertSame('128/84 mmHg supera tu máximo de 120/80', $pa['razon']);

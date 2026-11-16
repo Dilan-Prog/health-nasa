@@ -96,7 +96,7 @@
                         <span class="icono panel-fila-ic">{{ $m['icono'] }}</span>
                         <span class="panel-fila-cuerpo">
                             <span class="panel-fila-valor"><span class="panel-valor mono">{{ $m['valor'] ?? '—' }}</span><span class="panel-unidad">{{ $m['unidad'] }}</span></span>
-                            <span class="panel-fila-etq">{{ $m['etiqueta'] }}</span>
+                            <span class="panel-fila-etq">{{ $m['etiqueta'] }}</span>@if (! empty($m['sospechoso']))<span class="panel-fila-etq" title="{{ $m['sospechoso'] }}"> · dato sospechoso</span>@endif
                         </span>
                         <span class="panel-fila-der">
                             <span class="panel-badge mono"><span class="panel-punto"></span>{{ $e ? $etq[$e] : 'Sin dato' }}</span>
@@ -160,6 +160,7 @@
                             <span class="panel-tarjeta-t">{{ $c['etiqueta'] }}</span>
                             <span class="panel-badge mono"><span class="icono">{{ $crit ? 'error' : 'warning' }}</span>{{ $etq[$c['estado']] }}</span>
                             <span class="panel-tarjeta-razon">{{ $c['razon'] }}</span>
+                            @if (! empty($c['sospechoso']))<span class="panel-tarjeta-razon">Dato sospechoso: {{ $c['sospechoso'] }}</span>@endif
                         </button>
 
                         <div class="panel-tend">

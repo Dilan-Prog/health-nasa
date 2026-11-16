@@ -139,6 +139,7 @@ class ResumenTripulante
                 'musculos' => $cfg['musculos'],
                 'acciones' => $cfg['acciones'],
                 'valor' => $valor,
+                'sospechoso' => $m && $m->calidad === 'sospechosa' ? ($m->calidad_motivo ?: 'Lectura dudosa') : null,
                 'estado' => $estado,
                 'razon' => $valor !== null && $estado !== null && $estado !== 'ok' ? $this->razon($cfg, $valor) : null,
                 'medido_en' => $m?->medido_en?->copy(),
