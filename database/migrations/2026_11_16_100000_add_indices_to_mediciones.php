@@ -4,13 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/** Acelera las lecturas por tripulante/indicador/fecha y la poda por origen y antigüedad. */
+/**
+ * Acelera la poda por origen y antigüedad. El índice (astronauta_id, indicador, medido_en)
+ * ya lo crea otra migración, por eso aquí no se repite.
+ */
 return new class extends Migration
 {
     public function up(): void
     {
         Schema::table('mediciones', function (Blueprint $t) {
-            $t->index(['astronauta_id', 'indicador', 'medido_en'], 'mediciones_astro_ind_fecha_idx');
             $t->index(['origen', 'medido_en'], 'mediciones_origen_fecha_idx');
         });
     }
@@ -18,7 +20,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('mediciones', function (Blueprint $t) {
-            $t->dropIndex('mediciones_astro_ind_fecha_idx');
             $t->dropIndex('mediciones_origen_fecha_idx');
         });
     }
