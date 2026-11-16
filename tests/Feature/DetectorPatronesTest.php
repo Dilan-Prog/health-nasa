@@ -124,15 +124,18 @@ class DetectorPatronesTest extends TestCase
         $this->reg($a, 'frecuencia_cardiaca', ['valor' => 110], 0);
         DetectorPatrones::evaluar($a);
         $this->assertSame('precaucion', $this->abiertos($a)['arritmia']->severidad);
+        $this->assertArrayNotHasKey('empeoro', $this->abiertos($a)['arritmia']->evidencia, 'al abrir no hay empeoramiento');
 
         $this->reg($a, 'frecuencia_cardiaca', ['valor' => 140], 10);
         DetectorPatrones::evaluar($a);
         $this->assertSame('critico', $this->abiertos($a)['arritmia']->severidad);
+        $this->assertTrue($this->abiertos($a)['arritmia']->evidencia['empeoro'], 'la severidad subió: se registra en la evidencia');
         $this->assertSame(1, CasoClinico::where('astronauta_id', $a->id)->where('patron', 'arritmia')->count());
 
         $this->reg($a, 'frecuencia_cardiaca', ['valor' => 112], 20);
         DetectorPatrones::evaluar($a);
         $this->assertSame('critico', $this->abiertos($a)['arritmia']->severidad, 'un caso abierto no baja de severidad');
+        $this->assertTrue($this->abiertos($a)['arritmia']->evidencia['empeoro'], 'la marca de empeoro se conserva');
     }
 
     public function test_se_cierra_cuando_las_senales_vuelven_a_normal(): void

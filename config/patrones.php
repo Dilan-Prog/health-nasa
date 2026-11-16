@@ -9,6 +9,7 @@
  | La clave del patrón es la del escenario de config/simulacion.php.
  |
  |  nombre         Hipótesis mostrada (lenguaje de hipótesis, nunca diagnóstico).
+ |  icono          Icono Material Symbols del patrón (para el círculo del Médico de vuelo).
  |  ficha          Slug de la ficha de conocimiento (conocimiento/<slug>.md).
  |  indicadores    Claves de indicador implicadas (para el historial).
  |  acciones_guia  Claves de marcador (config/guia.php y config/indicadores.php) de donde sale el "qué hacer".
@@ -34,6 +35,7 @@
 return [
     'fiebre' => [
         'nombre' => 'Posible fiebre',
+        'icono' => 'thermostat',
         'ficha' => 'fiebre',
         'indicadores' => ['temperatura', 'frecuencia_cardiaca'],
         'acciones_guia' => ['temperatura', 'hidratacion'],
@@ -47,6 +49,7 @@ return [
     ],
     'hipoxia' => [
         'nombre' => 'Posible hipoxia',
+        'icono' => 'air',
         'ficha' => 'hipoxia',
         'indicadores' => ['saturacion_o2', 'frecuencia_cardiaca', 'estres_cognitivo'],
         'acciones_guia' => ['saturacion_o2', 'frecuencia_cardiaca'],
@@ -61,6 +64,7 @@ return [
     ],
     'deshidratacion' => [
         'nombre' => 'Posible deshidratación',
+        'icono' => 'water_drop',
         'ficha' => 'deshidratacion',
         'indicadores' => ['hidratacion', 'frecuencia_cardiaca', 'temperatura', 'presion_arterial'],
         'acciones_guia' => ['hidratacion', 'temperatura'],
@@ -76,6 +80,7 @@ return [
     ],
     'estres' => [
         'nombre' => 'Posible estrés agudo',
+        'icono' => 'psychology',
         'ficha' => 'estres',
         'indicadores' => ['estres_cognitivo', 'frecuencia_cardiaca', 'presion_arterial'],
         'acciones_guia' => ['estres_cognitivo', 'frecuencia_cardiaca'],
@@ -90,6 +95,7 @@ return [
     ],
     'arritmia' => [
         'nombre' => 'Posible irregularidad del pulso (requiere ECG)',
+        'icono' => 'monitor_heart',
         'ficha' => 'arritmia',
         'indicadores' => ['frecuencia_cardiaca', 'estres_cognitivo'],
         'acciones_guia' => ['frecuencia_cardiaca'],
@@ -103,6 +109,7 @@ return [
     ],
     'falta_sueno' => [
         'nombre' => 'Posible falta de sueño',
+        'icono' => 'bedtime',
         'ficha' => 'falta_sueno',
         'indicadores' => ['sueno', 'estres_cognitivo', 'frecuencia_cardiaca'],
         'acciones_guia' => ['sueno', 'estres_cognitivo'],
@@ -118,6 +125,7 @@ return [
     ],
     'fallo_sensor' => [
         'nombre' => 'Posible fallo de sensor',
+        'icono' => 'sensors',
         'ficha' => 'fallo_sensor',
         'indicadores' => ['frecuencia_cardiaca', 'saturacion_o2', 'temperatura', 'presion_arterial'],
         'acciones_guia' => ['frecuencia_cardiaca', 'saturacion_o2'],

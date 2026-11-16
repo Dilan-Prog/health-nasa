@@ -124,6 +124,9 @@ class DetectorPatrones
             } else {
                 $caso = $abierto;
                 $sube = self::SEVERIDAD[$deteccion['severidad']] > self::SEVERIDAD[$caso->severidad];
+                if ($sube || ! empty($caso->evidencia['empeoro'])) {
+                    $evidencia['empeoro'] = true; // la severidad subió desde que se abrió el caso
+                }
                 $caso->update(['evidencia' => $evidencia] + ($sube ? ['severidad' => $deteccion['severidad']] : []));
             }
 

@@ -118,8 +118,8 @@ class OrientadorSimuladoTest extends TestCase
     {
         $o = $this->orientar($this->caso($this->astronauta(), 'hipoxia'));
 
-        $this->assertSame([OrientadorSimulado::SIN_ANTECEDENTES], $o->expedienteRelevante);
-        $this->assertSame([OrientadorSimulado::SIN_TRATAMIENTOS], $o->tratamientos);
+        $this->assertSame([], $o->expedienteRelevante);
+        $this->assertSame([], $o->tratamientos);
     }
 
     public function test_muestra_solo_el_expediente_pertinente_y_audita_el_acceso(): void
@@ -131,7 +131,10 @@ class OrientadorSimuladoTest extends TestCase
         Alergia::create(['astronauta_id' => $a->id, 'sustancia' => 'Polen', 'reaccion' => 'rinitis', 'gravedad' => 'leve']);
 
         $o = $this->orientar($this->caso($a, 'hipoxia'));
-        $texto = implode(' | ', $o->expedienteRelevante);
+        $texto = implode(' | ', array_column($o->expedienteRelevante, 'texto'));
+        $this->assertEqualsCanonicalizing(['CONDICIÓN MÉDICA', 'ANTECEDENTE FAMILIAR'], array_column($o->expedienteRelevante, 'etiqueta'));
+        $this->assertNotNull($o->auditadoEn);
+        $this->assertMatchesRegularExpression('/^\d{2}:\d{2}$/', $o->auditadoEn);
 
         $this->assertStringContainsString('Asma leve', $texto);
         $this->assertStringContainsString('EPOC', $texto);
@@ -153,8 +156,8 @@ class OrientadorSimuladoTest extends TestCase
         $todo = json_encode([$o->expedienteRelevante, $o->tratamientos, $o->hallazgo], JSON_UNESCAPED_UNICODE);
 
         $this->assertStringNotContainsString('Beto', $todo);
-        $this->assertSame([OrientadorSimulado::SIN_ANTECEDENTES], $o->expedienteRelevante);
-        $this->assertSame([OrientadorSimulado::SIN_TRATAMIENTOS], $o->tratamientos);
+        $this->assertSame([], $o->expedienteRelevante);
+        $this->assertSame([], $o->tratamientos);
     }
 
     public function test_la_medicacion_registrada_es_contexto_etiquetado_y_no_activa_el_filtro(): void
@@ -165,11 +168,15 @@ class OrientadorSimuladoTest extends TestCase
 
         $o = $this->orientar($this->caso($a, 'fiebre'));
 
-        $this->assertSame(['Medicación registrada: Ibuprofeno (motivo: dolor lumbar)'], $o->tratamientos);
-        $this->assertStringNotContainsString('400', implode(' ', $o->tratamientos), 'la dosis registrada no se muestra');
-        $this->assertStringNotContainsString('Antiguo', implode(' ', $o->tratamientos));
+        $this->assertSame([[
+            'etiqueta' => 'MEDICACIÓN REGISTRADA',
+            'texto' => 'Ibuprofeno',
+            'nota' => 'Solo contexto: el sistema no la recomienda ni la modifica',
+        ]], $o->tratamientos);
+        $json = json_encode($o->tratamientos, JSON_UNESCAPED_UNICODE);
+        $this->assertStringNotContainsString('400', $json, 'la dosis registrada no se muestra');
+        $this->assertStringNotContainsString('Antiguo', $json);
         $this->assertStringNotContainsString('Aviso', $o->hallazgo, 'no cayó al texto del catálogo');
-        $this->assertNull((new FiltroSeguridad())->revisar($o->tratamientos[0]));
     }
 
     public function test_el_historial_de_tratamientos_matiza_el_texto_sin_recomendar_farmacos(): void
@@ -180,10 +187,93 @@ class OrientadorSimuladoTest extends TestCase
 
         $o = $this->orientar($this->caso($a, 'hipoxia'));
 
-        $this->assertStringContainsString('avisaste a tierra', $o->hallazgo);
-        $this->assertStringContainsString('te ayudó', $o->hallazgo);
-        $this->assertStringContainsString('Consulta a tierra «Saturación baja»', implode(' | ', $o->tratamientos));
-        $this->assertStringContainsString('útil', implode(' | ', $o->tratamientos));
+        $this->assertSame('La última vez avisaste a tierra y marcaste que te ayudó. Si al repetir las mediciones no mejora, vuelve a hacerlo.', $o->matiz);
+        $this->assertNull((new FiltroSeguridad())->revisar($o->matiz));
+        $this->assertSame('Saturación baja', $o->tratamientos[0]['texto']);
+        $this->assertStringStartsWith('CONSULTA A TIERRA · '.(int) now()->format('j').' ', $o->tratamientos[0]['etiqueta']);
+        $this->assertSame('Marcaste «me ayudó»', $o->tratamientos[0]['nota']);
+        $this->assertStringStartsWith('ORIENTACIÓN · ', $o->tratamientos[1]['etiqueta']);
+        $this->assertSame('Marcaste «me ayudó»', $o->tratamientos[1]['nota']);
+    }
+
+    public function test_sin_antecedente_real_no_hay_matiz(): void
+    {
+        $a = $this->astronauta();
+        $this->assertNull($this->orientar($this->caso($a, 'hipoxia'))->matiz, 'sin nada');
+
+        ConsultaTierra::create(['astronauta_id' => $a->id, 'tipo' => 'msg', 'titulo' => 'Aviso', 'indicadores' => ['saturacion_o2'], 'etapa' => 3]);
+        $this->assertNull($this->orientar($this->caso($a, 'hipoxia'))->matiz, 'consulta sin voto «me ayudó»');
+
+        OrientacionFeedback::create(['astronauta_id' => $a->id, 'indicador' => 'saturacion_o2', 'voto' => 'down']);
+        $this->assertNull($this->orientar($this->caso($a, 'hipoxia'))->matiz, 'voto negativo');
+    }
+
+    public function test_voto_sin_consulta_previa_no_genera_matiz(): void
+    {
+        $a = $this->astronauta();
+        OrientacionFeedback::create(['astronauta_id' => $a->id, 'indicador' => 'saturacion_o2', 'voto' => 'up']);
+
+        $o = $this->orientar($this->caso($a, 'hipoxia'));
+
+        $this->assertNull($o->matiz);
+        $this->assertSame('Marcaste «me ayudó»', $o->tratamientos[0]['nota']);
+    }
+
+    public static function iconos(): array
+    {
+        return [
+            'hipoxia' => ['hipoxia', 'air'], 'fiebre' => ['fiebre', 'thermostat'], 'deshidratacion' => ['deshidratacion', 'water_drop'],
+            'estres' => ['estres', 'psychology'], 'arritmia' => ['arritmia', 'monitor_heart'], 'falta_sueno' => ['falta_sueno', 'bedtime'],
+            'fallo_sensor' => ['fallo_sensor', 'sensors'],
+        ];
+    }
+
+    #[DataProvider('iconos')]
+    public function test_el_icono_sale_del_patron(string $patron, string $icono): void
+    {
+        $this->assertSame($icono, config("patrones.$patron.icono"));
+        $this->assertSame($icono, $this->orientar($this->caso($this->astronauta(), $patron))->icono);
+    }
+
+    public function test_la_evidencia_se_construye_solo_con_datos_reales_del_caso(): void
+    {
+        $a = $this->astronauta();
+        $caso = $this->caso($a, 'hipoxia', 'critico');
+        $caso->update(['evidencia' => [
+            'ventana_min' => 10,
+            'senales' => [
+                ['indicador' => 'saturacion_o2', 'estado' => 'critico', 'valores' => ['valor' => 89]],
+                ['indicador' => 'frecuencia_cardiaca', 'estado' => 'precaucion', 'valores' => ['valor' => 108.0]],
+            ],
+        ]]);
+
+        $this->assertSame('SpO₂ 89 (CRÍTICO) · FC 108 (PRECAUCIÓN) · VENTANA 10 MIN', $this->orientar($caso->fresh())->evidencia);
+        $this->assertSame('', $this->orientar($this->caso($a, 'hipoxia'))->evidencia, 'sin señales no se inventa evidencia');
+    }
+
+    public function test_la_evidencia_de_presion_arterial_muestra_sistolica_y_diastolica(): void
+    {
+        $caso = $this->caso($this->astronauta(), 'estres');
+        $caso->update(['evidencia' => ['senales' => [['indicador' => 'presion_arterial', 'estado' => 'precaucion', 'valores' => ['sistolica' => 135, 'diastolica' => 88]]]]]);
+
+        $this->assertSame('PA 135/88 (PRECAUCIÓN)', $this->orientar($caso->fresh())->evidencia);
+    }
+
+    public function test_empeoro_y_horas_utc_salen_del_caso(): void
+    {
+        $a = $this->astronauta();
+        $caso = CasoClinico::create(['astronauta_id' => $a->id, 'patron' => 'hipoxia', 'severidad' => 'critico', 'evidencia' => ['empeoro' => true],
+            'estado' => 'abierto', 'detectado_en' => '2026-11-03 10:42:10', 'escalado_en' => '2026-11-03 10:44:00']);
+
+        $o = $this->orientar($caso->fresh());
+
+        $this->assertTrue($o->empeoro);
+        $this->assertSame('10:42', $o->detectadoEn);
+        $this->assertSame('10:44', $o->escaladoEn);
+
+        $sin = $this->orientar($this->caso($a, 'hipoxia'));
+        $this->assertFalse($sin->empeoro);
+        $this->assertNull($sin->escaladoEn);
     }
 
     public function test_con_login_activo_no_muestra_el_expediente_de_quien_no_es_visible(): void
@@ -199,8 +289,9 @@ class OrientadorSimuladoTest extends TestCase
         $this->actingAs($user);
         $o = $this->orientar($this->caso($a, 'hipoxia'));
 
-        $this->assertSame([OrientadorSimulado::SIN_ACCESO], $o->expedienteRelevante);
-        $this->assertStringNotContainsString('Medicina de Ana', implode(' ', $o->tratamientos));
+        $this->assertSame([['etiqueta' => 'EXPEDIENTE', 'texto' => OrientadorSimulado::SIN_ACCESO]], $o->expedienteRelevante);
+        $this->assertNull($o->auditadoEn);
+        $this->assertSame([], $o->tratamientos);
         $this->assertFalse(AuditoriaAcceso::where('recurso', 'expediente')->where('astronauta_id', $a->id)->exists());
     }
 

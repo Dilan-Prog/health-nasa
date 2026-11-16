@@ -20,6 +20,17 @@ return [
         'proximamente' => 'IA local y n8n: Próximamente',
     ],
 
+    // Etiqueta corta (mono, mayúsculas) de cada indicador para la línea de evidencia del flotante.
+    'etiquetas_cortas' => [
+        'saturacion_o2' => 'SpO₂',
+        'frecuencia_cardiaca' => 'FC',
+        'temperatura' => 'TEMP',
+        'presion_arterial' => 'PA',
+        'hidratacion' => 'HIDRAT.',
+        'estres_cognitivo' => 'ESTRÉS',
+        'sueno' => 'SUEÑO',
+    ],
+
     /*
      | Palabras que hacen "pertinente" un dato del expediente para cada patrón (se comparan sin tildes ni mayúsculas
      | contra condiciones, antecedentes familiares y alergias). Es un supuesto del proyecto, no de la norma: no es un
