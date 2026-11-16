@@ -49,6 +49,11 @@ class Sistemas extends Component
             return [];
         }
 
+        $prox = [];
+        foreach (self::proximamente() as $p) {
+            $prox[$p['sistema']][] = $p['nombre'];
+        }
+
         $out = [];
         foreach (config('sistemas.grupos', []) as $i => $g) {
             $filas = [];
@@ -71,6 +76,7 @@ class Sistemas extends Component
             $sinCobertura = ($g['marcadores'] ?? []) === [];
             $out[] = [
                 'indice' => $i, 'titulo' => $g['titulo'], 'ic' => $g['ic'], 'filas' => $filas,
+                'proximamente' => $prox[$g['clave']] ?? [],
                 'sin_cobertura' => $sinCobertura, 'pendiente' => $g['pendiente'] ?? null,
                 'estado' => $sinCobertura ? 'sin' : ($peor ?? 'ok'),
                 'estado_txt' => $sinCobertura ? 'SIN COBERTURA' : self::ESTADOS[$peor ?? 'ok'][0],
@@ -79,5 +85,11 @@ class Sistemas extends Component
         }
 
         return $out;
+    }
+
+    /** Hoja de ruta (config/proximamente.php): solo texto, sin lógica ni campos. */
+    public static function proximamente(): array
+    {
+        return config('proximamente.items', []);
     }
 }

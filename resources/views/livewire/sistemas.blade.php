@@ -40,6 +40,9 @@
                         @if ($t['sin_cobertura'])
                             <p class="sis-pendiente">Sin cobertura todavía.@if ($t['pendiente']) Falta medir: {{ $t['pendiente'] }}@endif</p>
                         @endif
+                        @if ($t['proximamente'])
+                            <p class="sis-pendiente prox-linea" data-proximamente><span class="mono prox-etiqueta">Próximamente</span>: {{ implode(' · ', $t['proximamente']) }}</p>
+                        @endif
                     </section>
                 @endforeach
             </div>

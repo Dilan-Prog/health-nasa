@@ -1,0 +1,8 @@
+/* Hoja de ruta "Próximamente" (Guía y Sistemas): elementos atenuados, sin enlaces ni campos. */
+.prox { margin: 24px 0; }
+.prox-titulo { margin: 0 0 4px; font-size: 18px; }
+.prox-sub { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.prox-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.prox-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px dashed var(--muted-2); border-radius: 10px; opacity: .6; cursor: default; }
+.prox-etiqueta { padding: 2px 6px; border-radius: 999px; background: var(--surface-sel); font-size: 12px; letter-spacing: .08em; color: var(--muted-2); white-space: nowrap; }
+.prox-linea { opacity: .75; margin-top: 8px; }

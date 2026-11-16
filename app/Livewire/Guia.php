@@ -36,6 +36,7 @@ class Guia extends Component
             'astronauta' => $a,
             'tarjetas' => $this->tarjetas($a),
             'extras' => $this->extras($a),
+            'proximamente' => Sistemas::proximamente(),
         ]);
     }
 

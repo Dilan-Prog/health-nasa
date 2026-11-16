@@ -54,6 +54,21 @@
             <span>Prueba con otro término, por ejemplo «hueso», «sueño» o «radiación».</span>
         </div>
 
+        @if ($proximamente)
+            <section class="prox" aria-labelledby="guia-prox-t">
+                <h3 class="prox-titulo" id="guia-prox-t">Próximamente</h3>
+                <p class="prox-sub">Biomarcadores previstos que todavía no se miden.</p>
+                <ul class="prox-lista">
+                    @foreach ($proximamente as $p)
+                        <li class="prox-item" data-proximamente aria-disabled="true">
+                            <span class="prox-nombre">{{ $p['nombre'] }}</span>
+                            <span class="mono prox-etiqueta">Próximamente</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+
         <p class="guia-aviso" role="note"><span class="icono" aria-hidden="true">info</span>Orienta, no diagnostica. Consulta al flight surgeon ante cualquier duda.</p>
 
         <x-peligros-riesgos />
