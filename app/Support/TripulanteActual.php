@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Astronauta;
 use App\Models\Mision;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Tripulante y misión "actuales" de la sesión. Se guardan `astronauta_id` y `mision_id`;
@@ -17,13 +18,13 @@ class TripulanteActual
     {
         $fijada = (int) session('mision_id', 0);
         if ($fijada > 0) {
-            $m = Mision::query()->whereHas('tripulantes')->find($fijada);
+            $m = Mision::query()->whereHas('tripulantes', fn ($q) => $q->visiblesPara(Auth::user()))->find($fijada);
             if ($m) {
                 return $m;
             }
         }
 
-        return Mision::query()->whereHas('tripulantes')->orderByDesc('id')->first();
+        return Mision::query()->whereHas('tripulantes', fn ($q) => $q->visiblesPara(Auth::user()))->orderByDesc('id')->first();
     }
 
     /** Tripulación de la misión actual, ordenada por id. */
@@ -34,7 +35,7 @@ class TripulanteActual
             return new Collection();
         }
 
-        return Astronauta::query()->where('mision_id', $mision->id)->orderBy('id')->get();
+        return Astronauta::visiblesPara(Auth::user())->where('astronautas.mision_id', $mision->id)->orderBy('astronautas.id')->get();
     }
 
     public static function obtener(): ?Astronauta

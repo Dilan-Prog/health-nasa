@@ -94,6 +94,16 @@
                 </div>
             @endforeach
         </nav>
+        @auth
+            <div class="shell-sesion">
+                <span class="shell-sesion-nombre">{{ auth()->user()->name }}</span>
+                <span class="mono shell-sesion-rol">{{ mb_strtoupper(auth()->user()->etiquetaRol()) }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="shell-sesion-btn"><span class="icono" aria-hidden="true">logout</span>Cerrar sesión</button>
+                </form>
+            </div>
+        @endauth
         <div class="tema-grupo">
             <span class="tema-et">Tema</span>
             <div class="tema" role="group" aria-label="Tema de color">

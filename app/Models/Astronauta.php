@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,6 +30,31 @@ class Astronauta extends Model
 
     /** Token en claro, solo disponible en memoria justo después del alta (nunca se guarda). */
     public ?string $tokenPlano = null;
+
+    /**
+     * PUNTO CENTRAL de visibilidad. Con `mision.exigir_login` en false devuelve todos (demo sin login).
+     * Con login exigido: sin usuario nada; flight_surgeon todo; cmo la tripulación de su misión
+     * (la de su astronauta enlazado); tripulante solo el astronauta enlazado a su usuario.
+     */
+    public function scopeVisiblesPara(Builder $query, ?User $user): Builder
+    {
+        if (! config('mision.exigir_login', false)) {
+            return $query;
+        }
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+        if ($user->esFlightSurgeon()) {
+            return $query;
+        }
+        if ($user->esCmo()) {
+            $misionId = static::query()->where('user_id', $user->id)->value('mision_id');
+
+            return $misionId ? $query->where('astronautas.mision_id', $misionId) : $query->whereRaw('1 = 0');
+        }
+
+        return $query->where('astronautas.user_id', $user->id);
+    }
 
     /** Misión a la que pertenece (no se llama `mision` para no chocar con la columna de texto del mismo nombre). */
     public function misionDeVuelo(): BelongsTo

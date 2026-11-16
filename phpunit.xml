@@ -22,6 +22,7 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
         <!-- Base propia para tests: la simulación en vivo escribe sin parar en la base real (healts-nasa). -->
+        <env name="MISION_EXIGIR_LOGIN" value="false"/>
         <env name="DB_DATABASE" value="healts_nasa_test"/>
         <env name="BROADCAST_DRIVER" value="log"/>
         <env name="MAIL_MAILER" value="array"/>

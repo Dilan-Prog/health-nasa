@@ -1,0 +1,23 @@
+/* Pantalla de inicio de sesión y bloque de sesión del shell. Colores solo vía tokens. */
+.lg { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; background: var(--bg); color: var(--text); font-family: var(--font-sans); }
+.lg-card { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); box-sizing: border-box; }
+.lg-et { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+.lg-h1 { margin: 0; font-size: 22px; font-weight: 600; }
+.lg-txt { margin: 0; font-size: 14px; color: var(--muted-3); }
+.lg-campo { display: flex; flex-direction: column; gap: 6px; }
+.lg-lbl { font-size: 14px; font-weight: 600; color: var(--text-2); }
+.lg-input { font: inherit; font-size: 16px; min-height: 44px; padding: 0 12px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); box-sizing: border-box; width: 100%; }
+.lg-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; color: var(--text-2); cursor: pointer; }
+.lg-check input { width: 22px; height: 22px; accent-color: var(--primary); }
+.lg-btn { font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--primary); background: var(--primary); color: var(--on-primary); }
+.lg-btn:hover { background: var(--primary-dark); }
+.lg-btn[disabled] { background: var(--primary-busy); border-color: var(--primary-busy); cursor: progress; }
+.lg-enlace { align-self: center; display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: var(--text-2); }
+.lg-error { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--crit-line); background: var(--crit-faint); color: var(--crit-text); font-size: 14px; }
+.lg-input:focus-visible, .lg-btn:focus-visible, .lg-enlace:focus-visible, .lg-check input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.shell-sesion { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--border-soft); font-size: 14px; }
+.shell-sesion-nombre { font-weight: 600; color: var(--text); }
+.shell-sesion-rol { font-size: 12px; letter-spacing: .08em; color: var(--muted); }
+.shell-sesion-btn { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text-2); }
+.shell-sesion-btn:hover { background: var(--hover); }
+.shell-sesion-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

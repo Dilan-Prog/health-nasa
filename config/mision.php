@@ -39,6 +39,9 @@ return [
         ['dia' => 165, 'titulo' => 'Inicio protocolo pre-regreso', 'icono' => 'flight_land'],
     ],
 
+    // Si es true se exige inicio de sesión y se aplican los roles (tripulante / cmo / flight_surgeon). Por defecto false: demo sin login.
+    'exigir_login' => env('MISION_EXIGIR_LOGIN', false),
+
     'limite_dosis_msv' => 250,
 
     // Días de mediciones en vivo que se conservan (la poda `mediciones:podar` borra lo más antiguo).

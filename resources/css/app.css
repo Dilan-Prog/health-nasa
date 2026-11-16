@@ -25,6 +25,7 @@
 @import './ficha.css';
 @import './tripulacion-alta.css';
 @import './simulacion.css';
+@import './login.css';
 
 @tailwind base;
 @tailwind components;

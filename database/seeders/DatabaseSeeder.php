@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             $this->call(BotiquinSeeder::class);
         }
 
+        $this->call(UsuariosDemoSeeder::class);
+
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
