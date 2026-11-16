@@ -1,0 +1,41 @@
+/* Botiquín informativo. Tokens de design/tokens.css; sin colores claros fijos (modo oscuro). */
+.bq { display: contents; }
+.bq-main { flex: 1 0 auto; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.bq-cabecera { display: flex; flex-direction: column; gap: 4px; }
+.bq-kicker { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+.bq-titulo { margin: 0; font-size: 26px; font-weight: 600; color: var(--text); }
+.bq-aviso { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 14px; font-size: 14px; color: var(--text-2); border-radius: var(--radius); border: 1px solid var(--warn); background: var(--warn-soft); }
+.bq-aviso .icono { font-size: 20px; color: var(--warn-text); }
+
+.bq-inventario { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; align-items: start; }
+.bq-grupo { display: flex; flex-direction: column; gap: 10px; padding: 18px; min-width: 0; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+.bq-grupo-t { margin: 0; font-size: 18px; font-weight: 600; color: var(--text); }
+.bq-lista { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.bq-item { --e: var(--muted); --e-text: var(--text-2); display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; border-left: 4px solid var(--e); background: var(--border-faint); }
+.bq-item[data-caducidad="vigente"] { --e: var(--ok); --e-text: var(--ok-text); }
+.bq-item[data-caducidad="pronto"] { --e: var(--warn); --e-text: var(--warn-text); }
+.bq-item[data-caducidad="vencido"] { --e: var(--crit); --e-text: var(--crit-text); }
+.bq-item-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bq-nombre { flex: 1 1 auto; font-size: 15px; color: var(--text); text-transform: capitalize; }
+.bq-pildora { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: var(--surface); color: var(--e-text); }
+.bq-pildora .icono { font-size: 14px; }
+.bq-ejemplo { font-size: 14px; padding: 3px 8px; border-radius: 999px; border: 1px dashed var(--border); color: var(--muted); }
+.bq-datos { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.bq-datos > div { display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; }
+.bq-datos dt { color: var(--muted); }
+.bq-datos dd { margin: 0; color: var(--text); }
+.bq-nota { margin: 0; font-size: 14px; color: var(--muted); }
+
+.bq-form { display: flex; flex-direction: column; gap: 10px; }
+.bq-campo { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+.bq-campo input { min-height: 44px; box-sizing: border-box; padding: 8px 10px; font: inherit; font-size: 15px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.bq-campo input[aria-invalid="true"] { border-color: var(--crit); }
+.bq-error { font-size: 14px; color: var(--crit-text); }
+.bq-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.bq-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; align-self: flex-start; min-height: 44px; padding: 8px 14px; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.bq-btn:hover { background: var(--hover); }
+.bq-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.bq-btn .icono { font-size: 18px; }
+.bq-btn-prim { color: var(--surface); background: var(--primary); border-color: var(--primary); }
+.bq-btn-prim:hover { background: var(--primary-dark); }
+.bq-vacio { font-size: 14px; color: var(--muted); }
