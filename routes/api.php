@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Mediciones enviadas por el reloj (token por tripulante, ver `php artisan reloj:token`).
-Route::post('/mediciones', [\App\Http\Controllers\Api\MedicionesController::class, 'store'])->name('api.mediciones');
+Route::post('/mediciones', [\App\Http\Controllers\Api\MedicionesController::class, 'store'])->name('api.mediciones')
+    // Sustituye el limitador general por IP del grupo `api` por el del reloj (por token).
+    ->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class.':api')
+    ->middleware('throttle:reloj');

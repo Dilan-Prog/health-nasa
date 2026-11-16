@@ -49,4 +49,20 @@ return [
 
     // SOLO PRUEBAS en entorno local: ID del tripulante al que se asignan las mediciones del reloj sin token.
     'reloj_sin_token_astronauta' => env('RELOJ_SIN_TOKEN_ASTRONAUTA'),
+
+    /*
+     | API del reloj (SUPUESTOS DEL PROYECTO, no de la norma; ajustables por .env).
+     */
+    // Peticiones por minuto y por token (no por IP). La simulación envía ~56 mediciones/min en lotes: 120 peticiones es holgado.
+    'reloj_limite_por_minuto' => (int) env('RELOJ_LIMITE_POR_MINUTO', 120),
+    // Minutos que el token anterior sigue válido al regenerar, para no cortar al dispositivo mientras se actualiza.
+    'reloj_gracia_minutos' => (int) env('RELOJ_GRACIA_MINUTOS', 60),
+    // Días de vigencia por defecto de un token nuevo (`reloj:token --dias=`).
+    'reloj_token_dias' => (int) env('RELOJ_TOKEN_DIAS', 30),
+    // Si es true, todo lote debe llevar X-Firma y X-Marca-Tiempo válidas (falso por defecto para no romper el APK actual).
+    'reloj_exigir_firma' => (bool) env('RELOJ_EXIGIR_FIRMA', false),
+    // Antigüedad máxima (segundos) de la marca de tiempo firmada.
+    'reloj_firma_tolerancia_s' => (int) env('RELOJ_FIRMA_TOLERANCIA_S', 300),
+    // Por debajo de este % de batería la ficha muestra "batería baja".
+    'reloj_bateria_baja_pct' => (int) env('RELOJ_BATERIA_BAJA_PCT', 20),
 ];

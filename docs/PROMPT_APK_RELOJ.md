@@ -45,3 +45,11 @@ Cuerpo:
 - Código fuente completo en la carpeta, README corto con cómo compilar e instalar (`adb install`), y la ruta del APK generado.
 - Sin dependencias innecesarias. Comenta solo lo no obvio.
 - No puedes probarlo en el teléfono: al terminar, lista los pasos de prueba manual (conceder permisos, pegar URL y token, sincronizar, ver el resultado en el panel web).
+
+## Nota: firma del lote, expiración y batería (API más segura)
+- **Expiración:** el token vence (por defecto 30 días). Vencido, la API responde `401` con `{"mensaje":"Token vencido..."}`: pedir un token nuevo (`php artisan reloj:token <id> --dias=30`). Al regenerarlo, el token anterior sigue válido 1 hora (gracia) para poder actualizar el dispositivo.
+- **Límite:** 120 peticiones/minuto por token; si se supera, `429`. Enviar lotes, no una petición por medición.
+- **Firma (opcional hoy, obligatoria si el servidor tiene `RELOJ_EXIGIR_FIRMA=true`):** al generar el token se muestra una sola vez un **secreto de firma**. Cada petición lleva:
+  - `X-Marca-Tiempo`: segundos Unix (UTC) del momento del envío (se rechaza si tiene más de 5 minutos de antigüedad).
+  - `X-Firma: sha256=<hex>` con `hex = HMAC-SHA256(secreto, X-Marca-Tiempo + "." + cuerpo_JSON_exacto)` (los bytes exactos enviados). Firma ausente o mala con firma exigida: `401`.
+- **Batería:** campo opcional `"bateria": 0-100` (entero) en el cuerpo del lote; el panel avisa "batería baja" por debajo de 20 %.

@@ -28,6 +28,15 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Reloj: límite por token (por IP solo si no hay token). Máximo configurable (supuesto del proyecto).
+        RateLimiter::for('reloj', function (Request $request) {
+            $token = $request->bearerToken();
+
+            return Limit::perMinute((int) config('mision.reloj_limite_por_minuto', 120))
+                ->by($token ? 'reloj:'.hash('sha256', $token) : 'reloj-ip:'.$request->ip())
+                ->response(fn () => response()->json(['mensaje' => 'Demasiadas peticiones. Reintenta más tarde.'], 429));
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

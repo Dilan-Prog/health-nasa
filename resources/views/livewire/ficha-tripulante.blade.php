@@ -46,6 +46,10 @@
             </div>
         </section>
 
+        @if ($bateriaBaja !== null)
+            <p class="ficha-aviso" role="note"><span class="icono" aria-hidden="true">battery_alert</span><span><strong>Batería baja:</strong> el reloj informó {{ $bateriaBaja }} %@if ($a->bateria_en) ({{ $a->bateria_en->diffForHumans() }})@endif.</span></p>
+        @endif
+
         @if ($restriccion)
             <p class="ficha-aviso" role="note"><span class="icono" aria-hidden="true">warning</span><span><strong>Restricción de vuelo:</strong> {{ $restriccion }}</span></p>
         @endif

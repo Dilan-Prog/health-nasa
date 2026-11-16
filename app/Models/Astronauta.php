@@ -26,7 +26,13 @@ class Astronauta extends Model
         'peso_kg' => 'float',
         'fecha_nacimiento' => 'date',
         'fecha_ingreso' => 'date',
+        'token_vence_en' => 'datetime',
+        'token_previo_vence_en' => 'datetime',
+        'bateria_en' => 'datetime',
     ];
+
+    /** Los secretos de firma y hashes de token nunca salen en JSON. */
+    protected $hidden = ['token_dispositivo', 'token_previo', 'secreto_firma', 'secreto_firma_previo'];
 
     /** Token en claro, solo disponible en memoria justo después del alta (nunca se guarda). */
     public ?string $tokenPlano = null;
