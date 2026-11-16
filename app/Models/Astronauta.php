@@ -37,6 +37,9 @@ class Astronauta extends Model
     /** Token en claro, solo disponible en memoria justo después del alta (nunca se guarda). */
     public ?string $tokenPlano = null;
 
+    /** Secreto de firma en claro, solo justo tras el alta. */
+    public ?string $secretoPlano = null;
+
     /**
      * PUNTO CENTRAL de visibilidad. Con `mision.exigir_login` en false devuelve todos (demo sin login).
      * Con login exigido: sin usuario nada; flight_surgeon todo; cmo la tripulación de su misión

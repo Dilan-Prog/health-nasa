@@ -47,9 +47,9 @@ class AltaTripulante
     public function registrar(array $datos, Mision $mision): Astronauta
     {
         $datos = $this->validar($datos);
-        $token = Str::random(40);
+        $emitido = [];
 
-        $id = DB::transaction(function () use ($datos, $mision, $token) {
+        $id = DB::transaction(function () use ($datos, $mision, &$emitido) {
             // Con el cupo lleno no se admite otro tripulante (se vuelve a comprobar dentro de la transacción).
             if (Astronauta::query()->where('mision_id', $mision->id)->lockForUpdate()->count() >= self::maximo()) {
                 throw ValidationException::withMessages([
@@ -63,8 +63,9 @@ class AltaTripulante
             $a->estado_servicio = $datos['estado_servicio'] ?? 'activo';
             $a->evas = $datos['evas'] ?? 0;
             $a->edad = $this->edadDe($datos['fecha_nacimiento']);
-            $a->token_dispositivo = hash('sha256', $token);
             $a->save();
+            // Token con vencimiento y secreto de firma (se muestran una sola vez).
+            $emitido = app(\App\Services\Reloj\TokenReloj::class)->emitir($a);
 
             $this->guardarExpediente($a, $datos);
             foreach (array_keys(self::HIJOS) as $clave) {
@@ -75,7 +76,8 @@ class AltaTripulante
         });
 
         $fresco = $this->cargar($id);
-        $fresco->tokenPlano = $token;
+        $fresco->tokenPlano = $emitido['token'];
+        $fresco->secretoPlano = $emitido['secreto'];
 
         return $fresco;
     }
