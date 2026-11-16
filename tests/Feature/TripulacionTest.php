@@ -19,6 +19,8 @@ class TripulacionTest extends TestCase
     {
         $this->seed(ExpedicionSeeder::class);
         $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->firstOrFail();
+        // Aísla el test de tripulantes extra que existan en la BD local (se revierte con la transacción).
+        Astronauta::where('mision_id', $mision->id)->whereNotIn('nombre', array_column(ExpedicionSeeder::TRIPULACION, 'nombre'))->delete();
         session(['mision_id' => $mision->id]);
 
         return $mision;

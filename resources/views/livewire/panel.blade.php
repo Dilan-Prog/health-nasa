@@ -43,6 +43,16 @@
             </div>
 
             <div class="panel-sil-caja">
+                <div role="tablist" aria-label="Vista de la silueta" class="panel-vistas">
+                    @foreach ($vistas as [$id, $label, $ic, $extra])
+                        <button type="button" role="tab" class="panel-vista {{ $extra }}" aria-label="{{ $label }}" title="{{ $label }}"
+                                aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                                x-bind:aria-selected="vista === '{{ $id }}' ? 'true' : 'false'"
+                                x-on:click="vista = '{{ $id }}'; $dispatch('silueta-vista', '{{ $id }}')">
+                            <span class="icono">{{ $ic }}</span>
+                        </button>
+                    @endforeach
+                </div>
                 <div class="panel-sil-alto">
                     <x-silueta-corporal :activos="$musculos" :selector="false" class="silueta-corporal--ajustar" />
                 </div>
@@ -66,16 +76,6 @@
 
         {{-- Centro: vistas e indicadores --}}
         <section class="panel-ind" aria-label="Indicadores">
-            <div role="tablist" aria-label="Vista de la silueta" class="panel-vistas">
-                @foreach ($vistas as [$id, $label, $ic, $extra])
-                    <button type="button" role="tab" class="panel-vista {{ $extra }}" aria-label="{{ $label }}" title="{{ $label }}"
-                            aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                            x-bind:aria-selected="vista === '{{ $id }}' ? 'true' : 'false'"
-                            x-on:click="vista = '{{ $id }}'; $dispatch('silueta-vista', '{{ $id }}')">
-                        <span class="icono">{{ $ic }}</span>
-                    </button>
-                @endforeach
-            </div>
 
             <div class="panel-lista">
                 @foreach ($indicadores as $m)

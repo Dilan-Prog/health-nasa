@@ -5,9 +5,16 @@
 @import './design/panel.css';
 @import './design/tripulacion.css';
 @import './design/registro.css';
-@import './design/indicador.css';
 @import './design/rutinas.css';
 @import './design/registrar.css';
+@import './design/indicador.css';
+@import './mision.css';
+@import './guia.css';
+@import './alertas.css';
+@import './historial.css';
+@import './sistemas.css';
+@import './nuevo-tripulante.css';
+@import './simulacion.css';
 
 @tailwind base;
 @tailwind components;

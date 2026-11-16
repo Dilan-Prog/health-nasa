@@ -30,7 +30,7 @@
 .panel-btn-registrar .icono { font-size: 18px; }
 .panel-btn-registrar:hover { background: var(--hover); }
 
-.panel-sil-caja { flex: 1 1 0; min-height: 220px; width: 100%; display: flex; justify-content: center; overflow: hidden; }
+.panel-sil-caja { position: relative; flex: 1 1 0; min-height: 220px; width: 100%; display: flex; justify-content: center; overflow: hidden; }
 .panel-sil-alto { height: 100%; min-height: 0; width: 100%; }
 
 .panel-datos { flex: none; width: 100%; align-self: stretch; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 8px; font-family: var(--font-mono); }
@@ -47,7 +47,7 @@
     flex: 1 1 400px; max-width: 100%; min-width: 300px; box-sizing: content-box; padding-right: 16px; border-right: 1px solid var(--border-soft);
     display: flex; flex-direction: column; gap: 8px;
 }
-.panel-vistas { flex: none; display: flex; gap: 6px; }
+.panel-vistas { position: absolute; top: 8px; right: 0; z-index: 5; flex: none; display: flex; flex-direction: column; gap: 6px; }
 .panel-vista {
     cursor: pointer; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; border-radius: var(--radius);
     border: 1px solid var(--border-soft); background: transparent; color: var(--muted-2); transition: background-color 150ms ease;

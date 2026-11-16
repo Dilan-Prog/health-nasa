@@ -1,0 +1,71 @@
+<?php
+
+/*
+ | Contenido de la pantalla "Guía educativa" (/guia). Las claves son las de config/indicadores.php (14 marcadores).
+ |
+ |  parte   Zona del cuerpo o sistema que se muestra junto al nombre
+ |  texto   Qué mide el indicador y por qué cambia en microgravedad (divulgación general; no diagnostica)
+ |
+ | Los rangos y la recomendación "Qué hacer" salen de config/indicadores.php. Orienta, no diagnostica ni receta.
+ */
+
+return [
+    'marcadores' => [
+        'presion_arterial' => [
+            'parte' => 'Tórax',
+            'texto' => 'En microgravedad los fluidos suben hacia la cabeza y el pecho, lo que altera la presión y la regulación del corazón.',
+        ],
+        'frecuencia_cardiaca' => [
+            'parte' => 'Corazón',
+            'texto' => 'El corazón trabaja menos sin gravedad y puede perder masa; el ejercicio aeróbico lo mantiene en forma.',
+        ],
+        'saturacion_o2' => [
+            'parte' => 'Pulmones',
+            'texto' => 'Mide cuánto oxígeno transporta la sangre. Depende de la atmósfera de la cabina y de la función pulmonar.',
+        ],
+        'glucosa' => [
+            'parte' => 'Sangre',
+            'texto' => 'La menor actividad muscular reduce la sensibilidad a la insulina y eleva la glucosa.',
+        ],
+        'temperatura' => [
+            'parte' => 'Cuerpo entero',
+            'texto' => 'Sin convección natural, el cuerpo disipa peor el calor; la temperatura central suele subir algo en vuelo.',
+        ],
+        'imc' => [
+            'parte' => 'Cuerpo entero',
+            'texto' => 'Relaciona peso y altura. En misiones largas suele bajar por pérdida de músculo y hueso.',
+        ],
+        'hidratacion' => [
+            'parte' => 'Riñones',
+            'texto' => 'En el espacio la sed disminuye; beber poco aumenta el riesgo de cálculos renales por el calcio liberado del hueso.',
+        ],
+        'perdida_osea' => [
+            'parte' => 'Cadera y columna',
+            'texto' => 'Sin carga sobre el esqueleto se pierde en torno al 1–1.5 % de densidad ósea al mes en cadera y columna.',
+        ],
+        'masa_muscular' => [
+            'parte' => 'Piernas y espalda',
+            'texto' => 'Los músculos posturales (piernas, espalda) se atrofian rápido sin ejercicio de resistencia.',
+        ],
+        'radiacion_diaria' => [
+            'parte' => 'Todo el cuerpo',
+            'texto' => 'Fuera de la protección completa de la atmósfera, la radiación cósmica y solar aumenta el riesgo a largo plazo.',
+        ],
+        'dosis_acumulada' => [
+            'parte' => 'Todo el cuerpo',
+            'texto' => 'Suma de toda la radiación recibida; se compara con límites de misión y de carrera.',
+        ],
+        'sueno' => [
+            'parte' => 'Cerebro',
+            'texto' => 'Con 16 amaneceres al día, ruido y luz artificial, el ritmo circadiano se desajusta con facilidad.',
+        ],
+        'estres_cognitivo' => [
+            'parte' => 'Cerebro',
+            'texto' => 'El aislamiento y la carga de trabajo afectan atención, memoria y estado de ánimo.',
+        ],
+        'vision_sans' => [
+            'parte' => 'Ojos',
+            'texto' => 'El síndrome neuro-ocular asociado al vuelo espacial (SANS) cambia la forma del ojo y la visión de cerca.',
+        ],
+    ],
+];

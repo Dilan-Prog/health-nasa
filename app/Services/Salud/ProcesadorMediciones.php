@@ -86,9 +86,10 @@ class ProcesadorMediciones
                 'accion' => $decision['accion'],
                 'recomendacion' => $this->catalogo->para($clave, $estado),
             ]);
-            if ($decision['encolar_tierra']) {
+            if ($decision['encolar_tierra'] && ! ($origen === 'simulado' && $this->alertaReciente($astronauta, $clave))) {
                 AlertaSaliente::create([
                     'evaluacion_id' => $evaluacion->id,
+                    'astronauta_id' => $astronauta->id,
                     'carga' => [
                         'astronauta' => $astronauta->nombre,
                         'indicador' => $this->config['indicadores'][$clave]['nombre'],
@@ -123,6 +124,16 @@ class ProcesadorMediciones
         }
 
         return $resultado;
+    }
+
+    /** Solo simulación: ya hay un aviso del mismo tripulante e indicador dentro de la ventana (por medición de la evaluación, no por texto de la carga). */
+    private function alertaReciente(Astronauta $astronauta, string $clave): bool
+    {
+        $min = (int) config('tierra.ventana_dedup_min', 10);
+
+        return AlertaSaliente::where('created_at', '>=', now()->subMinutes($min))
+            ->whereHas('evaluacion.medicion', fn ($q) => $q->where('astronauta_id', $astronauta->id)->where('indicador', $clave))
+            ->exists();
     }
 
     private function principal(array $valores): float

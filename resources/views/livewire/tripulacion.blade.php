@@ -8,9 +8,27 @@
         'posterior' => ['Vista posterior', 'u_turn_left', false],
     ];
     $n = $tripulacion->count();
+    $max = \App\Services\Tripulacion\AltaTripulante::maximo();
+    $lleno = $n >= $max;
 @endphp
 <div class="trip">
     <x-encabezado titulo-a="Tripulación" :titulo-b="($mision?->nombre ?? 'Sin misión').' · '.$n.' '.($n === 1 ? 'tripulante' : 'tripulantes')" />
+
+    @if (session('tripulante_creado') || \Illuminate\Support\Facades\Route::has('tripulacion.nuevo'))
+        <div class="trip-barra">
+            @if (session('tripulante_creado'))
+                <p class="trip-aviso-ok" role="status"><span class="icono">task_alt</span> Tripulante «{{ session('tripulante_creado') }}» registrado correctamente.</p>
+            @endif
+            <span class="trip-cupo mono" title="Máximo {{ $max }} tripulantes por misión">{{ $n }} / {{ $max }} tripulantes</span>
+            @if (\Illuminate\Support\Facades\Route::has('tripulacion.nuevo'))
+                @if ($lleno)
+                    <span class="trip-nuevo is-off" role="link" aria-disabled="true" title="La misión ya tiene el máximo de {{ $max }} tripulantes"><span class="icono">person_add</span> Tripulación completa</span>
+                @else
+                    <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
+                @endif
+            @endif
+        </div>
+    @endif
 
     @if ($n === 0)
         <div class="trip-vacio" role="status">

@@ -1,0 +1,49 @@
+/* Pantalla Contexto de misión. Requiere los tokens de design/tokens.css (--surface, --border, --primary, estados...). */
+.mision { display: contents; }
+.mision-main { flex: 1 0 auto; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.mision-cabecera { display: flex; flex-direction: column; gap: 4px; }
+.mision-kicker { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: .08em; color: var(--muted-3); }
+.mision-titulo { margin: 0; font-size: 26px; font-weight: 600; color: var(--text); }
+.mision-sub { margin: 0; font-size: 14px; color: var(--text-2); }
+
+.mision-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.mision-stat { display: flex; flex-direction: column; gap: 3px; padding: 12px; border-radius: var(--radius); background: var(--surface-sel); border: 1px solid var(--border-faint); }
+.mision-stat-et { font-size: 11px; letter-spacing: .08em; color: var(--muted-3); }
+.mision-stat-v { font-size: 20px; color: var(--text); }
+.mision-stat-v--txt { font-size: 16px; }
+.mision-stat-v--estado { display: flex; align-items: center; gap: 6px; color: var(--t); }
+.mision-stat-v--estado .icono { font-size: 22px; }
+
+.mision-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); min-width: 0; }
+.mision-cuerpo { display: flex; flex-wrap: wrap; gap: 16px; }
+.mision-cuerpo > .mision-panel { flex: 1 1 320px; }
+.mision-nota { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted-3); }
+
+/* Línea de tiempo */
+.mision-tl-marco { overflow-x: auto; padding-bottom: 4px; }
+.mision-tl { position: relative; height: 70px; margin: 8px 40px 0; min-width: 520px; }
+.mision-tl-linea, .mision-tl-avance { position: absolute; left: 0; top: 5px; height: 2px; }
+.mision-tl-linea { right: 0; background: var(--border); }
+.mision-tl-avance { background: var(--primary); }
+.mision-hito { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mision-hito-punto { width: 12px; height: 12px; border-radius: 50%; background: var(--border); }
+.mision-hito.is-hecho .mision-hito-punto { background: var(--primary); }
+.mision-hito-n { font-size: 12px; white-space: nowrap; color: var(--text); }
+.mision-hito-d { font-size: 11px; color: var(--muted-3); }
+
+/* Dosis */
+.mision-dosis-cifras { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); }
+.mision-barra { height: 10px; border-radius: 999px; background: var(--hover); overflow: hidden; }
+.mision-barra span { display: block; height: 100%; border-radius: 999px; background: var(--c); }
+
+/* Eventos */
+.mision-eventos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mision-eventos li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text); }
+.mision-eventos .icono { font-size: 20px; color: var(--primary); }
+.mision-ev-d { width: 44px; flex: none; color: var(--muted-3); }
+
+.mision-vacio { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 40px 16px; text-align: center; font-size: 14px; color: var(--text-2); border: 1px dashed var(--border); border-radius: var(--radius-lg); }
+.mision-vacio .icono { font-size: 32px; color: var(--primary); }
+.mision-vacio strong { font-size: 16px; color: var(--text); }
+
+@media (max-width: 600px) { .mision-titulo { font-size: 22px; } }

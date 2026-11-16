@@ -12,4 +12,7 @@ return [
     'url' => env('TIERRA_URL'),
 
     'timeout' => 5,
+
+    // Solo simulación: no encolar otro aviso del mismo tripulante e indicador dentro de esta ventana (minutos).
+    'ventana_dedup_min' => 10,
 ];

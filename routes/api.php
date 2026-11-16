@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Mediciones enviadas por el reloj (token por tripulante, ver `php artisan reloj:token`).
+Route::post('/mediciones', [\App\Http\Controllers\Api\MedicionesController::class, 'store'])->name('api.mediciones');

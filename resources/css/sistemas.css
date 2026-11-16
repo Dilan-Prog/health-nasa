@@ -1,0 +1,39 @@
+/* Pantalla Sistemas corporales: tarjetas por sistema con borde superior de su peor estado. Tokens de design/tokens.css. */
+.sis { display: contents; }
+.sis-main { flex: 1 0 auto; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sis-cabecera { display: flex; flex-direction: column; gap: 4px; }
+.sis-kicker { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+.sis-titulo { margin: 0; font-size: 26px; font-weight: 600; color: var(--text); }
+.sis-sub { margin: 0; font-size: 14px; color: var(--text-2); }
+.sis-intro { margin: 0; font-size: 14px; color: var(--muted); }
+
+.sis-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.sis-tarjeta { --e: var(--muted); --e-text: var(--text-2); display: flex; flex-direction: column; gap: 12px; padding: 20px; min-width: 0; border-radius: var(--radius-lg); border: 1px solid var(--border); border-top: 4px solid var(--e); background: var(--surface); }
+.sis-tarjeta[data-estado="ok"], .sis-fila[data-estado="ok"] { --e: var(--ok); --e-text: var(--ok-text); }
+.sis-tarjeta[data-estado="warn"], .sis-fila[data-estado="warn"] { --e: var(--warn); --e-text: var(--warn-text); }
+.sis-tarjeta[data-estado="crit"], .sis-fila[data-estado="crit"] { --e: var(--crit); --e-text: var(--crit-text); }
+.sis-tarjeta-cab { display: flex; align-items: center; gap: 10px; }
+.sis-ic { font-size: 28px; color: var(--e); }
+.sis-tarjeta-t { flex: 1; margin: 0; font-size: 18px; font-weight: 600; color: var(--text); }
+.sis-pildora { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: var(--surface-2, var(--border-faint)); color: var(--e-text); }
+.sis-pildora .icono { font-size: 14px; }
+
+.sis-filas { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sis-fila { --e: var(--muted); display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px; box-sizing: border-box; border-radius: 8px; text-decoration: none; color: inherit; background: var(--border-faint); transition: background .15s; }
+.sis-fila:hover { background: var(--border); }
+.sis-fila:focus-visible { outline: 3px solid oklch(0.64 0.22 33); outline-offset: 2px; }
+.sis-punto { font-size: 18px; color: var(--e-text); }
+.sis-fila-t { flex: 1; min-width: 0; font-size: 14px; color: var(--text); }
+.sis-valor { font-size: 15px; color: var(--text); }
+.sis-unidad { font-size: 12px; color: var(--muted); }
+.sis-solo-lectores { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.sis-vacio { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 16px; text-align: center; color: var(--muted); border-radius: var(--radius-lg); border: 1px dashed var(--border); background: var(--surface); }
+.sis-vacio .icono { font-size: 32px; }
+.sis-vacio strong { color: var(--text); }
+.sis-aviso { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--muted); }
+.sis-aviso .icono { font-size: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .sis-fila { transition: none; }
+}

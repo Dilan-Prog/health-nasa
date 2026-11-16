@@ -2,7 +2,8 @@
 .trip { display: contents; }
 .trip-rejilla {
     flex: 1 0 auto; display: grid; gap: 10px;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); grid-auto-rows: minmax(380px, 1fr);
+    /* Como máximo 5 columnas (5 tripulantes por misión); cada tarjeta mide al menos 240 px y las filas se reparten solas. */
+    grid-template-columns: repeat(auto-fit, minmax(max(240px, calc((100% - 40px) / 5)), 1fr)); grid-auto-rows: minmax(380px, 1fr);
 }
 .trip-tarjeta {
     color: inherit; cursor: pointer; min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: stretch; gap: 10px;
@@ -62,7 +63,13 @@
 .trip-vacio .icono { font-size: 40px; color: var(--muted); }
 .trip-vacio strong { font-size: 17px; color: var(--text); }
 
+/* Tableta: 2 columnas; móvil: 1 columna con tarjetas a lo alto. */
 @media (max-width: 899px) {
-    .trip-rejilla { grid-template-columns: 1fr; grid-auto-rows: auto; }
+    .trip-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+    .trip-tarjeta { min-height: 420px; }
+}
+@media (max-width: 599px) {
+    .trip-rejilla { grid-template-columns: 1fr; }
     .trip-tarjeta { min-height: 380px; }
+    .trip-cuerpo { min-height: 240px; }
 }

@@ -1,0 +1,114 @@
+/* Asistente "Nuevo tripulante": estilos PROVISIONALES (prefijo nt-). El diseñador puede sustituirlos. */
+.nt { display: contents; }
+.nt-form { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.nt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.nt-bloqueo {
+    display: flex; gap: 14px; align-items: flex-start; padding: 20px; border-radius: var(--radius-lg);
+    border: 1px solid var(--warn); background: var(--warn-soft); color: var(--text);
+}
+.nt-bloqueo .icono { font-size: 28px; color: var(--warn-text); }
+.nt-bloqueo p { margin: 4px 0 12px; color: var(--muted); }
+
+/* Pasos */
+.nt-pasos ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.nt-paso-btn {
+    width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; text-align: left; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--muted); font: inherit;
+}
+.nt-paso-btn:disabled { cursor: not-allowed; opacity: .55; }
+.nt-paso-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.nt-paso[data-estado="actual"] .nt-paso-btn { border-color: var(--primary); color: var(--text); background: var(--surface-sel); }
+.nt-paso[data-estado="completo"] .nt-paso-btn { color: var(--ok-text); }
+.nt-paso-ic { font-size: 22px; flex: none; }
+.nt-paso-txt { display: flex; flex-direction: column; min-width: 0; }
+.nt-paso-n { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.nt-paso-t { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.nt-resumen-errores, .nt-lista-errores { color: var(--crit-text); }
+.nt-resumen-errores {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius);
+    background: var(--crit-soft); border: 1px solid var(--crit);
+}
+.nt-lista-errores { font-size: 13px; margin: 0; padding-left: 20px; }
+
+/* Tarjeta y rejilla */
+.nt-tarjeta { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.nt-titulo { margin: 0; font-size: 18px; font-weight: 600; }
+.nt-grupo { border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 12px 14px 14px; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.nt-grupo > legend { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--primary); }
+.nt-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.nt-fila { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; align-items: end; padding: 10px; border: 1px dashed var(--border); border-radius: var(--radius); }
+.nt-ancho { grid-column: 1 / -1; }
+
+.nt-campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; border: 0; padding: 0; margin: 0; }
+.nt-campo label, .nt-campo legend, .nt-etiqueta { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.nt-unidad { font-weight: 400; color: var(--muted); }
+.nt-campo input[type="text"], .nt-campo input[type="number"], .nt-campo input[type="date"], .nt-campo input[type="tel"],
+.nt-campo select, .nt-campo textarea {
+    min-height: 40px; box-sizing: border-box; width: 100%; padding: 8px 10px; font: inherit; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+}
+.nt-campo input:focus-visible, .nt-campo select:focus-visible, .nt-campo textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.nt-campo [aria-invalid="true"] { border-color: var(--crit); background: var(--crit-soft); }
+.nt-radios { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px; }
+.nt-radio, .nt-check label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; min-height: 40px; }
+.nt-calculado strong { font-family: var(--font-mono); font-size: 20px; }
+.nt-ayuda { margin: 0; font-size: 12px; color: var(--muted); }
+.nt-error { margin: 0; font-size: 12px; color: var(--crit-text); }
+.nt-vacio { margin: 0; color: var(--muted-2); font-size: 13px; }
+.nt-aviso { display: flex; gap: 8px; align-items: center; margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--warn-soft); color: var(--text); font-size: 13px; }
+.nt-acciones-fila { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Revisión */
+.nt-revision { border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 10px 14px; }
+.nt-revision-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.nt-revision-cab h3 { margin: 0; font-size: 15px; }
+.nt-dl { margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px 16px; }
+.nt-dl dt { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.nt-dl dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.nt-completitud { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: var(--radius); background: var(--surface-sel); }
+.nt-completitud progress { width: 100%; height: 10px; accent-color: var(--primary); }
+
+/* PENDIENTE: bloque informativo; se activará al integrar dispositivos de medición reales (hoy las mediciones se simulan). */
+.nt-dispositivo { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px dashed var(--border); border-radius: var(--radius); opacity: .7; cursor: not-allowed; }
+.nt-dispositivo > .icono { font-size: 28px; color: var(--muted-2); }
+.nt-dispositivo-t { display: flex; flex-direction: column; gap: 2px; }
+.nt-proximamente { margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: var(--surface-sel); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--muted-2); }
+
+/* Botones y barra */
+.nt-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; position: sticky; bottom: 0; padding: 10px 0; background: var(--bg); }
+.nt-barra-sep { flex: 1; }
+.nt-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px 14px; cursor: pointer;
+    font: inherit; font-weight: 600; color: var(--primary); background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+}
+.nt-btn:hover:not(:disabled) { background: var(--hover); }
+.nt-btn:disabled { opacity: .5; cursor: not-allowed; }
+.nt-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.nt-btn .icono { font-size: 18px; }
+.nt-btn--primario { color: #fff; background: var(--primary); border-color: var(--primary); }
+.nt-btn--primario:hover:not(:disabled) { background: var(--primary-dark); }
+.nt-btn--suave { color: var(--muted-2); font-weight: 500; }
+.nt-btn--quitar { color: var(--crit-text); }
+.nt-seguridad { margin: 0; font-size: 12px; color: var(--muted-2); }
+
+@media (max-width: 760px) {
+    .nt-pasos ol { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .nt-paso[data-estado="pendiente"] .nt-paso-txt, .nt-paso[data-estado="completo"] .nt-paso-txt { display: none; }
+}
+
+/* Enlace "Nuevo tripulante" y aviso de éxito en la pantalla Tripulación (provisional). */
+.trip-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; margin: 0 0 10px; }
+.trip-nuevo {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 8px 14px; font-weight: 600; text-decoration: none;
+    color: #fff; background: var(--primary); border-radius: 8px;
+}
+.trip-nuevo:hover { color: #fff; background: var(--primary-dark); }
+.trip-nuevo:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.trip-nuevo .icono { font-size: 20px; }
+.trip-aviso-ok { flex: 1; display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--ok-soft); color: var(--ok-text); font-size: 14px; }
+
+.trip-cupo { margin-right: auto; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); }
+.trip-nuevo.is-off { cursor: not-allowed; opacity: .6; background: var(--muted-2); }
+.trip-nuevo.is-off:hover { background: var(--muted-2); }
