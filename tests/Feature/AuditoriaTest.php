@@ -140,8 +140,6 @@ class AuditoriaTest extends TestCase
 
     public function test_ruta_auditoria_solo_flight_surgeon(): void
     {
-        require base_path('routes/auditoria.php');
-        app('router')->getRoutes()->refreshNameLookups();
         config(['mision.exigir_login' => true]);
 
         $this->actingAs($this->usuario('tripulante'))->get('/auditoria')->assertForbidden();
