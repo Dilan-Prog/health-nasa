@@ -41,6 +41,9 @@ return [
 
     'limite_dosis_msv' => 250,
 
+    // Días de mediciones en vivo que se conservan (la poda `mediciones:podar` borra lo más antiguo).
+    'dias_historial' => (int) env('MISION_DIAS_HISTORIAL', 15),
+
     // SOLO PRUEBAS en entorno local: ID del tripulante al que se asignan las mediciones del reloj sin token.
     'reloj_sin_token_astronauta' => env('RELOJ_SIN_TOKEN_ASTRONAUTA'),
 ];
