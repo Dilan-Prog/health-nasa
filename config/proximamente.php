@@ -38,4 +38,11 @@ return [
         ['nombre' => 'Prescripción dinámica de ejercicio', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
         ['nombre' => 'Posvuelo de 45 días (rehabilitación)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
     ],
+
+    // Plataforma: piezas de infraestructura (no son biomarcadores, por eso no llevan `sistema` ni `fuente`).
+    // Solo se muestran en la Guía como "Próximamente"; sin fechas comprometidas.
+    'plataforma' => [
+        ['nombre' => 'IA local con Ollama', 'descripcion' => 'Próximamente: un modelo de lenguaje que se ejecute en el propio equipo, sin enviar datos fuera. Hoy el médico de vuelo usa respuestas simuladas.', 'estado' => 'proximamente'],
+        ['nombre' => 'Orquestación con n8n', 'descripcion' => 'Próximamente: flujos automáticos que coordinen alertas y tareas entre servicios. Hoy no hay ninguna automatización conectada.', 'estado' => 'proximamente'],
+    ],
 ];

@@ -30,6 +30,20 @@ class ProximamenteTest extends TestCase
         }
     }
 
+    public function test_plataforma_tiene_nombre_descripcion_y_estado_sin_exigir_sistema(): void
+    {
+        $plat = config('proximamente.plataforma');
+        $this->assertSame(['IA local con Ollama', 'Orquestación con n8n'], array_column($plat, 'nombre'));
+        foreach ($plat as $p) {
+            $this->assertSame('proximamente', $p['estado']);
+            $this->assertStringStartsWith('Próximamente:', $p['descripcion']);
+        }
+        $html = Livewire::test(Guia::class)->html();
+        $this->assertMatchesRegularExpression('#<section class="prox prox-plataforma".*?</section>#s', $html);
+        $this->assertStringContainsString('IA local con Ollama', $html);
+        $this->assertStringContainsString('Orquestación con n8n', $html);
+    }
+
     public function test_guia_las_muestra_atenuadas_sin_enlaces_ni_campos(): void
     {
         $html = Livewire::test(Guia::class)->html();

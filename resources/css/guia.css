@@ -46,3 +46,7 @@
 .guia-aviso { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: var(--muted); }
 .guia-aviso .icono { font-size: 18px; }
 .guia [x-cloak] { display: none !important; }
+.prox-plataforma { margin-top: 16px; }
+.prox-item-plat { align-items: flex-start; }
+.prox-texto { display: flex; flex-direction: column; gap: 4px; }
+.prox-desc { font-size: 14px; color: var(--muted); }

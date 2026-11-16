@@ -69,6 +69,24 @@
             </section>
         @endif
 
+        @if ($plataforma)
+            <section class="prox prox-plataforma" aria-labelledby="guia-plat-t">
+                <h3 class="prox-titulo" id="guia-plat-t">Plataforma</h3>
+                <p class="prox-sub">Piezas técnicas previstas que todavía no existen.</p>
+                <ul class="prox-lista">
+                    @foreach ($plataforma as $p)
+                        <li class="prox-item prox-item-plat" data-proximamente aria-disabled="true">
+                            <span class="prox-texto">
+                                <span class="prox-nombre">{{ $p['nombre'] }}</span>
+                                <span class="prox-desc">{{ $p['descripcion'] }}</span>
+                            </span>
+                            <span class="mono prox-etiqueta">Próximamente</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+
         <p class="guia-aviso" role="note"><span class="icono" aria-hidden="true">info</span>Orienta, no diagnostica. Consulta al flight surgeon ante cualquier duda.</p>
 
         <x-peligros-riesgos />

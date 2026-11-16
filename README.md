@@ -81,6 +81,11 @@ Todos los números de estas medidas son supuestos del proyecto, no de la norma.
 
 Biomarcadores y datos que aún no tienen entrada ni lógica, visibles como "Próximamente" en la Guía y en Sistemas (`config/proximamente.php`): VO₂máx, fuerza, densidad mineral ósea, grosor de retina y presión intraocular, vitamina D, calcio urinario, cortisol salival, PVT, ingesta calórica, pCO₂/pO₂/humedad de cabina, ECG y flujo yugular, telemetría de ARED/T2/CEVIS, radiación por órgano y evento solar, prescripción dinámica de ejercicio y posvuelo de 45 días.
 
+Plataforma (también "Próximamente", sin fechas; se muestra en la Guía):
+
+- **IA local con Ollama**: modelo de lenguaje local en lugar de las respuestas simuladas actuales.
+- **Orquestación con n8n**: flujos automáticos entre servicios; hoy no hay ninguno conectado.
+
 ## Pruebas
 
 ```bash

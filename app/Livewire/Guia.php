@@ -37,6 +37,7 @@ class Guia extends Component
             'tarjetas' => $this->tarjetas($a),
             'extras' => $this->extras($a),
             'proximamente' => Sistemas::proximamente(),
+            'plataforma' => config('proximamente.plataforma', []),
         ]);
     }
 
