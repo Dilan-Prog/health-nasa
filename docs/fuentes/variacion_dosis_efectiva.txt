@@ -1,0 +1,180 @@
+[7 paginas]
+Variación de la dosis efectiva 
+1,3 msv/día para sistemas en el espacio libre y menos de 0.9 msc/
+se calcula utilizando el espectro del modelo de RCG de Badhwar O'Neill correspondiente al mínimo 
+solar de 2009 y teniendo en cuenta el tiempo estimado que la tripulación pasa en ubicaciones con 
+protección ligera y más intensa en todo el sistema de espacio habitable.
+Para estas misiones, los sistemas de vehículos y hábitats deben diseñarse para proporcionar 
+suficiente protección para reducir la exposición a los rayos cósmicos galácticos (RCG) en al menos 
+un 15 % en el espacio libre y en al menos un 10 % en la superficie lunar. El mínimo de 60 días está 
+designado para proteger a los miembros de la tripulación más allá de las misiones iniciales de corta 
+duración
+Durante el mínimo solar, el blindaje del vehículo puede reducir eficazmente la tasa de dosis efectiva 
+de rayos cósmicos galácticos (RCG) en el espacio libre sin blindaje, de 1,5 mSv/día, en 
+aproximadamente un 15%, hasta 1,3 mSv/día o incluso menos, dependiendo de los materiales del 
+vehículo y del blindaje incorporados en su diseño.
+https://www-nasa-gov.translate.goog/reference/4-0-human-performance/?
+_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=sge#hds-sidebar-nav-2
+Presión arterial:
+Rangos de presión arterial (en mmHg)
+• Normal: Menor a 120/80 (Sistólica <120 y Diastólica <80)
+• Elevada: Sistólica entre 120-129 y Diastólica <80
+• Hipertensión Etapa 1: Sistólica 130-139 o Diastólica 80-89
+• Hipertensión Etapa 2: Sistólica ≥140 o Diastólica ≥90
+• Crisis hipertensiva (Emergencia): Mayor a 180/120 (requiere atención médica inmediata, 
+especialmente si se acompaña de síntomas como dolor de pecho, dificultad para respirar, dolor de 
+espalda, debilidad o confusión)
+Primer examen médico:
+CHMO-STD-100.1A, Revision A
+Table 4 - NASA Astronaut Candidate (ASCAN) First Annual Exam
+
+=== PAGINA ===
+NASA Astronaut Candidate (ASCAN) First Annual Exam
+ABO Group & Rh Type
+Cytomegalovirus IgG Antibody
+Epstein-Barr Virus IgG Antibody to Nuclear Antigen
+Epstein-Barr Virus IgG Antibody to Viral Capsid Antigen
+Herpes Simplex Virus (HSV) Type 1/2 Combined IgG Antibody
+Toxoplasma gondii IgG Antibody
+VZV IgG Antibody
+Immunocap Mouse Epithelium Antibody
+Immunocap Mouse Urine IgE Antibody
+Lipoprotein (a)
+Measles (Rubeola) IgG Antibody
+Mumps IgG Antibody
+Rubella IgG Antibody
+Helicobacter pylori Breath Test
+Hepatitis A antibody
+Glucose-6-phosphate dehydrogenase (G6PD)
+Serum Protein Electrophoresis (SPE)
+Quantitative Immunoglobulins (IgG, IgA, IgM)
+Calculi Risk Assessment, Urine
+Venous Thromboembolism Panel:
+• Cardiolipin IgG Antibody
+• B2 glycoprotein 1 IgM/IgG Antibody
+• Activated Protein C (APC) Resistance
+• Prothrombin Nucleotide 20210 G/A Gene Mutation (Factor II)
+• Protein C
+• Protein S
+• Anti-Thrombin
+• Anti-phospholipid antibodies
+• Factor V Leiden
+https://www.nasa.gov/wp-content/uploads/2023/04/ochmo-std-100.1a.pdf
+Frecuencia cardiaca. 
+Los únicos datos recopilados de forma sistemática fueron las frecuencias cardíacas de los 
+comandantes. La Figura 1 muestra las frecuencias cardíacas de cada uno de los cinco astronautas 
+de las misiones Apolo durante la fase de descenso a la superficie lunar. La frecuencia cardíaca 
+
+=== PAGINA ===
+media a lo largo de estas misiones fue de aproximadamente 96 latidos por minuto (lpm; rango: 66–
+144).
+Las frecuencias cardíacas se mantuvieron estables hasta el momento de máxima carga G, cuando 
+algunos comandantes experimentaron, al parecer, un aumento moderado de 10 a 20 lpm; no 
+obstante, la frecuencia cardíaca no disminuyó de forma sustancial cuando las cargas G se redujeron 
+(Figura 2). La frecuencia cardíaca media aumentó, alcanzando un máximo de casi 120 lpm cerca del 
+momento del alunizaje (rango: 94–153).
+Durante la fase de ascenso lunar, la frecuencia cardíaca media de los cinco astronautas de las 
+misiones Apolo fue de aproximadamente 88 latidos por minuto (rango: 70–109) (Figura 3). Si bien 
+se produjo un aumento inicial de la frecuencia cardíaca en el momento del despegue, la respuesta 
+promedio no se incrementó con el paso del tiempo. La frecuencia cardíaca media registrada durante 
+la fase de ascenso fue similar a la observada durante la etapa inicial de la fase de descenso (0,3 a 
+0,4 G), pero resultó ser unos 20 latidos por minuto inferior a la registrada durante la parte final del 
+descenso, cuando las fuerzas G eran menores. Es decir, a diferencia de lo que ocurría en el 
+descenso, la respuesta de la frecuencia cardíaca durante el ascenso no aumentó con el tiempo.
+Aunque el incremento inicial de la frecuencia cardíaca (10–20 latidos por minuto) probablemente 
+incluyó componentes ortostáticos y psicológicos, el hecho de que la frecuencia cardíaca se 
+mantuviera estable posteriormente sugiere que, a pesar del aumento de las fuerzas G, los efectos 
+del estrés asociado al ascenso no se intensificaron.
+Casi todos los miembros de la tripulación manifestaron síntomas derivados del desplazamiento de 
+fluidos hacia la parte superior del cuerpo —como la sensación de congestión en la cabeza— durante 
+el proceso de adaptación al vuelo espacial; para tratar esto, se utilizaron gotas nasales a fin de 
+aliviar la congestión hasta que los síntomas remitieron. No obstante, la mayoría de los astronautas 
+no experimentó náuseas, vómitos ni desorientación durante su mision.
+https://ntrs.nasa.gov/api/citations/20200001709/downloads/20200001709.pdf
+Glucosa 
+
+
+=== PAGINA ===
+https://www.nasa.gov/wp-content/uploads/2023/04/ochmo-std-100.1a.pdf
+Temperatura.
+Rangos y comportamiento en el espacio
+• Temperatura habitual en reposo (basada en misiones largas). Después de unos 2 meses y medio 
+en órbita, su temperatura central sube gradualmente de los 37,0 °C terrestres hasta estabilizarse 
+cerca de los 38,0 °C. Este nivel persiste hasta que regresan a la Tierra.
+• Temperatura durante el ejercicio. Al entrenar en microgravedad, su calor corporal aumenta mucho 
+más rápido que en la Tierra. Es común que superen los 40,0 °C durante las rutinas físicas, lo cual en 
+la Tierra equivaldría a una fiebre muy alta.
+
+=== PAGINA ===
+• Criterio médico de alerta. Dado que su línea base sube, los médicos aeroespaciales no evalúan la 
+fiebre con el umbral terrestre fijo de 38,0 °C. En su lugar, vigilan aumentos bruscos por encima de 
+su nueva media espacial o la presencia de otros síntomas infecciosos.
+Por qué ocurre la "fiebre espacial"
+• Falta de convección y evaporación lenta. En la Tierra, el aire caliente sube y el sudor se evapora 
+rápido para enfriarnos. En el espacio no hay gravedad que mueva el aire y el sudor se acumula 
+sobre la piel en lugar de evaporarse fácilmente.
+• Respuesta inflamatoria leve. Estudios como el proyecto Thermolab de la Agencia Espacial Europea 
+(ESA) y investigaciones publicadas en Scientific Reports hallaron que el cuerpo espacial produce 
+más proteínas relacionadas con la inflamación (como la interleucina-1), manteniendo al organismo 
+en un estado metabólico elevado.
+https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0026-17422014000400020
+Sueño.
+Se establece de 7 a 9 horas de sueño
+Para un funcionamiento óptimo pero el promedio real en órbita cae de 6-6.5 horas esto se asocia a 
+la disminución medible en la velocidad de respuesta psicomotora y un aumento del estrés 
+https://anmdecolombia.org.co/dormir-en-el-espacio-exterior
+Estado de ánimo.
+Principales escalas utilizadas
+1. POMS (Profile of Mood States)
+- Evalúa seis dimensiones del estado de ánimo.
+- Tensión, depresión, enojo, vigor, fatiga y confusión.
+- Permite identificar cambios emocionales durante misiones espaciales.
+2. PANAS (Positive and Negative Affect Schedule)
+- Mide emociones positivas y negativas.
+- Por ejemplo: entusiasmo, alegría, nerviosismo, miedo e irritabilidad.
+- Ayuda a conocer el estado emocional de los astronautas.
+3. AMS (Alertness and Mood Survey)
+- Evalúa el estado de alerta y el ánimo.
+- Incluye aspectos como aburrimiento, estrés, tristeza, cansancio y calidad del sueño.
+- Fue diseñada para estudiar las condiciones de los astronautas durante vuelos espaciales.
+4. VAS (Visual Analog Scales)
+
+=== PAGINA ===
+4. VAS (Visual Analog Scales)
+- Son escalas visuales donde los astronautas califican cómo se sienten.
+- Pueden medir estrés, cansancio, energía y estado de ánimo.
+- Permiten realizar evaluaciones rápidas
+¿Para qué sirven en el espacio?
+- Detectar estrés y cambios emocionales.
+- Identificar síntomas de aislamiento y tristeza.
+- Evaluar el cansancio psicológico.
+- Prevenir problemas de salud mental.
+- Mejorar la convivencia y el trabajo en equipo.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6218582/
+Efectos de los 5 riesgos.
+Radiación espacial
+Invisible para el ojo humano, la radiación espacial no solo es sigilosa, sino que se considera uno de 
+los aspectos más peligrosos de los vuelos espaciales.
+ Aislamiento
+Aislamiento y confinamiento
+Las respuestas conductuales ocurren entre grupos de personas lejos de la Tierra que están aisladas 
+y confinadas en un espacio pequeño durante un largo período de tiempo.
+ Una ilustración de la Luna y Marte sobre el horizonte de la Tierra.
+Distancia de la Tierra
+Las instrucciones, los nuevos suministros, la atención médica y más se vuelven cada vez más 
+difíciles de recibir de la Tierra a medida que los astronautas se aventuran más profundamente en el 
+espacio.
+ Christina Koch
+Campos de gravedad
+Los cuerpos completos de los astronautas (músculos, huesos, oído interno y órganos) deben 
+adaptarse a las nuevas gravedades encontradas en la estación espacial o en su nave espacial, así 
+como en la Luna, Marte y la Tierra una vez que regresan a casa.
+ entorno cerrado
+Entornos hostiles/cerrados
+Mantener un ecosistema seguro dentro de una nave espacial presenta desafíos únicos, desde 
+garantizar temperaturas, presiones e iluminación óptimas, hasta reducir el ruido, monitorear las 
+
+=== PAGINA ===
+garantizar temperaturas, presiones e iluminación óptimas, hasta reducir el ruido, monitorear las 
+comunidades microbianas y rastrear las respuestas inmunitarias.
+https://www.nasa.gov/hrp/hazards/

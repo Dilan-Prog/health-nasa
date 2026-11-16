@@ -1,0 +1,258 @@
+[docx]
+
+
+
+    Límites operativos oficiales y umbrales clínicos vigentes
+
+    NASA-STD-3001 Volumen 1, Revisión C · Comparación con las cifras publicadas por el NASA Human Research Program · 14 de noviembre de 2026
+
+    
+
+    
+    1. Qué es cada fuente y por qué importan las dos
+
+    El HRP describe riesgos y publica datos observados; el estándar NASA-STD-3001 los convierte en requisitos que los programas de vuelo deben cumplir. Son documentos con propósitos distintos, y el software debe tratar sus cifras de forma distinta: las del estándar son umbrales operativos, las del HRP son líneas base de referencia.
+
+    Documento normativo principal: NASA-STD-3001, Volumen 1, Revisión C, NASA Spaceflight Human-System Standard: Crew Health, aprobado el 15 de septiembre de 2023. Sustituye a la Revisión B de 2022.
+
+    Enlace: https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
+
+    
+
+    
+    
+    2. Radiación
+
+    Límite de carrera. La dosis efectiva total de carrera por exposición a radiación espacial debe ser menor a 600 mSv, universal para todas las edades y sexos. Se calcula con el modelo de cáncer de NASA de 2012 usando parámetros de mujer de 35 años, y busca mantener a cada tripulante por debajo de 3% de riesgo medio de mortalidad por cáncer sobre la línea base no expuesta.
+
+    Órgano o tejido
+ | 30 días
+ | 1 año
+ | Carrera
+ | Cristalino
+ | 1,000 mGy-Eq
+ | 2,000 mGy-Eq
+ | 4,000 mGy-Eq
+ | Piel
+ | 1,500 mGy-Eq
+ | 3,000 mGy-Eq
+ | 6,000 mGy-Eq
+ | Órganos formadores de sangre
+ | 250 mGy-Eq
+ | 500 mGy-Eq
+ | No aplica
+ | Sistema circulatorio
+ | 250 mGy-Eq
+ | 500 mGy-Eq
+ | 1,000 mGy-Eq
+ | Sistema nervioso central
+ | 500 mGy
+ | 1,000 mGy
+ | 1,500 mGy
+ | 
+    Además, para partículas con Z ≥ 10: 100 mGy al año y 250 mGy de carrera.
+
+    Evento de partículas solares. Protección contra el espectro de referencia (suma de los eventos de octubre de 1989) a menos de 250 mSv de dosis efectiva.
+
+    Rayos cósmicos galácticos. Para sistemas habitables de más de 60 días: menos de 1.3 mSv/día en espacio libre y menos de 0.9 mSv/día en superficie planetaria.
+
+    Tecnologías nucleares. Menos de 20 mSv por año de misión, prorrateado.
+
+    Qué dice el HRP. No publica ninguno de estos límites; solo describe el riesgo de cáncer y las incertidumbres. Aquí el estándar es la única fuente de umbrales.
+
+    
+
+    
+    
+    3. Hueso
+
+    Requisito en misión. Las contramedidas deben mantener la densidad mineral ósea de cadera y columna en o por encima del 95% de los valores pre-misión, y en o por encima del 90% para el cuello femoral.
+
+    Requisito pre-misión. Los T-score de cadera total y columna lumbar (L1-L4) por DXA deben ser consistentes con una población pareada por edad, sexo, género y etnia.
+
+    Contexto del estándar. Con ARED, cicloergómetro y cinta, la mayoría de tripulantes vuelve con menos de 10% de déficit en cuello femoral y menos de 5% en cadera total o columna en misiones de 6 meses en la ISS. Con bifosfonatos combinados con ejercicio, la pérdida baja a cerca de 0%.
+
+    Qué dice el HRP. Publica la tasa observada de 1% a 1.5% por mes en huesos que soportan peso. No es un límite, es una observación.
+
+    
+
+    
+    
+    4. Aptitud aeróbica
+
+    Requisito
+ | Valor
+ | VO2max en misión, EVA en microgravedad
+ | ≥ 32.9 ml/min/kg
+ | VO2max en misión, EVA en superficie extraterrestre
+ | ≥ 36.5 ml/min/kg
+ | Capacidad aeróbica en misión respecto a pre-misión
+ | ≥ 80%
+ | Recomendación pre-misión (caída asumida del 15%)
+ | 38.7 ml/min/kg
+ | Recomendación pre-misión (caída asumida del 25%)
+ | 43.8 ml/min/kg
+ | 
+    Qué dice el HRP. Reporta pérdidas medias de 10% a 12% y que 12% a 38% de la tripulación pierde más del 20%. El estándar es más estricto: fija el techo de pérdida aceptable en 20%.
+
+    
+
+    
+    
+    5. Fuerza muscular
+
+    Requisito en misión. Mantener la fuerza esquelética en o por encima del 80% de los valores basales.
+
+    Requisito pre-misión, en múltiplos del peso corporal:
+
+    Ejercicio
+ | EVA en microgravedad
+ | EVA en superficie
+ | Egreso terrestre sin asistencia
+ | Peso muerto
+ | 1.0
+ | 1.3
+ | 1.6
+ | Press de banca
+ | 0.7
+ | 0.8
+ | 1.0
+ | 
+    Qué dice el HRP. Describe la pérdida de fuerza sin fijar umbral. El estándar es la fuente operativa.
+
+    
+
+    
+    
+    6. Nutrición
+
+    Requisito. Cada tripulante debe recibir 100% de sus requerimientos calculados de nutrientes y energía, según edad, sexo, masa corporal, estatura y factor de actividad.
+
+    Qué dice el HRP. Menciona más de 200 alimentos a bordo. Ese dato no es un requisito; el requisito es la cobertura nutricional individual al 100%.
+
+    
+
+    
+    
+    7. Sueño, carga de trabajo y salud conductual
+
+    Requisito. El número planificado de horas para tareas críticas, jornada laboral, actividad física y periodo de sueño planificado debe tener límites establecidos. El estado conductual y cognitivo debe estar dentro de valores clínicamente aceptados en todas las fases.
+
+    Requisito hematológico e inmunológico. Los valores deben mantenerse fuera de los valores críticos, definidos como el nivel que representa una falla significativa del sistema y se asocia con morbilidad clínica específica.
+
+    Herramientas que el estándar nombra: escala de Bedford y NASA Task Load Index para evaluar carga de trabajo.
+
+    Qué dice el HRP. La tripulación duerme en promedio 6 a 6.5 horas por noche y la NASA asigna alrededor de 8.5 horas. Nota importante: el estándar exige que existan límites, pero no publica el número de horas; ese valor está en documentos de programa.
+
+    
+
+    
+    
+    8. Sensoriomotor
+
+    Requisito. La función pre-misión debe estar dentro de valores clínicos normales para edad y sexo. Los límites de desempeño de cada métrica deben definirse operacionalmente, con métricas específicas por tarea.
+
+    Qué dice el HRP. Describe mareo, desorientación y deterioro de control postural y manual. El estándar no da cifras porque exige definirlas por misión y por tarea.
+
+    
+
+    
+    
+    9. Otros requisitos operativos
+
+    Dos médicos de tripulación (CMO) mínimo por vehículo o plataforma.
+
+    Registro médico electrónico con cifrado y protección de datos, control de inventario médico y almacenamiento presurizado o refrigerado.
+
+    Monitoreo y tendencia de signos vitales y de salud fisiológica y conductual, más pruebas auxiliares: imagen cardiaca, vascular y ocular, laboratorio y electrocardiografía.
+
+    Monitoreo periódico de SANS, de la motilidad vascular y permeabilidad del drenaje venoso del cuello y venas profundas de miembros inferiores.
+
+    Monitoreo longitudinal estandarizado post-misión de salud, salud conductual y bienestar.
+
+    Suplementación de vitamina D y evaluación de densidad ósea cada tres años en la fase pre-misión.
+
+    
+
+    
+    
+    10. Comparación resumida: estándar frente a HRP
+
+    Dominio
+ | Límite operativo (NASA-STD-3001)
+ | Cifra del HRP
+ | Uso en el software
+ | Radiación
+ | 600 mSv de carrera; límites por órgano; 250 mSv por evento solar
+ | Sin límites publicados
+ | Umbral de alerta
+ | Hueso
+ | ≥ 95% cadera y columna; ≥ 90% cuello femoral
+ | 1–1.5% de pérdida por mes
+ | Umbral vs. modelo de proyección
+ | Aeróbico
+ | ≥ 80% de la capacidad pre-misión
+ | Pérdida media 10–12%
+ | Umbral vs. referencia
+ | Fuerza
+ | ≥ 80% de los valores basales
+ | Sin umbral
+ | Umbral
+ | Nutrición
+ | 100% de requerimientos
+ | Más de 200 alimentos
+ | Requisito vs. contexto
+ | Sueño
+ | Deben existir límites definidos
+ | 6–6.5 h promedio
+ | El software define y audita
+ | Conducta
+ | Valores clínicamente aceptados
+ | Descripción cualitativa
+ | Requisito de validación clínica
+ | Sensoriomotor
+ | Valores clínicos normales; límites por tarea
+ | Descripción cualitativa
+ | El software define y audita
+ | 
+    
+
+    
+    
+    11. Cómo llevarlo al software
+
+    Dos capas de datos, no una. Una tabla de requisitos (NASA-STD-3001, con identificadores tipo V1 4027, V1 4030) y otra de observaciones (HRP). Los umbrales de alerta salen de la primera; las proyecciones y el contexto, de la segunda.
+
+    Cada alerta debe citar su requisito. Si el sistema avisa de pérdida de densidad ósea, debe apuntar a V1 4027 y al umbral de 95% o 90%, no a la tasa del 1% mensual.
+
+    Radiación con múltiples límites simultáneos. Evaluar carrera, límite anual, límite por órgano, evento solar y tasa GCR a la vez; el estándar los trata como requisitos independientes.
+
+    Los umbrales que no son números también son requisitos. En sueño, sensoriomotor y conducta, el estándar obliga a que existan límites definidos operacionalmente; el software puede ser el sistema que los defina, documente y audite.
+
+    Trazabilidad de versión. Guardar la revisión del estándar con cada umbral para que una actualización no invalide el historial.
+
+    
+
+    
+    
+    12. Fuentes
+
+    NASA-STD-3001, Volumen 1, Revisión C, NASA Spaceflight Human-System Standard: Crew Health, 15 de septiembre de 2023: https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
+
+    NASA Human Research Program, índice de peligros: https://www.nasa.gov/hrp/hazards/
+
+    NASA Human Research Program, índice de riesgos: https://www.nasa.gov/hrp/risks/
+
+    Human Research Roadmap: https://humanresearchroadmap.nasa.gov/Risks/
+
+    Human System Risk Board: https://www.nasa.gov/hhp/human-system-risks/
+
+    Aviso. Los valores del estándar son requisitos vigentes según la Revisión C; los del HRP son líneas base de investigación. Verifica la revisión vigente del estándar antes de usarlo en un sistema real.
+
+    
+    
+      
+      
+    
+  
+

@@ -1,0 +1,222 @@
+[6 paginas]
+Salud de los astronautas y monitoreo biomédico Página 1 
+ 
+ peligros principales de los vuelos espaciales 
+El Programa de Investigación Humana de la NASA agrupa los peligros principales de los vuelos espaciales en cinco categorías. No actúan 
+de manera aislada: pueden combinarse y aumentar sus efectos sobre la salud y el desempeño. 
+Peligro Descripción 
+Radiación espacial 
+Partículas y radiación de alta energía que pueden dañar células, ADN y componentes electrónicos. 
+Aislamiento y confinamiento 
+La permanencia prolongada en espacios reducidos puede afectar sueño, salud mental y convivencia. 
+Distancia de la Tierra Dificulta la comunicación, el abastecimiento y la atención médica inmediata. 
+Campos gravitatorios 
+La microgravedad modifica la función de huesos, músculos, sistema cardiovascular, equilibrio y orientación. 
+Ambientes cerrados u hostiles 
+La presión, temperatura, oxígeno, dióxido de carbono, ruido y microorganismos deben controlarse. 
+1. Riesgos para los sistemas del organismo 
+1.1 Sistema cardiovascular y circulatorio 
+En microgravedad, los líquidos corporales se desplazan hacia el tórax y la cabeza, porque deja de actuar de la misma manera el 
+gradiente gravitatorio al que el cuerpo está acostumbrado. 
+• Redistribución de sangre y otros líquidos corporales; hinchazón facial. 
+• Cambios en el volumen plasmático y en la regulación de la presión arterial. 
+• Cambios en el funcionamiento del corazón y los vasos sanguíneos. 
+• Posible intolerancia ortostática al regresar a la gravedad terrestre.• Se investiga el riesgo de alteraciones del flujo venoso y 
+trombosis. 
+ 
+1.2 Sistema musculoesquelético: huesos y músculos 
+Los huesos y músculos reciben menos carga mecánica en microgravedad. Al disminuir el trabajo que realizan para sostener el cuerpo, 
+pueden perder masa, fuerza y densidad. 
+• Disminución de la densidad mineral ósea y pérdida de minerales como calcio y fósforo. 
+• Mayor fragilidad ósea y riesgo de fracturas. 
+• Pérdida de masa y fuerza muscular, especialmente en músculos posturales. 
+• Expansión de discos intervertebrales y alargamiento temporal de la columna, que puede acompañarse dedolor de espalda. 
+• Mayor eliminación urinaria de calcio, que puede contribuir al riesgo de cálculos renales. 
+ 
+
+=== PAGINA ===
+Salud de los astronautas y monitoreo biomédico Página 2 
+1.3 Sistema nervioso y sensorial 
+El sistema vestibular del oído interno participa en el equilibrio y la orientación. En microgravedad, el cerebro recibe señales diferentes 
+de las habituales y necesita adaptarse. 
+• Mareo espacial, náuseas y desorientación. 
+• Alteraciones de la coordinación ojo-mano y de la marcha. 
+• Cambios en la percepción del movimiento y la orientación espacial. 
+• Dificultad temporal para desplazarse o controlar vehículos y herramientas. 
+ 
+1.4 Sistema visual y ocular: SANS 
+El síndrome neuro-ocular asociado a los vuelos espaciales (SANS) comprende cambios en estructuras del ojo y del sistema visual que se 
+han observado en algunos astronautas, especialmente en misiones prolongadas. 
+• Cambios en la forma del globo ocular y en la parte posterior del ojo. 
+• Alteraciones del nervio óptico y de estructuras de la retina. 
+• Cambios en la capacidad de enfoque y en la graduación visual. 
+• Visión borrosa o dificultad para enfocar objetos cercanos. 
+ 
+1.5 Sistema inmunológico 
+La microgravedad, la radiación, el estrés físico y psicológico y los cambios del sueño pueden modificar la respuesta inmunitaria. 
+• Cambios en la actividad de glóbulos blancos, linfocitos T y células NK. 
+• Alteraciones en la regulación de sustancias inflamatorias. 
+• Posible mayor susceptibilidad a determinadas infecciones. 
+• Reactivación de virus latentes, incluidos algunos virus del grupo herpes. 
+ 
+1.6 Sistema respiratorio y oxigenación 
+La nave y los trajes espaciales deben mantener una mezcla respirable y controlar la presión, el oxígeno y el dióxido de carbono. 
+• Hipoxia: disminución del oxígeno disponible en los tejidos. 
+• Hipercapnia: aumento excesivo de dióxido de carbono en el organismo. 
+• Cambios en la ventilación y en el intercambio gaseoso. 
+• Fatiga, dolor de cabeza y disminución de la concentración cuando la oxigenación o ventilación soninadecuadas. 
+ 
+1.7 Sistema sanguíneo y hematológico 
+Los vuelos espaciales pueden modificar el volumen plasmático y algunos indicadores de las células sanguíneas. 
+• Cambios en el volumen de plasma y en la masa de glóbulos rojos. 
+• Variaciones en hemoglobina y en el transporte de oxígeno. 
+• Cambios en indicadores de inflamación y respuesta inmunitaria. 
+
+=== PAGINA ===
+Salud de los astronautas y monitoreo biomédico Página 3 
+ 
+1.8 Salud mental y conducta 
+El aislamiento, el confinamiento, la distancia de la familia, la carga de trabajo y la incertidumbre pueden producir estrés psicológico. 
+• Ansiedad, irritabilidad y estrés prolongado. 
+• Dificultades de concentración, memoria y toma de decisiones. 
+• Fatiga mental y conflictos interpersonales. 
+• Riesgo de errores cuando se afecta la atención. 
+. 
+1.9 Sueño y ritmo circadiano 
+El ritmo circadiano es el reloj biológico que regula los ciclos de sueño y vigilia. Los cambios de iluminación y horarios pueden dificultar 
+su sincronización. 
+• Alteraciones en duración y calidad del sueño. 
+• Cambios en la alerta y somnolencia diurna. 
+• Fatiga, menor concentración y posibles errores operativos. 
+ 
+2. Radiación espacial: un riesgo prioritario 
+La radiación espacial está formada por partículas de alta energía. Algunas pueden atravesar materiales de protección y depositar 
+energía en los tejidos. Sus efectos dependen de la dosis, el tipo de partícula, la duración de la exposición, la actividad solar y las 
+características individuales. 
+Fuente Descripción 
+Rayos cósmicos galácticos 
+(GCR) 
+Partículas de alta energía procedentes del exterior del sistema solar; algunas se asocian con fenómenos como las 
+supernovas. 
+Eventos de partículas solares 
+(SPE) Episodios de actividad solar que pueden incrementar la exposición a partículas energéticas. 
+Eyecciones de masa coronal 
+(CME) Expulsiones de plasma y campos magnéticos del Sol que pueden modificar el entorno espacial. 
+Posibles efectos en la salud 
+• Daño al ADN y alteraciones celulares. 
+• Aumento del riesgo de cáncer a largo plazo. 
+• Mayor riesgo de cataratas. 
+• Posibles efectos cardiovasculares y neurológicos que continúan bajo investigación. 
+ 
+
+=== PAGINA ===
+Salud de los astronautas y monitoreo biomédico Página 4 
+ 
+3. Efectos del ambiente espacial sobre los dispositivos electrónicos 
+Un equipo que funciona correctamente en la Tierra no necesariamente funcionará igual en el espacio. Los componentes electrónicos 
+deben diseñarse y probarse considerando radiación, temperatura, microgravedad, interferencias, presión, energía y comunicaciones. 
+3.1 Radiación espacial 
+Las partículas energéticas pueden interactuar con semiconductores y circuitos, causando errores transitorios o degradación acumulada. 
+• SEU (Single Event Upset): una partícula cambia un estado lógico de la memoria y puede alterar un dato. 
+• SET (Single Event Transient): aparece una alteración eléctrica momentánea que puede producir una lecturaerrónea. 
+• SEL (Single Event Latch-up): se activa una trayectoria eléctrica no deseada, con posible aumento de corrientey daño. 
+• TID (Total Ionizing Dose): la dosis ionizante acumulada degrada progresivamente ciertos componentes. 
+Implicación y prevención: En el monitoreo puede haber datos corruptos, reinicios, pérdida de mediciones o falsas alarmas. Se requieren 
+componentes adecuados, corrección de errores, redundancia y pruebas de radiación. 
+3.2 Temperaturas extremas 
+La temperatura de los equipos depende de su ubicación, orientación, iluminación solar y control térmico de la nave. 
+• Sobrecalentamiento de circuitos. 
+• Cambios en la precisión de sensores. 
+• Variación del rendimiento de baterías. 
+• Deterioro de conexiones y reducción de vida útil. 
+Implicación y prevención: El diseño debe incluir selección de componentes adecuados, control térmico y compensación de temperatura 
+en los sensores. 
+3.3 Microgravedad 
+La microgravedad no impide por sí misma que un circuito electrónico funcione, pero cambia el manejo físico del equipo y de los 
+líquidos. 
+• Dispositivos o cables sueltos pueden desplazarse. 
+• Conectores pueden desconectarse si no están asegurados. 
+• Los líquidos no se comportan como en la Tierra. 
+• La disipación térmica y ventilación deben diseñarse sin depender de convección natural terrestre. 
+Implicación y prevención: El equipo debe fijarse, utilizar conectores seguros y mantener contacto confiable entre sensores y piel. 
+3.4 Interferencias electromagnéticas 
+Los equipos electrónicos pueden generar o recibir interferencias que se manifiestan como ruido eléctrico. 
+• Ruido en ECG y otras señales. 
+• Pérdida o distorsión de datos. 
+• Interferencia entre sensores, procesadores y comunicaciones. 
+Implicación y prevención: Se requiere compatibilidad electromagnética, filtrado, diseño de circuitos y cableado apropiado. 
+
+=== PAGINA ===
+Salud de los astronautas y monitoreo biomédico Página 5 
+3.5 Presión y condiciones ambientales 
+Los equipos dentro de la nave operan en una atmósfera controlada; los que se usan fuera necesitan protección frente al vacío y 
+condiciones extremas. 
+• Estrés sobre sellos, materiales y encapsulados. 
+• Problemas de disipación térmica. 
+• Riesgo de condensación en condiciones específicas. 
+• Deterioro de componentes expuestos al ambiente. 
+Implicación y prevención: El diseño debe especificar claramente si el dispositivo funcionará dentro de la nave, dentro del traje o en el 
+exterior. 
+3.6 Baterías y alimentación eléctrica 
+El funcionamiento continuo depende de una fuente de energía confiable y de una administración eficiente. 
+• Cambios de capacidad por temperatura y envejecimiento. 
+• Interrupción de alimentación. 
+• Pérdida de datos durante apagados. 
+• Errores al estimar el nivel de carga. 
+Implicación y prevención: Se recomienda gestión de energía, alertas de batería baja y almacenamiento que preserve datos ante 
+interrupciones. 
+3.7 Comunicación y transmisión de datos 
+En misiones lejanas, la distancia puede generar retrasos importantes en la comunicación con la Tierra. 
+• Retraso de transmisión. 
+• Pérdida de paquetes. 
+• Interrupciones temporales. 
+• Demora en recibir indicaciones desde el equipo médico terrestre. 
+ 
+4. Tratamientos  
+ 
+ 
+Antes de cada misión, los astronautas se someten a una serie de pruebas médicas para establecer un punto de referencia previo al vuelo, 
+utilizando parámetros clave de salud como la capacidad aeróbica, la agilidad, la fuerza y la resistencia. Estas mediciones previas al vuelo 
+y el monitoreo rutinario de la salud a bordo de la estación espacial ayudan a los especialistas en fuerza y acondicionamiento de astronautas 
+(ASCR) de la NASA a personalizar y ajustar los planes de ejercicio de los astronautas para optimizar su rendimiento. 
+ 
+La recuperación comienza el primer día de regreso a la Tierra con evaluaciones médicas y una progresión a través de ejercicios que mejoran 
+la movilidad, el equilibrio, la flexibilidad, el acondicionamiento aeróbico, la fuerza, la resistencia y la capacidad del cuerpo para percibir su 
+posición y movimiento. Los astronautas que regresan se someten a las mismas pruebas previas al vuelo para evaluar su estado de salud. 
+Estos resultados sirven de base para un programa de reacondicionamiento personalizado que bus ca restaurar su rendimiento físico de 
+forma segura y progresiva hasta alcanzar su nivel previo al vuelo. Los ASCR adaptan cada plan de rehabilitación según la cond ición, los 
+resultados de las pruebas y el estado médico del astronauta. A medida que los miem bros de la tripulación avanzan en el programa 
+
+=== PAGINA ===
+Salud de los astronautas y monitoreo biomédico Página 6 
+posterior al vuelo, cada aspecto de su recuperación funcional se supervisa y aborda cuidadosamente para garantizar una transi ción sin 
+problemas a la vida diaria y prepararlos para futuras misiones. 
+ 
+El reacondicionamiento posterior al vuelo es único para cada astronauta y varía según la persona. Si bien la mayoría de los miembros de 
+la tripulación alcanzan su nivel de condición física previo al vuelo durante los primeros 45 días después de regresar a la Tierra, no es raro 
+que la NASA extienda los programas de reacondicionamiento para satisfacer las necesidades específicas de cada astronauta y su ritmo de 
+recuperación. 
+¿Qué seguimiento médico reciben los astronautas al regresar? 
+Después de aterrizar, los astronautas pasan por un programa de recuperación que generalmente incluye: 
+Evaluación médica inicial: revisión general de su estado de salud. 
+Pruebas físicas: evaluación de fuerza, equilibrio, coordinación y resistencia. 
+Estudios de laboratorio: análisis para detectar posibles alteraciones. 
+Rehabilitación física: ejercicios para recuperar las capacidades musculares y cardiovasculares. 
+Seguimiento psicológico: apoyo para adaptarse nuevamente a la vida en la Tierra. 
+Vigilancia a largo plazo: revisiones para detectar posibles consecuencias de la exposición a la radiación y la estancia espacial. 
+ 
+ 
+ 
+ 
+5. Fuentes de consulta y lecturas recomendadas 
+• NASA – Five Hazards of Human Spaceflight: https://www.nasa.gov/hrp/hazards/ 
+• NASA – Human Research Program: https://www.nasa.gov/hrp/ 
+• NASA – Human Research Roadmap: https://humanresearchroadmap.nasa.gov/ 
+• NASA – Space Radiation: https://www.nasa.gov/hrp/space-radiation/ 
+• NASA – Spaceflight Associated Neuro-ocular Syndrome (SANS):https://www.nasa.gov/hrp/spaceflight-associated-neuro-ocular-syndrome-sans/ 
+• NASA – Cardiovascular risks and research: https://www.nasa.gov/hrp/ 
+• NASA – Bone and muscle risks: https://www.nasa.gov/hrp/ 
+• NASA – Sleep and circadian rhythms: https://www.nasa.gov/hrp/ 
+• NASA – Spacecraft electronics and radiation effects (NASA NEPP): https://nepp.nasa.gov/ 
+• MedlinePlus – Vital Signs: https://medlineplus.gov/ency/article/002341.htm 
+ 
