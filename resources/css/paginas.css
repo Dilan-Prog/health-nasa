@@ -1,0 +1,26 @@
+/* Aviso legal y Cola a Tierra (prefijo pag-). Colores solo vía tokens: sirve en modo oscuro. */
+.pag { display: contents; }
+.pag-main { flex: 1 0 auto; display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 16px 20px; box-sizing: border-box; max-width: 900px; }
+.pag-card { border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 14px 18px; font-size: 14px; line-height: 1.55; }
+.pag-card p { margin: 8px 0; }
+.pag-h2 { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.pag .icono { font-size: 18px; }
+.pag-nota { font-size: 14px; color: var(--muted-3); }
+.pag-vacio { text-align: center; color: var(--muted-3); padding: 16px 0; }
+.pag-lista { margin: 8px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+
+.pag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .06em; white-space: nowrap; background: var(--hover); color: var(--text-2); }
+.pag-chip .icono { font-size: 14px; }
+.pag-chip[data-estado="ok"] { background: var(--ok-soft); color: var(--ok-text); }
+.pag-chip[data-estado="warn"] { background: var(--warn-soft); color: var(--warn-text); }
+
+.pag-resumen { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.pag-enlace { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-2); }
+.pag-enlace .icono { color: var(--ok-text); }
+.pag-enlace[data-estado="warn"] .icono { color: var(--warn-text); }
+
+.pag-avisos { list-style: none; margin: 10px 0; padding: 0; display: flex; flex-direction: column; }
+.pag-aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 0; border-top: 1px solid var(--border-soft); }
+.pag-aviso:first-child { border-top: 0; }
+.pag-aviso-cuerpo { flex: 1 1 220px; display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.pag-hora { font-size: 14px; color: var(--muted-2); text-align: right; }

@@ -48,15 +48,24 @@ php artisan migrate --seed
 npm run build
 ```
 
-Operación en el servidor (tres procesos):
+Operación en el servidor (cuatro procesos, cada uno en su terminal):
 
 ```bash
-php artisan serve --host=0.0.0.0 --port=8000
-php artisan reverb:start --host=0.0.0.0 --port=8080
-php artisan schedule:work
+php artisan serve --host=0.0.0.0 --port=8000          # aplicación web
+php artisan reverb:start --host=0.0.0.0 --port=8080   # tiempo real (Reverb)
+php artisan salud:simulador-vivo                      # datos simulados en vivo (prototipo)
+php artisan schedule:work                             # tareas programadas (envío a tierra, poda)
 ```
 
+> **`APP_DEBUG` debe ser `false` fuera de local.** `.env.example` ya lo trae en `false`; con `true` se exponen trazas y configuración en los errores. Actívalo solo en tu `.env` de desarrollo.
+
 Guía completa (red local, HTTPS con mkcert, enlace con tierra): [docs/EJECUTAR.md](docs/EJECUTAR.md).
+
+## Fuentes citadas y valores de ejemplo
+
+Fuentes: **NASA-STD-3001 Vol. 1 Rev. C**, **NASA HRP** (Human Research Program) y **CSA** (Agencia Espacial Canadiense). Citarlas no implica que los valores estén validados.
+
+**Aviso:** es un prototipo educativo. Todos los valores clínicos y umbrales son **valores de ejemplo, pendientes de revisión médica**, y la herramienta no sustituye a un profesional médico. Ver la página `/aviso-legal`.
 
 ## Pruebas
 
