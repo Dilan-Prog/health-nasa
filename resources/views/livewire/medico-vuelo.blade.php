@@ -25,6 +25,9 @@
                 <span class="mv-medico-d">Centro de control · canal médico privado</span>
             </span>
             <ul class="mv-chips" aria-label="Estado del sistema">
+                @if ($nivelAtencion)
+                    <li class="mv-chip"><span class="icono" aria-hidden="true">medical_services</span>{{ $nivelAtencion }}</li>
+                @endif
                 <li class="mv-chip" data-estado="{{ $retardo > 0 ? 'warn' : 'ok' }}"><span class="icono" aria-hidden="true">{{ $retardo > 0 ? 'schedule' : 'cell_tower' }}</span>{{ $retardo > 0 ? 'Retardo '.$retardo.' min' : 'Retardo < 1 s' }}</li>
                 <li class="mv-chip" data-estado="{{ $hayEmerg ? '' : 'ok' }}"><span class="icono" aria-hidden="true">{{ $hayEmerg ? 'pause_circle' : 'memory' }}</span>{{ $hayEmerg ? 'IA en segundo plano' : 'IA local activa' }}</li>
                 <li class="mv-chip"><span class="icono" aria-hidden="true">date_range</span>Datos: últimos 15 días</li>
@@ -81,6 +84,18 @@
                             <span class="mono mv-hora">{{ $c['time'] ?? '' }}</span>
                         </div>
                         <h3 class="mv-tarjeta-h" id="{{ $hid }}">{{ $c['finding'] }}</h3>
+                        @if (! empty($c['banda']) || ! empty($c['fuente']) || ! empty($c['referencia']))
+                            <div class="mv-norma">
+                                @if (! empty($c['banda']))<span class="mv-banda mono">{{ $c['banda'] }}</span>@endif
+                                @foreach (['fuente', 'referencia'] as $k)
+                                    @if (! empty($c[$k]))
+                                        @php $f = $c[$k]; @endphp
+                                        @if (! empty($f['es_proyeccion']))<span class="mv-proy mono">Proyección (HRP)</span>@endif
+                                        <x-fuente-chip :tipo="$f['tipo'] ?? ''" :revision="$f['revision'] ?? null" :validado="(bool) ($f['validado'] ?? false)" :label="$f['etiqueta'] ?? null" />
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
 
                         <div class="mv-pasos">
                             <span class="mono mv-et">{{ $em ? 'QUÉ HACER AHORA · PROTOCOLO FIJO' : ($ai ? 'SUGERENCIA' : 'QUÉ HACER') }}</span>
@@ -197,7 +212,9 @@
                     </fieldset>
                 @endif
 
-                @if ($retardo >= 5)
+                @if ($autonomo)
+                    <p class="mv-aviso" data-estado="warn"><span class="icono" aria-hidden="true">medical_services</span><span>Triaje autónomo local: orientación inmediata a bordo y mensaje asíncrono a tierra</span></p>
+                @elseif ($retardo >= 5)
                     <p class="mv-aviso" data-estado="warn"><span class="icono" aria-hidden="true">schedule</span><span>Retardo de {{ $retardo }} min: la videoconsulta no es posible. Envía un mensaje; el médico de vuelo lo verá en su próxima revisión.</span></p>
                 @elseif (! $enlace)
                     <p class="mv-aviso" data-estado="crit"><span class="icono" aria-hidden="true">link_off</span><span>Sin enlace con tierra. Puedes preparar el mensaje: quedará en cola y se enviará solo al recuperar el enlace.</span></p>

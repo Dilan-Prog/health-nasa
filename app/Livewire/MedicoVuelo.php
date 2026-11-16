@@ -208,6 +208,8 @@ class MedicoVuelo extends Component
         $hayEmerg = collect($tarjetas)->contains(fn ($t) => $t['kind'] === 'emerg');
         $retardo = $a ? $a->retardoMin() : 0;
         $enlace = app(EnvioATierra::class)->enlaceActivo();
+        $mision = $a?->misionDeVuelo;
+        $autonomo = (bool) $mision?->triajeAutonomo();
 
         return view('livewire.medico-vuelo', [
             'astronauta' => $a,
@@ -222,7 +224,9 @@ class MedicoVuelo extends Component
             'envios' => $a ? ConsultasTierra::lista($a, 10) : [],
             'retardo' => $retardo,
             'enlace' => $enlace,
-            'puedeVideo' => $retardo < 5 && $enlace,
+            'puedeVideo' => ! $autonomo && $retardo < 5 && $enlace,
+            'autonomo' => $autonomo,
+            'nivelAtencion' => $mision ? $mision->etiquetaCareLevel() : null,
         ]);
     }
 }

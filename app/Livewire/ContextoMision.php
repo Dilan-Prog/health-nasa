@@ -7,6 +7,7 @@ use App\Models\Mision;
 use App\Services\Salud\EnvioATierra;
 use App\Support\TripulanteActual;
 use Livewire\Attributes\Layout;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 /**
@@ -18,6 +19,47 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class ContextoMision extends Component
 {
+    public int $careLevel = 3;
+
+    public string $missionPhase = 'vuelo';
+
+    public ?string $guardado = null;
+
+    public function mount(): void
+    {
+        if ($m = TripulanteActual::mision()) {
+            $this->careLevel = $m->nivelAtencion();
+            $this->missionPhase = $m->mission_phase ?: 'vuelo';
+        }
+    }
+
+    public function updatedCareLevel(): void
+    {
+        $this->guardar();
+    }
+
+    public function updatedMissionPhase(): void
+    {
+        $this->guardar();
+    }
+
+    /** Guarda nivel de atención y fase en la misión actual. Es una elección explícita: no se recalcula por el entorno. */
+    public function guardar(): void
+    {
+        $this->guardado = null;
+        $this->validate([
+            'careLevel' => ['required', 'integer', Rule::in(array_keys(Mision::CARE_LEVELS))],
+            'missionPhase' => ['required', Rule::in(array_keys(Mision::FASES))],
+        ], [], ['careLevel' => 'nivel de atención', 'missionPhase' => 'fase de la misión']);
+
+        $mision = TripulanteActual::mision();
+        if (! $mision) {
+            return;
+        }
+        $mision->update(['care_level' => $this->careLevel, 'mission_phase' => $this->missionPhase]);
+        $this->guardado = 'Guardado: '.$mision->etiquetaCareLevel().' · '.Mision::FASES[$this->missionPhase].'.';
+    }
+
     public function render()
     {
         $mision = TripulanteActual::mision();

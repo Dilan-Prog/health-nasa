@@ -183,3 +183,7 @@
 @media (max-width: 899px) { .mv-main { padding: 12px; } }
 @keyframes mv-giro { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .mv-btn { transition: none; } }
+
+/* Fuente normativa y banda de la tarjeta (Nivel 2) */
+.mv-norma { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mv-banda, .mv-proy { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); font-size: 12px; font-weight: 600; }

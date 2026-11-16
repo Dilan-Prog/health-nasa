@@ -24,6 +24,9 @@ class ConsultasTierra
         if (! in_array($tipo, ['msg', 'video'], true)) {
             throw new InvalidArgumentException('Tipo de consulta no válido: '.$tipo);
         }
+        if ($tipo === 'video' && $a->misionDeVuelo?->triajeAutonomo()) {
+            throw new InvalidArgumentException('Triaje autónomo local: este nivel de atención no ofrece videoconsulta síncrona. Envía un mensaje asíncrono a tierra.');
+        }
         $indicadores = array_values($indicadores);
         if ($indicadores === []) {
             throw new InvalidArgumentException('Hay que indicar al menos un indicador.');

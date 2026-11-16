@@ -47,3 +47,10 @@
 .mision-vacio strong { font-size: 16px; color: var(--text); }
 
 @media (max-width: 600px) { .mision-titulo { font-size: 22px; } }
+
+/* Selectores de nivel de atención y fase */
+.mision-form { display: flex; flex-wrap: wrap; gap: 12px; }
+.mision-campo { display: flex; flex-direction: column; gap: 6px; flex: 1 1 240px; min-width: 0; }
+.mision-campo-et { font-size: 13px; color: var(--text-2); }
+.mision-campo select { min-height: 44px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+.mision-error { font-size: 13px; color: var(--crit-text); }

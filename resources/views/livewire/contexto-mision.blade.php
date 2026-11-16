@@ -92,6 +92,32 @@
                 </section>
             </div>
 
+            <section class="mision-panel" aria-labelledby="mision-nivel-t">
+                <h3 class="mision-kicker mono" id="mision-nivel-t">NIVEL DE ATENCIÓN Y FASE</h3>
+                <div class="mision-form">
+                    <label class="mision-campo" for="mision-care">
+                        <span class="mision-campo-et">Nivel de atención médica</span>
+                        <select id="mision-care" wire:model.live="careLevel" aria-describedby="mision-care-ayuda">
+                            @foreach (\App\Models\Mision::CARE_LEVELS as $n => $et)
+                                <option value="{{ $n }}">{{ $et }}</option>
+                            @endforeach
+                        </select>
+                        @error('careLevel')<span class="mision-error" role="alert">{{ $message }}</span>@enderror
+                    </label>
+                    <label class="mision-campo" for="mision-fase">
+                        <span class="mision-campo-et">Fase de la misión</span>
+                        <select id="mision-fase" wire:model.live="missionPhase">
+                            @foreach (\App\Models\Mision::FASES as $k => $et)
+                                <option value="{{ $k }}">{{ $et }}</option>
+                            @endforeach
+                        </select>
+                        @error('missionPhase')<span class="mision-error" role="alert">{{ $message }}</span>@enderror
+                    </label>
+                </div>
+                <p class="mision-nota" id="mision-care-ayuda">Los niveles 4 y 5 usan triaje autónomo local: orientación inmediata a bordo y mensaje asíncrono a tierra, sin videoconsulta. Es una elección de la misión y no cambia al cambiar el entorno.</p>
+                @if ($guardado)<p class="mision-nota" role="status">{{ $guardado }}</p>@endif
+            </section>
+
             <x-peligros-riesgos />
         @endif
     </main>
