@@ -37,3 +37,7 @@ if (class_exists(\App\Livewire\Sistemas::class)) {
 if (class_exists(\App\Livewire\NuevoTripulante::class)) {
     Route::get('/tripulacion/nuevo', \App\Livewire\NuevoTripulante::class)->name('tripulacion.nuevo');
 }
+
+if (class_exists(\App\Livewire\FichaTripulante::class)) {
+    Route::get('/tripulacion/{astronauta}/expediente', \App\Livewire\FichaTripulante::class)->name('tripulacion.ficha');
+}

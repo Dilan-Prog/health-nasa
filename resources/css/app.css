@@ -14,6 +14,11 @@
 @import './historial.css';
 @import './sistemas.css';
 @import './nuevo-tripulante.css';
+@import './nuevo-tripulante-campos.css';
+@import './nuevo-tripulante-listas.css';
+@import './nuevo-tripulante-revision.css';
+@import './ficha.css';
+@import './tripulacion-alta.css';
 @import './simulacion.css';
 
 @tailwind base;

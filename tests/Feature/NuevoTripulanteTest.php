@@ -278,4 +278,56 @@ class NuevoTripulanteTest extends TestCase
 
         $this->get(route('tripulacion.nuevo'))->assertOk()->assertSee('Nuevo tripulante');
     }
+
+    public function test_el_resumen_de_errores_lista_cada_campo_con_su_enlace_y_el_foco_va_al_resumen(): void
+    {
+        $this->expedicion();
+
+        $t = Livewire::test(NuevoTripulante::class)->call('siguiente');
+        $t->assertDispatched('nt-foco', destino: 'errores')
+            ->assertSee('Revisa los 3 campos marcados')
+            ->assertSeeHtml('href="#nt-nombre"')
+            ->assertSeeHtml('href="#nt-fecha_nacimiento"')
+            ->assertSeeHtml('id="resumen-errores"');
+        $claves = collect($t->get('erroresResumen'))->pluck('clave')->all();
+        $this->assertContains('nombre', $claves);
+        $this->assertSame('Fecha de nacimiento', collect($t->get('erroresResumen'))->firstWhere('clave', 'fecha_nacimiento')['etiqueta']);
+    }
+
+    public function test_cambiar_de_paso_enfoca_el_titulo_y_marca_el_paso_actual(): void
+    {
+        $this->expedicion();
+
+        $t = $this->paso1(Livewire::test(NuevoTripulante::class))->call('siguiente');
+        $t->assertSet('paso', 2)
+            ->assertDispatched('nt-foco', destino: 'titulo')
+            ->assertSeeHtml('id="paso-titulo"')
+            ->assertSeeHtml('aria-current="step"')
+            ->assertSee('Medidas, hábitos y valores en reposo antes de la misión.');
+        $this->assertSame([1 => 'completo', 2 => 'actual', 3 => 'pendiente', 4 => 'pendiente', 5 => 'pendiente'], $t->get('estadosPasos'));
+    }
+
+    public function test_el_resumen_muestra_iniciales_edad_imc_con_tono_y_completitud(): void
+    {
+        $this->expedicion();
+
+        $t = Livewire::test(NuevoTripulante::class)->set('nombre', 'nora lindqvist ruiz')
+            ->set('altura_m', '1,80')->set('peso_kg', '75');
+        $this->assertSame('NL', $t->get('iniciales'));
+        $this->assertSame('ok', $t->get('tonoImc')['estado']);
+        $t->set('peso_kg', '100');
+        $this->assertSame('crit', $t->get('tonoImc')['estado']);
+        $t->set('peso_kg', '55');
+        $this->assertSame('warn', $t->get('tonoImc')['estado']);
+        $t->set('altura_m', '');
+        $this->assertNull($t->get('tonoImc'));
+        $this->assertSame('··', $t->set('nombre', '')->get('iniciales'));
+        $t->assertSee('Resumen del expediente')->assertSee('Rol sin definir')->assertSeeHtml('role="progressbar"');
+    }
+
+    public function test_los_bloqueos_usan_el_panel_de_aviso(): void
+    {
+        $this->expedicion(5);
+        Livewire::test(NuevoTripulante::class)->assertSeeHtml('nt-bloqueo')->assertSee('Volver a Tripulación')->assertDontSeeHtml('class="nt-form"');
+    }
 }

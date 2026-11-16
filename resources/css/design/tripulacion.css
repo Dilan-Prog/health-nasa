@@ -73,3 +73,6 @@
     .trip-tarjeta { min-height: 380px; }
     .trip-cuerpo { min-height: 240px; }
 }
+
+/* Estado vacío (diseño): sustituye al bloque anterior. */
+.trip-vacio { border-style: solid; gap: 14px; padding: 48px 20px; }

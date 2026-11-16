@@ -7,6 +7,7 @@ use App\Models\Astronauta;
 use App\Models\Mision;
 use Database\Seeders\ExpedicionSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -103,5 +104,60 @@ class TripulacionTest extends TestCase
     {
         Astronauta::query()->update(['mision_id' => null]); // dentro de la transacción: se revierte
         Livewire::test(Tripulacion::class)->assertSee('aún no tiene tripulantes');
+    }
+
+    public function test_estado_vacio_con_enlace_para_crear_tripulante(): void
+    {
+        Astronauta::query()->update(['mision_id' => null]);
+
+        Livewire::test(Tripulacion::class)
+            ->assertSee('Esta misión aún no tiene tripulantes')
+            ->assertSee(route('tripulacion.nuevo'), false);
+    }
+
+    public function test_el_aviso_de_alta_resalta_la_tarjeta_y_se_puede_cerrar(): void
+    {
+        $mision = $this->expedicion();
+        $kenji = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Kenji Arai')->firstOrFail();
+        session(['astronauta_id' => $kenji->id]);
+        session()->flash('tripulante_creado', 'Kenji Arai');
+
+        Livewire::test(Tripulacion::class)
+            ->assertSee('Tripulante creado')
+            ->assertSee('Tripulante «Kenji Arai» registrado correctamente.', false)
+            ->assertSet('nuevoId', $kenji->id)
+            ->assertSee('is-nueva')
+            ->call('cerrarAviso')
+            ->assertDontSee('Tripulante creado');
+    }
+
+    public function test_sin_flash_no_hay_aviso_ni_resalte(): void
+    {
+        $this->expedicion();
+
+        Livewire::test(Tripulacion::class)->assertSet('aviso', null)->assertSet('nuevoId', null)->assertDontSee('is-nueva');
+    }
+
+    public function test_cada_tarjeta_enlaza_al_expediente_si_existe_la_ruta(): void
+    {
+        $mision = $this->expedicion();
+        if (! Route::has('tripulacion.ficha')) {
+            $this->markTestSkipped('La ruta tripulacion.ficha aún no existe.');
+        }
+        $kenji = Astronauta::where('mision_id', $mision->id)->where('nombre', 'Kenji Arai')->firstOrFail();
+
+        Livewire::test(Tripulacion::class)
+            ->assertSee(route('tripulacion.ficha', $kenji), false)
+            ->assertSee('Expediente de Kenji Arai');
+    }
+
+    public function test_con_la_tripulacion_completa_el_boton_queda_desactivado(): void
+    {
+        $this->expedicion(); // el seeder crea 5 = máximo
+
+        Livewire::test(Tripulacion::class)
+            ->assertSee('Tripulación completa')
+            ->assertSee('5 / 5 tripulantes')
+            ->assertDontSee('Nuevo tripulante');
     }
 }

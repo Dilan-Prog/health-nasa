@@ -1,0 +1,126 @@
+/* Asistente "Nuevo tripulante": campos de formulario del diseño final (prefijo nt-).
+   Se carga DESPUÉS de nuevo-tripulante.css y reemplaza el aspecto provisional de .nt-campo / .nt-grupo / .nt-rejilla.
+   Clases para reutilizar en otros pasos:
+   .nt-seccion (+ .nt-seccion-t, .nt-seccion-d)  tarjeta de sección con título mono
+   .nt-rejilla                                   rejilla responsive de campos (.nt-ancho = fila completa)
+   .nt-campo                                     contenedor de un campo (label + control + ayuda + error)
+   .nt-etq / .nt-req                             etiqueta y marca "obligatorio"
+   .nt-control (+ .nt-unidad-fija)               caja de input/select con unidad opcional; .nt-control--area para textarea
+   .nt-select-ic                                 flecha del select
+   .nt-seg + .nt-seg-op                          control segmentado (radios nativos); aria-invalid en .nt-seg
+   .nt-ayuda / .nt-error                         texto de ayuda y mensaje de error en línea
+   .nt-pildora[data-estado]                      píldora de estado (ok|warn|crit|neu) */
+
+/* ---------- Secciones ---------- */
+.nt-seccion {
+    display: flex; flex-direction: column; gap: 14px; margin: 0; min-width: 0;
+    padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface);
+}
+.nt-seccion-cab { display: flex; flex-direction: column; gap: 2px; }
+.nt-seccion-t { margin: 0; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+.nt-seccion-d { margin: 0; font-size: 13px; color: var(--muted-2); }
+
+/* El contenedor de pasos ya apila las secciones con su propio gap; la tarjeta sin padding extra cuando contiene secciones. */
+.nt-tarjeta > .nt-seccion { background: var(--surface); }
+
+.nt-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 14px 16px; }
+.nt-rejilla > .nt-ancho { grid-column: 1 / -1; }
+
+/* ---------- Campo ---------- */
+.nt-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; border: 0; padding: 0; margin: 0; }
+.nt-campo > label, .nt-campo > legend, .nt-etq {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; padding: 0;
+    font-size: 14px; font-weight: 500; color: var(--text);
+}
+.nt-req { font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.nt-control {
+    display: flex; align-items: center; gap: 8px; position: relative; box-sizing: border-box;
+    min-height: 44px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);
+}
+.nt-control:focus-within { outline: 2px solid var(--accent, oklch(0.64 0.22 33)); outline-offset: 1px; }
+.nt-campo .nt-control input:not([type="radio"]):not([type="checkbox"]),
+.nt-campo .nt-control select {
+    flex: 1; min-width: 0; width: 100%; height: 42px; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent;
+    font: inherit; font-size: 16px; color: var(--text); outline: none; box-shadow: none;
+}
+.nt-campo .nt-control select { appearance: none; -webkit-appearance: none; padding: 0 28px 0 0; cursor: pointer; }
+.nt-campo .nt-control input.nt-mono { font-family: var(--font-mono); }
+.nt-campo .nt-control input::placeholder { color: var(--muted); opacity: .8; }
+.nt-select-ic { position: absolute; right: 10px; pointer-events: none; font-size: 20px; color: var(--muted); }
+.nt-unidad-fija { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+.nt-control:has([aria-invalid="true"]), .nt-seg[aria-invalid="true"] { border-color: var(--crit); }
+.nt-control:has([aria-invalid="true"]) { background: var(--crit-soft); }
+
+.nt-control--area { align-items: stretch; padding: 0; }
+.nt-campo .nt-control--area textarea {
+    width: 100%; box-sizing: border-box; min-height: 88px; padding: 10px 12px; border: 0; background: transparent;
+    font: inherit; font-size: 16px; line-height: 1.5; color: var(--text); resize: vertical; outline: none;
+}
+
+/* ---------- Control segmentado (radios nativos, foco y flechas del navegador) ---------- */
+.nt-seg { display: flex; flex-wrap: wrap; gap: 6px; border-radius: var(--radius); outline: none; }
+.nt-seg-op { position: relative; display: flex; }
+.nt-seg-op input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.nt-seg-op span {
+    display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; box-sizing: border-box;
+    font-size: 14px; font-weight: 400; color: var(--text); cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+}
+.nt-seg-op span .icono { display: none; font-size: 18px; color: var(--primary); }
+.nt-seg-op:hover span { background: var(--hover); }
+.nt-seg-op input:checked + span { font-weight: 600; color: var(--primary); border-color: var(--primary); background: var(--surface-sel); box-shadow: inset 0 0 0 1px var(--primary); }
+.nt-seg-op input:checked + span .icono { display: inline-block; }
+.nt-seg-op input:focus-visible + span { outline: 2px solid var(--accent, oklch(0.64 0.22 33)); outline-offset: 2px; }
+.nt-seg[aria-invalid="true"] .nt-seg-op span { border-color: var(--crit); }
+
+/* ---------- Ayuda, error, calculados ---------- */
+.nt-campo .nt-ayuda { margin: 0; font-size: 13px; color: var(--muted-2); }
+.nt-campo .nt-ayuda--ok { color: var(--ok-text); font-weight: 500; }
+.nt-campo .nt-error { display: flex; align-items: flex-start; gap: 4px; margin: 0; font-size: 13px; line-height: 1.35; color: var(--crit-text); }
+.nt-error .icono { flex: none; font-size: 16px; }
+
+.nt-calculado {
+    justify-content: center; padding: 10px 12px; border-radius: var(--radius); border: 1px dashed var(--border); background: var(--bg);
+}
+.nt-calculado-v { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.nt-calculado strong { font-family: var(--font-mono); font-size: 24px; font-weight: 500; color: var(--text); }
+
+.nt-pildora {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--s, var(--hover)); color: var(--t, var(--muted-3));
+}
+.nt-pildora .icono { font-size: 14px; }
+.nt-pildora[data-estado="neu"] { --s: var(--hover); --t: var(--muted-3); }
+
+/* ---------- Línea base personal ---------- */
+.nt-lb-cab { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.nt-lb-txt { flex: 1 1 280px; display: flex; flex-direction: column; gap: 4px; }
+.nt-lb-txt p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2); text-wrap: pretty; }
+.nt-lb-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.nt-lb-acciones .nt-btn { min-height: 44px; }
+.nt-lb-tabla { display: flex; flex-direction: column; }
+.nt-lb-cols, .nt-lb-fila { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(150px, 1fr) minmax(0, .9fr) minmax(88px, .6fr); align-items: center; gap: 6px 12px; }
+.nt-lb-cols { padding: 0 4px 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; color: var(--muted); }
+.nt-lb-fila { padding: 8px 4px; border-top: 1px solid var(--border-soft); }
+.nt-lb-nombre { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; font-weight: 500; }
+.nt-lb-nombre .icono { flex: none; font-size: 20px; color: var(--primary); }
+.nt-lb-rango { font-family: var(--font-mono); font-size: 12px; color: var(--muted-2); }
+.nt-lb-fila .nt-error { grid-column: 1 / -1; }
+
+@media (max-width: 700px) {
+    .nt-lb-cols { display: none; }
+    .nt-lb-fila { grid-template-columns: minmax(0, 1fr) auto; }
+    .nt-lb-nombre { grid-column: 1 / -1; }
+    .nt-lb-rango::before { content: 'Normal: '; font-family: var(--font-sans); }
+    .nt-lb-rango { grid-column: 1; }
+    .nt-lb-fila .nt-pildora { grid-column: 2; justify-self: end; }
+}
+@media (max-width: 420px) {
+    .nt-seccion { padding: 12px; }
+}
+@media (max-width: 700px) {
+    .nt-lb-fila .nt-control { grid-column: 1 / -1; }
+}

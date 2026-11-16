@@ -1,0 +1,120 @@
+/* Nuevo tripulante: pasos 3 y 4 (listas repetibles y bloque de aptitud). Prefijo nt-lista-.
+   Los campos reutilizan .nt-campo / .nt-error de nuevo-tripulante-campos.css. */
+
+.nt-lista, .nt-lista-apto {
+    display: flex; flex-direction: column; gap: 12px; min-width: 0; margin: 0; padding: 16px;
+    border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface);
+}
+.nt-lista[data-error="1"] { border-color: var(--crit); }
+
+/* Cabecera */
+.nt-lista-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.nt-lista-ic {
+    width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--radius);
+    background: oklch(0.42 0.14 258 / 0.08); color: var(--primary);
+}
+.nt-lista-ic .icono { font-size: 20px; line-height: 1; }
+.nt-lista-titulo { flex: 1 1 160px; margin: 0; display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; color: var(--text); }
+.nt-lista-cuenta {
+    font-family: var(--font-mono); font-size: 12px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+    background: var(--hover); color: var(--muted-3);
+}
+.nt-lista-desc { margin: -6px 0 0; font-size: 13px; color: var(--muted); }
+
+/* Botones */
+.nt-lista-anadir, .nt-lista-quitar {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 14px;
+    border-radius: var(--radius);
+}
+.nt-lista-anadir { border: 1px solid var(--border); background: var(--surface); color: var(--primary); }
+.nt-lista-anadir:hover:not(:disabled) { background: var(--hover); }
+.nt-lista-anadir:disabled { opacity: .5; cursor: not-allowed; }
+.nt-lista-anadir .icono, .nt-lista-quitar .icono { font-size: 20px; line-height: 1; }
+.nt-lista-quitar { padding: 0 10px; border: 0; background: transparent; color: var(--muted-2); font-size: 13px; }
+.nt-lista-quitar:hover { background: var(--crit-soft); color: var(--crit-text); }
+.nt-lista-anadir:focus-visible, .nt-lista-quitar:focus-visible, .nt-lista-seg input:focus-visible + span {
+    outline: 2px solid oklch(0.64 0.22 33); outline-offset: 2px;
+}
+
+/* Avisos */
+.nt-lista-aviso {
+    margin: 0; display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: var(--radius);
+    background: oklch(0.42 0.14 258 / 0.07); font-size: 14px; line-height: 1.45; color: oklch(0.28 0.06 258);
+}
+.nt-lista-aviso .icono { font-size: 20px; line-height: 1; color: var(--primary); flex: none; }
+.nt-lista-error {
+    margin: 0; display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-radius: var(--radius);
+    background: var(--crit-soft); font-size: 14px; color: var(--crit-text);
+}
+.nt-lista-error .icono { font-size: 18px; line-height: 1; flex: none; }
+
+/* Estado vacío */
+.nt-lista-vacio {
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 24px 16px;
+    border-radius: 12px; border: 1.5px dashed oklch(0.85 0.02 250); background: var(--bg);
+}
+.nt-lista-vacio-ic {
+    width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border); color: oklch(0.55 0.06 258);
+}
+.nt-lista-vacio-ic .icono { font-size: 32px; line-height: 1; }
+.nt-lista-vacio strong { font-size: 15px; font-weight: 600; color: var(--text); }
+.nt-lista-vacio span.nt-lista-vacio-x { max-width: 360px; font-size: 13px; line-height: 1.45; color: var(--muted-2); }
+.nt-lista-vacio .nt-lista-anadir { margin-top: 4px; border-color: oklch(0.42 0.14 258 / 0.4); }
+
+/* Fila */
+.nt-lista-fila {
+    display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface);
+}
+.nt-lista-fila[data-tono="crit"] { border-color: var(--crit); background: oklch(0.58 0.21 25 / 0.06); }
+.nt-lista-fila[data-tono="principal"] { border-color: oklch(0.64 0.22 33 / 0.6); background: oklch(0.64 0.22 33 / 0.05); }
+.nt-lista-fila-cab { display: flex; align-items: center; gap: 8px; }
+.nt-lista-fila-t { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nt-lista-fila-esp { flex: 1; }
+.nt-lista-pill {
+    display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; padding: 3px 8px; border-radius: 999px;
+    background: var(--hover); color: var(--muted-3);
+}
+.nt-lista-pill .icono { font-size: 14px; line-height: 1; }
+.nt-lista-pill[data-tono="ok"] { background: var(--ok-soft); color: var(--ok-text); }
+.nt-lista-pill[data-tono="warn"] { background: var(--warn-soft); color: var(--warn-text); }
+.nt-lista-pill[data-tono="crit"] { background: var(--crit-soft); color: var(--crit-text); }
+.nt-lista-pill[data-tono="principal"] { background: oklch(0.64 0.22 33 / 0.12); color: oklch(0.5 0.19 33); }
+
+.nt-lista-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 12px 14px; }
+.nt-lista-campos > .nt-campo { min-width: 0; }
+.nt-lista-campos > .nt-lista-ancho, .nt-lista-apto-campos > .nt-lista-ancho { grid-column: 1 / -1; }
+.nt-lista-apto-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 12px 14px; }
+.nt-lista-apto-campos > .nt-campo { min-width: 0; }
+.nt-lista-req { margin-left: 8px; font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nt-lista-unidad { font-size: 13px; color: var(--muted); }
+
+/* Casilla / radio en caja de 44px */
+.nt-lista-opcion {
+    display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; box-sizing: border-box; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); font-size: 15px; font-weight: 400; color: var(--text);
+}
+.nt-lista-opcion input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--primary); cursor: pointer; }
+.nt-lista-opcion:focus-within { outline: 2px solid oklch(0.64 0.22 33); outline-offset: 1px; }
+
+/* Control segmentado (radios nativos) */
+.nt-lista-segs { display: flex; flex-wrap: wrap; gap: 6px; }
+.nt-lista-seg { position: relative; display: inline-flex; }
+.nt-lista-seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.nt-lista-seg span {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; font-weight: 400;
+}
+.nt-lista-seg input:checked + span { border-color: var(--primary); background: oklch(0.42 0.14 258 / 0.08); color: var(--primary); font-weight: 600; }
+.nt-lista-seg input:checked + span::before { content: "✓"; font-weight: 700; }
+
+.nt-lista-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 480px) {
+    .nt-lista, .nt-lista-apto { padding: 12px; }
+    .nt-lista-campos, .nt-lista-apto-campos { grid-template-columns: 1fr; }
+    .nt-lista-cab .nt-lista-anadir { flex: 1 1 100%; }
+}

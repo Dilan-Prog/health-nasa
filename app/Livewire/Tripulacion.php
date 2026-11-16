@@ -16,6 +16,28 @@ class Tripulacion extends Component
     /** Vista de la miniatura por tripulante: [astronauta_id => frontal|lateral|lateral_izq|posterior]. */
     public array $vistas = [];
 
+    /** Nombre del tripulante recién creado (flash `tripulante_creado`); null si no hay aviso. */
+    public ?string $aviso = null;
+
+    /** Id del tripulante recién creado, para resaltar su tarjeta. */
+    public ?int $nuevoId = null;
+
+    public function mount(): void
+    {
+        $nombre = session('tripulante_creado');
+        if (is_string($nombre) && $nombre !== '') {
+            $this->aviso = $nombre;
+            $actual = TripulanteActual::obtener();
+            // El alta deja al nuevo tripulante como actual; se comprueba por nombre para no resaltar a otro.
+            $this->nuevoId = $actual && $actual->nombre === $nombre ? $actual->id : null;
+        }
+    }
+
+    public function cerrarAviso(): void
+    {
+        $this->aviso = null;
+    }
+
     /** Fija el tripulante y navega al Panel. */
     public function abrir(int $id): void
     {

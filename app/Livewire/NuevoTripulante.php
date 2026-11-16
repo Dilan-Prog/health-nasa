@@ -35,6 +35,15 @@ class NuevoTripulante extends Component
         5 => ['Revisión', 'fact_check'],
     ];
 
+    /** Texto de ayuda bajo el título de cada paso. */
+    public const PASOS_DESC = [
+        1 => 'Datos personales y de servicio del tripulante.',
+        2 => 'Medidas, hábitos y valores en reposo antes de la misión.',
+        3 => 'Aptitud de vuelo, alergias, condiciones, medicamentos y antecedentes. La app orienta, no diagnostica.',
+        4 => 'A quién avisar si algo va mal. Marca exactamente uno como principal.',
+        5 => 'Comprueba los datos antes de guardar. Los datos recomendados que falten no impiden guardar.',
+    ];
+
     /** Campos numéricos: se acepta coma decimal. */
     private const NUMERICOS = [
         'altura_m', 'peso_kg', 'evas', 'fc_reposo', 'fc_maxima', 'presion_basal_sis', 'presion_basal_dia', 'spo2_basal',
@@ -156,6 +165,95 @@ class NuevoTripulante extends Component
         return ($h && $p && $h > 0) ? round($p / ($h * $h), 1) : null;
     }
 
+    /** Descripción del paso actual. */
+    #[Computed]
+    public function descripcionPaso(): string
+    {
+        return self::PASOS_DESC[$this->paso] ?? '';
+    }
+
+    /** Iniciales (máx. 2) del nombre escrito; '··' si está vacío. */
+    #[Computed]
+    public function iniciales(): string
+    {
+        $palabras = preg_split('/\s+/u', trim($this->nombre), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $ini = collect($palabras)->take(2)->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->implode('');
+
+        return $ini !== '' ? $ini : '··';
+    }
+
+    /** "Rol · Agencia" para el resumen. */
+    #[Computed]
+    public function rolResumen(): string
+    {
+        return collect([$this->rol, $this->agencia])->map(fn ($v) => trim($v))->filter()->implode(' · ') ?: 'Rol sin definir';
+    }
+
+    /** Tono del IMC: estado (ok|warn|crit), etiqueta e icono; null si no hay IMC. */
+    #[Computed]
+    public function tonoImc(): ?array
+    {
+        $v = $this->imc;
+        if ($v === null) {
+            return null;
+        }
+        $estado = $v >= 30 ? 'crit' : (($v < 18.5 || $v >= 25) ? 'warn' : 'ok');
+
+        return ['estado' => $estado] + ['ok' => ['etiqueta' => 'Bien', 'icono' => 'check_circle'],
+            'warn' => ['etiqueta' => 'Revisar', 'icono' => 'warning'],
+            'crit' => ['etiqueta' => 'Crítico', 'icono' => 'error']][$estado];
+    }
+
+    /** Pasos (1-5) que tienen errores de validación visibles. @return int[] */
+    #[Computed]
+    public function pasosConError(): array
+    {
+        return $this->pasoConErrores();
+    }
+
+    /** Estado de cada paso para el indicador: actual | actual-error | completo | pendiente. @return array<int, string> */
+    #[Computed]
+    public function estadosPasos(): array
+    {
+        $conError = $this->pasosConError;
+        $estados = [];
+        foreach (array_keys(self::PASOS) as $n) {
+            $estados[$n] = $n === $this->paso
+                ? (in_array($n, $conError, true) || ($n === 5 && $this->getErrorBag()->isNotEmpty()) ? 'actual-error' : 'actual')
+                : (in_array($n, $this->pasosValidos, true) ? 'completo' : 'pendiente');
+        }
+
+        return $estados;
+    }
+
+    /**
+     * Campos con error para el resumen: cada uno con el id del campo (para enlazar/enfocar), etiqueta legible y mensaje.
+     *
+     * @return array<int, array{clave:string, uid:string, etiqueta:string, mensaje:string}>
+     */
+    #[Computed]
+    public function erroresResumen(): array
+    {
+        $atributos = ReglasExpediente::atributos();
+        $items = [];
+        foreach ($this->getErrorBag()->toArray() as $clave => $mensajes) {
+            $generica = preg_replace('/\.\d+(?=\.|$)/', '.*', $clave);
+            $nombre = $atributos[$clave] ?? $atributos[$generica] ?? str_replace(['_', '.'], ' ', $clave);
+            $etiqueta = mb_strtoupper(mb_substr($nombre, 0, 1)).mb_substr($nombre, 1);
+            if (preg_match('/\.(\d+)(?=\.|$)/', $clave, $m)) {
+                $etiqueta .= ' (n.º '.((int) $m[1] + 1).')';
+            }
+            $items[] = [
+                'clave' => $clave,
+                'uid' => 'nt-'.str_replace('.', '-', $clave),
+                'etiqueta' => $etiqueta,
+                'mensaje' => (string) ($mensajes[0] ?? ''),
+            ];
+        }
+
+        return $items;
+    }
+
     /** Resumen del borrador para el paso de revisión: datos normalizados y completitud estimada. */
     #[Computed]
     public function revision(): array
@@ -188,10 +286,13 @@ class NuevoTripulante extends Component
             return;
         }
         if (! $this->validarPaso($this->paso)) {
+            $this->dispatch('nt-foco', destino: 'errores');
+
             return;
         }
         $this->pasosValidos = array_values(array_unique([...$this->pasosValidos, $this->paso]));
         $this->paso++;
+        $this->dispatch('nt-foco', destino: 'titulo');
     }
 
     public function anterior(): void
@@ -199,6 +300,7 @@ class NuevoTripulante extends Component
         if ($this->paso > 1) {
             $this->resetErrorBag();
             $this->paso--;
+            $this->dispatch('nt-foco', destino: 'titulo');
         }
     }
 
@@ -215,6 +317,7 @@ class NuevoTripulante extends Component
         }
         $this->resetErrorBag();
         $this->paso = $n;
+        $this->dispatch('nt-foco', destino: 'titulo');
     }
 
     // ---------- Línea base ----------
@@ -316,6 +419,7 @@ class NuevoTripulante extends Component
         foreach ([1, 2, 3, 4] as $p) {
             if (! $this->validarPaso($p)) {
                 $this->paso = $p;
+                $this->dispatch('nt-foco', destino: 'errores');
 
                 return;
             }
@@ -327,6 +431,7 @@ class NuevoTripulante extends Component
         } catch (ValidationException $e) {
             $this->setErrorBag($e->validator->errors());
             $this->paso = $this->pasoConErrores()[0] ?? 5;
+            $this->dispatch('nt-foco', destino: 'errores');
 
             return;
         }

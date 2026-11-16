@@ -1,36 +1,134 @@
-/* Asistente "Nuevo tripulante": estilos PROVISIONALES (prefijo nt-). El diseñador puede sustituirlos. */
+/* Asistente "Nuevo tripulante": marco del diseño final (prefijo nt-). Los pasos (paso1..5) añaden sus propias reglas abajo y en nuevo-tripulante-*.css. */
 .nt { display: contents; }
 .nt-form { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .nt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.nt-ojo { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nt-pastilla {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    background: var(--warn-soft); color: var(--warn-text);
+}
 
+/* Bloqueo (sin misión / tripulación completa) */
 .nt-bloqueo {
-    display: flex; gap: 14px; align-items: flex-start; padding: 20px; border-radius: var(--radius-lg);
-    border: 1px solid var(--warn); background: var(--warn-soft); color: var(--text);
+    max-width: 620px; width: 100%; box-sizing: border-box; margin: 24px auto; padding: 32px 24px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
+    border-radius: var(--radius-lg); border: 1px solid color-mix(in oklch, var(--warn) 60%, transparent); background: var(--surface); color: var(--text);
 }
-.nt-bloqueo .icono { font-size: 28px; color: var(--warn-text); }
-.nt-bloqueo p { margin: 4px 0 12px; color: var(--muted); }
+.nt-bloqueo-ic { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; font-size: 38px; background: var(--warn-soft); color: var(--warn-text); }
+.nt-bloqueo h2 { margin: 0; font-size: 20px; font-weight: 600; text-wrap: pretty; }
+.nt-bloqueo p { margin: 0; max-width: 440px; font-size: 15px; line-height: 1.5; color: var(--muted-2); text-wrap: pretty; }
+.nt-bloqueo-acc { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
 
-/* Pasos */
-.nt-pasos ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+/* Indicador de pasos */
+.nt-pasos { padding: 12px 14px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+.nt-pasos ol { list-style: none; margin: 0; padding: 0; }
+.nt-pasos--completo ol { display: flex; align-items: center; gap: 6px; }
+.nt-paso { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.nt-paso:last-child { flex: 0 1 auto; }
 .nt-paso-btn {
-    width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; text-align: left; cursor: pointer;
-    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--muted); font: inherit;
+    min-width: 0; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 4px 8px 4px 4px; text-align: left; cursor: pointer;
+    border: 0; border-radius: var(--radius); background: transparent; color: var(--text); font: inherit;
 }
-.nt-paso-btn:disabled { cursor: not-allowed; opacity: .55; }
-.nt-paso-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.nt-paso[data-estado="actual"] .nt-paso-btn { border-color: var(--primary); color: var(--text); background: var(--surface-sel); }
-.nt-paso[data-estado="completo"] .nt-paso-btn { color: var(--ok-text); }
-.nt-paso-ic { font-size: 22px; flex: none; }
-.nt-paso-txt { display: flex; flex-direction: column; min-width: 0; }
-.nt-paso-n { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-.nt-paso-t { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-paso-btn:hover:not(:disabled) { background: var(--hover); }
+.nt-paso-btn:disabled { cursor: not-allowed; }
+.nt-paso-btn:focus-visible, .nt-segmentos button:focus-visible, .nt-resumen summary:focus-visible, .nt-resumen-errores a:focus-visible, .nt-resumen-errores:focus-visible {
+    outline: 2px solid oklch(0.64 0.22 33); outline-offset: 2px;
+}
+.nt-paso[data-estado^="actual"] .nt-paso-btn { background: oklch(0.64 0.22 33 / 0.06); }
+.nt-paso-marca {
+    width: 32px; height: 32px; flex: none; box-sizing: border-box; border-radius: 50%; display: grid; place-items: center;
+    border: 2px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--font-mono); font-size: 14px; font-weight: 600; line-height: 1;
+}
+.nt-paso-marca .icono { font-size: 18px; }
+.nt-paso[data-estado="actual"] .nt-paso-marca { border-color: oklch(0.64 0.22 33); color: var(--text); }
+.nt-paso[data-estado="completo"] .nt-paso-marca { border-color: var(--primary); background: var(--primary); color: #fff; }
+.nt-paso[data-estado="actual-error"] .nt-paso-marca { border-color: var(--crit); background: var(--crit-soft); color: var(--crit-text); }
+.nt-paso-txt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.nt-paso-t { font-size: 14px; font-weight: 500; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nt-paso[data-estado^="actual"] .nt-paso-t { font-weight: 600; }
+.nt-paso-n { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.nt-paso[data-estado="actual-error"] .nt-paso-n { color: var(--crit-text); }
+.nt-paso-linea { flex: 1; min-width: 12px; height: 2px; border-radius: 2px; background: var(--border); }
+.nt-paso-linea[data-hecho="1"] { background: var(--primary); }
+@media (max-width: 1279px) {
+    .nt-paso:not([data-estado^="actual"]) .nt-paso-txt { display: none; }
+    .nt-paso[data-estado^="actual"] { flex: 0 0 auto; }
+}
 
-.nt-resumen-errores, .nt-lista-errores { color: var(--crit-text); }
+.nt-pasos--compacto { display: none; flex-direction: column; gap: 4px; padding-bottom: 4px; }
+.nt-compacto-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nt-compacto-tit { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nt-compacto-nom { font-size: 16px; font-weight: 600; }
+.nt-pastilla--paso { flex: none; padding: 3px 8px; font-size: 10px; letter-spacing: .08em; background: oklch(0.64 0.22 33 / 0.1); color: oklch(0.5 0.19 33); }
+.nt-pastilla--paso .icono { font-size: 14px; }
+.nt-pastilla--paso[data-estado="actual-error"] { background: var(--crit-soft); color: var(--crit-text); }
+.nt-segmentos { display: flex; gap: 4px; }
+.nt-segmentos li { flex: 1; display: flex; }
+.nt-segmentos button { flex: 1; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; display: flex; align-items: center; cursor: pointer; }
+.nt-segmentos button:disabled { cursor: not-allowed; }
+.nt-segmentos button span { flex: 1; height: 6px; border-radius: 999px; background: var(--border-soft); }
+.nt-segmentos li[data-estado="completo"] button span { background: var(--primary); }
+.nt-segmentos li[data-estado="actual"] button span { background: oklch(0.64 0.22 33); }
+.nt-segmentos li[data-estado="actual-error"] button span { background: var(--crit); }
+.nt-nota-error { display: flex; align-items: center; gap: 4px; padding-bottom: 8px; font-size: 13px; color: var(--crit-text); }
+.nt-nota-error .icono { font-size: 16px; }
+
+/* Cuerpo: formulario + resumen lateral */
+.nt-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.nt-principal { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.nt-paso-cab { display: flex; flex-direction: column; gap: 4px; padding: 4px 2px; }
+.nt-paso-cab p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted-2); text-wrap: pretty; }
+.nt-titulo:focus { outline: none; }
+.nt-titulo:focus-visible { outline: 2px solid oklch(0.64 0.22 33); outline-offset: 4px; border-radius: 4px; }
+
+/* Resumen de errores */
 .nt-resumen-errores {
-    display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius);
-    background: var(--crit-soft); border: 1px solid var(--crit);
+    display: flex; gap: 10px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--crit); background: var(--crit-soft); color: var(--text);
 }
-.nt-lista-errores { font-size: 13px; margin: 0; padding-left: 20px; }
+.nt-resumen-errores > .icono { font-size: 22px; color: var(--crit-text); }
+.nt-resumen-errores > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.nt-resumen-errores strong { font-size: 15px; font-weight: 600; }
+.nt-resumen-errores a { font-weight: 600; color: var(--crit-text); }
+.nt-lista-errores { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.4; color: var(--text); }
+
+/* Resumen del expediente */
+.nt-resumen { border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+.nt-resumen--lateral { display: none; position: sticky; top: 16px; flex-direction: column; gap: 14px; padding: 16px; }
+.nt-resumen--linea { padding: 0 14px; }
+.nt-resumen--linea summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 56px; border-radius: 8px; }
+.nt-resumen--linea summary::-webkit-details-marker { display: none; }
+.nt-resumen--linea[open] .nt-resumen-flecha { transform: rotate(180deg); }
+.nt-resumen-flecha { color: var(--muted); font-size: 22px; transition: transform 200ms ease; }
+.nt-resumen-cuerpo { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 14px; }
+.nt-avatar { width: 48px; height: 48px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: #fff; font-size: 16px; font-weight: 600; }
+.nt-avatar--s { width: 34px; height: 34px; font-size: 12px; }
+.nt-resumen-id { display: flex; align-items: center; gap: 12px; }
+.nt-resumen-tit { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.nt-resumen-tit strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.nt-resumen-tit > span:not(.nt-ojo) { font-size: 13px; color: var(--muted-2); }
+.nt-resumen--linea .nt-resumen-tit strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nt-resumen-dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.nt-resumen-dl > div { display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); }
+.nt-resumen-dl dt { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nt-resumen-dl dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-family: var(--font-mono); font-size: 18px; }
+.nt-tono {
+    display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; background: var(--s); color: var(--t);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+}
+.nt-tono .icono { font-size: 13px; }
+.nt-resumen-pct { display: flex; flex-direction: column; gap: 6px; }
+.nt-resumen-pct-cab { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--font-mono); font-size: 16px; }
+.nt-barra-pct { height: 8px; border-radius: 999px; background: var(--border-soft); overflow: hidden; }
+.nt-barra-pct > span { display: block; height: 100%; background: var(--primary); border-radius: inherit; transition: width 300ms ease; }
+.nt-resumen-falta { font-size: 13px; line-height: 1.4; color: var(--muted-2); }
+.nt-resumen-nota { margin: 0; padding-top: 12px; border-top: 1px solid var(--border-soft); font-size: 12px; line-height: 1.45; color: var(--muted-2); }
+
+@media (min-width: 1200px) {
+    .nt-cuerpo { grid-template-columns: minmax(0, 1fr) 300px; }
+    .nt-resumen--lateral { display: flex; }
+    .nt-resumen--linea { display: none; }
+}
 
 /* Tarjeta y rejilla */
 .nt-tarjeta { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 16px; }
@@ -76,26 +174,42 @@
 .nt-dispositivo-t { display: flex; flex-direction: column; gap: 2px; }
 .nt-proximamente { margin-left: 6px; padding: 2px 6px; border-radius: 999px; background: var(--surface-sel); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--muted-2); }
 
-/* Botones y barra */
-.nt-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; position: sticky; bottom: 0; padding: 10px 0; background: var(--bg); }
+/* Botones y barra de acciones */
+.nt-barra {
+    display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; padding: 10px; border-radius: var(--radius-lg);
+    border: 1px solid var(--border); background: var(--surface); position: static; z-index: 5;
+}
 .nt-barra-sep { flex: 1; }
 .nt-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px 14px; cursor: pointer;
-    font: inherit; font-weight: 600; color: var(--primary); background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 14px; cursor: pointer; white-space: nowrap;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none;
 }
 .nt-btn:hover:not(:disabled) { background: var(--hover); }
-.nt-btn:disabled { opacity: .5; cursor: not-allowed; }
-.nt-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.nt-btn .icono { font-size: 18px; }
-.nt-btn--primario { color: #fff; background: var(--primary); border-color: var(--primary); }
-.nt-btn--primario:hover:not(:disabled) { background: var(--primary-dark); }
-.nt-btn--suave { color: var(--muted-2); font-weight: 500; }
+.nt-btn:disabled { opacity: .55; cursor: not-allowed; }
+.nt-btn:focus-visible { outline: 2px solid oklch(0.64 0.22 33); outline-offset: 2px; }
+.nt-btn .icono { font-size: 20px; }
+.nt-btn--primario { color: #fff; background: var(--primary); border-color: var(--primary); padding: 0 16px 0 18px; }
+.nt-btn--primario:hover:not(:disabled) { background: var(--primary-dark); color: #fff; }
+.nt-btn--suave { color: var(--muted-2); border-color: transparent; background: transparent; }
 .nt-btn--quitar { color: var(--crit-text); }
+.nt-btn--guardar > span { display: inline-flex; align-items: center; gap: 8px; }
+.nt-btn--guardar .nt-guardar-curso { display: none; }
+.nt-btn--guardar.is-guardando { cursor: progress; background: oklch(0.52 0.08 258); border-color: transparent; }
+.nt-btn--guardar.is-guardando .nt-guardar-normal { display: none; }
+.nt-btn--guardar.is-guardando .nt-guardar-curso { display: inline-flex; }
+.nt-giro { width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; border: 2px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: nt-giro 800ms linear infinite; }
+@keyframes nt-giro { to { transform: rotate(360deg); } }
 .nt-seguridad { margin: 0; font-size: 12px; color: var(--muted-2); }
 
-@media (max-width: 760px) {
-    .nt-pasos ol { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .nt-paso[data-estado="pendiente"] .nt-paso-txt, .nt-paso[data-estado="completo"] .nt-paso-txt { display: none; }
+@media (max-width: 899px) {
+    .nt-pasos--completo { display: none; }
+    .nt-pasos--compacto { display: flex; }
+    .nt-barra { position: sticky; bottom: 8px; box-shadow: 0 -4px 16px oklch(0.24 0.04 258 / 0.08); }
+    .nt-btn-txt { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .nt-giro { animation-duration: 2.4s; }
+    .nt-barra-pct > span, .nt-resumen-flecha { transition: none; }
 }
 
 /* Enlace "Nuevo tripulante" y aviso de éxito en la pantalla Tripulación (provisional). */

@@ -1,0 +1,58 @@
+/* Tripulación: alta de tripulantes (cabecera, aviso, resalte de la tarjeta nueva, estado vacío, Expediente). */
+.trip-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 4px; }
+.trip-cupo { margin-right: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); }
+.trip-nuevo {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; color: #fff; background: var(--primary);
+}
+.trip-nuevo:hover { color: #fff; background: var(--primary-dark); }
+.trip-nuevo:focus-visible { outline: 2px solid var(--accent, var(--primary)); outline-offset: 2px; }
+.trip-nuevo.is-off, .trip-nuevo.is-off:hover { cursor: not-allowed; opacity: .6; background: var(--muted-2); }
+
+/* Aviso de éxito (descartable). */
+.trip-aviso-ok {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 10px; padding: 10px 10px 10px 16px;
+    border-radius: 12px; border: 1px solid color-mix(in oklch, var(--ok) 55%, transparent); background: var(--ok-soft); color: var(--text);
+}
+.trip-aviso-ic { font-size: 24px; color: var(--ok-text); }
+.trip-aviso-txt { flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.trip-aviso-txt strong { font-size: 15px; font-weight: 600; }
+.trip-aviso-btn {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+}
+.trip-aviso-x {
+    width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent;
+    color: var(--text); cursor: pointer;
+}
+.trip-aviso-x:hover { background: color-mix(in oklch, var(--ok) 14%, transparent); }
+.trip-aviso-btn:focus-visible, .trip-aviso-x:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Tarjeta recién creada: anillo que se desvanece. */
+.trip-tarjeta.is-nueva { animation: trip-resalte 4s ease-out 1; }
+@keyframes trip-resalte {
+    0%, 60% { box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 55%, transparent); border-color: var(--primary); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .trip-tarjeta.is-nueva { animation: none; box-shadow: 0 0 0 2px var(--primary); } }
+.trip-nuevo-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 8px; border-radius: 999px;
+    background: color-mix(in oklch, var(--primary) 12%, transparent); color: var(--primary-dark);
+}
+
+/* Botón Expediente dentro de la tarjeta. */
+.trip-expediente {
+    flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; text-decoration: none;
+    color: var(--primary); border: 1px solid var(--border); background: var(--surface);
+}
+.trip-expediente:hover { background: var(--hover); }
+.trip-expediente:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.trip-expediente .icono { font-size: 20px; }
+
+/* Estado vacío. */
+.trip-vacio h2 { margin: 8px 0 0; font-size: 20px; font-weight: 600; color: var(--text); }
+.trip-vacio p { margin: 0; max-width: 420px; font-size: 15px; line-height: 1.5; text-wrap: pretty; }
+.trip-vacio-ic {
+    width: 88px; height: 88px; display: grid; place-items: center; border-radius: 50%; font-size: 44px !important; color: var(--primary) !important;
+    background: color-mix(in oklch, var(--primary) 8%, transparent); outline: 1.5px dashed color-mix(in oklch, var(--primary) 35%, transparent); outline-offset: 6px;
+}

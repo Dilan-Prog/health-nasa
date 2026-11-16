@@ -14,28 +14,42 @@
 <div class="trip">
     <x-encabezado titulo-a="Tripulación" :titulo-b="($mision?->nombre ?? 'Sin misión').' · '.$n.' '.($n === 1 ? 'tripulante' : 'tripulantes')" />
 
-    @if (session('tripulante_creado') || \Illuminate\Support\Facades\Route::has('tripulacion.nuevo'))
-        <div class="trip-barra">
-            @if (session('tripulante_creado'))
-                <p class="trip-aviso-ok" role="status"><span class="icono">task_alt</span> Tripulante «{{ session('tripulante_creado') }}» registrado correctamente.</p>
+    @php
+        $hayNuevo = \Illuminate\Support\Facades\Route::has('tripulacion.nuevo');
+        $hayFicha = \Illuminate\Support\Facades\Route::has('tripulacion.ficha');
+        $nuevoTrip = $nuevoId ? $tripulacion->firstWhere('id', $nuevoId) : null;
+    @endphp
+    <div class="trip-barra">
+        <span class="trip-cupo mono" title="Máximo {{ $max }} tripulantes por misión">{{ $n }} / {{ $max }} tripulantes</span>
+        @if ($hayNuevo)
+            @if ($lleno)
+                <span class="trip-nuevo is-off" role="link" aria-disabled="true" title="La misión ya tiene el máximo de {{ $max }} tripulantes"><span class="icono">person_add</span> Tripulación completa</span>
+            @else
+                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
             @endif
-            <span class="trip-cupo mono" title="Máximo {{ $max }} tripulantes por misión">{{ $n }} / {{ $max }} tripulantes</span>
-            @if (\Illuminate\Support\Facades\Route::has('tripulacion.nuevo'))
-                @if ($lleno)
-                    <span class="trip-nuevo is-off" role="link" aria-disabled="true" title="La misión ya tiene el máximo de {{ $max }} tripulantes"><span class="icono">person_add</span> Tripulación completa</span>
-                @else
-                    <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
-                @endif
+        @endif
+    </div>
+
+    @if ($aviso)
+        <div class="trip-aviso-ok" role="status">
+            <span class="icono trip-aviso-ic">check_circle</span>
+            <span class="trip-aviso-txt"><strong>Tripulante creado</strong><span>Tripulante «{{ $aviso }}» registrado correctamente.</span></span>
+            @if ($hayFicha && $nuevoTrip)
+                <a class="trip-aviso-btn" href="{{ route('tripulacion.ficha', $nuevoTrip) }}">Ver expediente</a>
             @endif
+            <button type="button" class="trip-aviso-x" aria-label="Cerrar mensaje" wire:click="cerrarAviso"><span class="icono">close</span></button>
         </div>
     @endif
 
     @if ($n === 0)
-        <div class="trip-vacio" role="status">
-            <span class="icono">groups</span>
-            <strong>Esta misión aún no tiene tripulantes</strong>
-            <span>Cuando se asignen astronautas a la misión aparecerán aquí con su estado de salud.</span>
-        </div>
+        <section class="trip-vacio" role="status" aria-labelledby="trip-vacio-t">
+            <span class="icono trip-vacio-ic">groups</span>
+            <h2 id="trip-vacio-t">Esta misión aún no tiene tripulantes</h2>
+            <p>Añade a cada tripulante con su expediente médico para que la app pueda comparar sus indicadores con su propia línea base.</p>
+            @if ($hayNuevo)
+                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
+            @endif
+        </section>
     @else
         <main class="trip-rejilla">
             @foreach ($tripulacion as $a)
@@ -53,7 +67,7 @@
                         ['rocket_launch', $a->evas ?? '—', 'EVAs'],
                     ];
                 @endphp
-                <div class="trip-tarjeta" role="button" tabindex="0" wire:key="trip-{{ $a->id }}"
+                <div class="trip-tarjeta @if ($nuevoId === $a->id) is-nueva @endif" role="button" tabindex="0" wire:key="trip-{{ $a->id }}"
                      aria-label="Abrir panel de {{ $a->nombre }} · {{ $medLabel }}"
                      wire:click="abrir({{ $a->id }})"
                      wire:keydown.enter.self.prevent="abrir({{ $a->id }})"
@@ -64,6 +78,11 @@
                             <span class="trip-nombre">{{ $a->nombre }}</span>
                             <span class="trip-rol">{{ $rol }}</span>
                         </span>
+                        @if ($nuevoId === $a->id)<span class="trip-nuevo-tag mono">NUEVO</span>@endif
+                        @if ($hayFicha)
+                            <a class="trip-expediente" href="{{ route('tripulacion.ficha', $a) }}" x-on:click.stop
+                               aria-label="Expediente de {{ $a->nombre }}" title="Expediente"><span class="icono">folder_shared</span></a>
+                        @endif
                         <span class="icono trip-flecha">arrow_forward</span>
                     </span>
                     <span class="trip-chips">
