@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
         $this->call(ExpedicionSeeder::class);
         $this->call(HistorialExpedicionSeeder::class);
         $this->call(RutinasSeeder::class);
+        $this->call(RequisitosSeeder::class);
+        if (class_exists(BotiquinSeeder::class)) {
+            $this->call(BotiquinSeeder::class);
+        }
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
