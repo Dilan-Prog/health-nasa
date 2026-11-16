@@ -14,8 +14,13 @@ class ReglasEscalamiento
     public const ALERTAR_TRIPULACION = 'alertar_tripulacion';
     public const CONTACTAR_TIERRA = 'contactar_tierra';
 
-    /** @return array{accion: string, a_bordo: bool, encolar_tierra: bool} */
-    public function decidir(Estado $estado, string $tendencia = 'estable', int $retardoMin = 0): array
+    /**
+     * Nivel de atención 3 = telemedicina síncrona; 4-5 = triaje autónomo local (orientación a bordo inmediata,
+     * sin videoconsulta; el aviso a tierra se encola igual).
+     *
+     * @return array{accion: string, a_bordo: bool, encolar_tierra: bool, videoconsulta: bool}
+     */
+    public function decidir(Estado $estado, string $tendencia = 'estable', int $retardoMin = 0, int $careLevel = 3): array
     {
         $empeorando = $tendencia !== 'estable' && $estado !== Estado::Normal;
 
@@ -26,11 +31,14 @@ class ReglasEscalamiento
             default => self::NINGUNO,
         };
 
+        $autonomo = $careLevel >= 4;
+
         return [
             'accion' => $accion,
             // Con retardo alto, un crítico se atiende primero a bordo (tripulación) mientras la alerta viaja.
-            'a_bordo' => $accion !== self::NINGUNO && ($accion !== self::CONTACTAR_TIERRA || $retardoMin >= 5),
+            'a_bordo' => $accion !== self::NINGUNO && ($accion !== self::CONTACTAR_TIERRA || $retardoMin >= 5 || $autonomo),
             'encolar_tierra' => $accion === self::CONTACTAR_TIERRA || $accion === self::ALERTAR_TRIPULACION,
+            'videoconsulta' => ! $autonomo && $accion === self::CONTACTAR_TIERRA,
         ];
     }
 }

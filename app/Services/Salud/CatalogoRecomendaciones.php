@@ -53,8 +53,17 @@ class CatalogoRecomendaciones
         ],
     ];
 
-    public function para(string $clave, Estado $estado): string
+    /** Texto de la alarma por proyección de evento solar (solo texto; la entrada del evento es del Nivel 3). */
+    public const EVENTO_SOLAR = 'Alarma: evento solar proyectado por encima del límite. Ve de inmediato al refugio blindado y avisa a tierra.';
+
+    private const CRISIS_HIPERTENSIVA = 'Crisis hipertensiva: reposa sentado, repite la medición y contacta de inmediato al flight surgeon. Si hay dolor de pecho, falta de aire o confusión, pide ayuda a un compañero ya.';
+
+    public function para(string $clave, Estado $estado, ?string $banda = null): string
     {
+        if ($clave === 'presion_arterial' && $banda === 'Crisis hipertensiva') {
+            return self::CRISIS_HIPERTENSIVA;
+        }
+
         return self::ESPECIFICAS[$clave][$estado->value] ?? self::GENERALES[$estado->value];
     }
 }

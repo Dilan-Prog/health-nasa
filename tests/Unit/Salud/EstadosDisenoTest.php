@@ -27,6 +27,11 @@ class EstadosDisenoTest extends TestCase
                     ? ['sistolica' => $m[0], 'diastolica' => $m[1]]
                     : ['valor' => $m[0]];
                 $esperado = self::UI[end($m)];
+                // Nivel 2: la temperatura de Lucas (37.3) es normal por salto sobre su base móvil; este test no
+                // lleva base personal, así que aquí rige el rango absoluto de respaldo (precaución).
+                if ($t['nombre'] === 'Lucas Ferreira' && $clave === 'temperatura') {
+                    $esperado = Estado::Precaucion;
+                }
 
                 $this->assertSame([], $validador->validar($clave, $valores), "{$t['nombre']} {$clave} es válido");
                 $this->assertSame($esperado, $evaluador->evaluar($clave, $valores), "{$t['nombre']} · {$clave}");
@@ -46,6 +51,6 @@ class EstadosDisenoTest extends TestCase
         $this->assertSame(Estado::Precaucion, $e->evaluar('perdida_osea', ['valor' => -1.3]));
         $this->assertSame(Estado::Critico, $e->evaluar('perdida_osea', ['valor' => -1.4]));
         $this->assertSame(Estado::Critico, $e->evaluar('masa_muscular', ['valor' => -3.1]));
-        $this->assertSame(Estado::Critico, $e->evaluar('radiacion_diaria', ['valor' => 0.51]));
+        $this->assertSame(Estado::Critico, $e->evaluar('radiacion_diaria', ['valor' => 0.9]));
     }
 }

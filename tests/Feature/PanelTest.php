@@ -56,7 +56,7 @@ class PanelTest extends TestCase
     {
         $this->tripulacion();
         $est = collect(Livewire::test(Panel::class)->viewData('tarjetas'))->pluck('estado')->all();
-        $this->assertSame(['crit', 'crit', 'crit', 'warn', 'warn'], $est);
+        $this->assertSame(['crit', 'crit', 'warn'], $est);
     }
 
     public function test_autochequeo_rutas_verde_naranja_roja_y_vuelta_atras(): void

@@ -52,9 +52,9 @@ class TripulacionTest extends TestCase
     {
         $this->expedicion();
 
-        // Dilan: 3 críticos, 2 a revisar, 5 bien (valores del diseño).
+        // Dilan: 2 críticos, 1 a revisar, 7 bien (Nivel 2: radiación y dosis pasan a normal).
         Livewire::test(Tripulacion::class)
-            ->assertSeeInOrder(['Dilan García', '3 Crítico', '2 Revisar', '5 Bien', 'Elena Moreau'])
+            ->assertSeeInOrder(['Dilan García', '2 Crítico', '1 Revisar', '7 Bien', 'Elena Moreau'])
             // Amara: todo en rango, sin chips de crítico/revisar.
             ->assertSeeInOrder(['Amara Osei', '10 Bien', 'Lucas Ferreira']);
     }

@@ -63,8 +63,9 @@ class ResumenTripulanteTest extends TestCase
         $this->assertSame("\u{2212}1.6", $por['perdida_osea']['valor']);
         $this->assertSame('Pérdida de 1.6 %/mes: supera tu límite de 1 %/mes', $por['perdida_osea']['razon']);
         $this->assertSame("\u{2212}0.6", $por['perdida_osea']['base']);
-        $this->assertSame('76.7 mSv: 77 % de tu límite de misión (100 mSv)', $por['dosis_acumulada']['razon']);
-        $this->assertSame('0.54 mSv/día supera tu máximo de 0.5', $por['radiacion_diaria']['razon']);
+        // Nivel 2: 76.7 mSv (de 600) y 0.54 mSv/día (de 0.9 o 1.3) ya no son incidencia.
+        $this->assertNull($por['dosis_acumulada']['razon']);
+        $this->assertNull($por['radiacion_diaria']['razon']);
     }
 
     public function test_conteo_peor_incidencias_y_musculos(): void
@@ -72,10 +73,10 @@ class ResumenTripulanteTest extends TestCase
         $trip = $this->tripulacion();
         $r = ResumenTripulante::make()->de($trip->first()); // Dilan
 
-        $this->assertSame(['crit' => 3, 'warn' => 2, 'ok' => 5], $r['conteo']);
+        $this->assertSame(['crit' => 2, 'warn' => 1, 'ok' => 7], $r['conteo']);
         $this->assertSame('crit', $r['peor']);
-        $this->assertSame(['crit', 'crit', 'crit', 'warn', 'warn'], array_column($r['incidencias'], 'estado'));
-        $this->assertSame(['perdida_osea', 'masa_muscular', 'radiacion_diaria', 'presion_arterial', 'dosis_acumulada'], array_column($r['incidencias'], 'clave'));
+        $this->assertSame(['crit', 'crit', 'warn'], array_column($r['incidencias'], 'estado'));
+        $this->assertSame(['perdida_osea', 'masa_muscular', 'presion_arterial'], array_column($r['incidencias'], 'clave'));
         $this->assertSame(array_values(array_unique($r['musculos_activos'])), $r['musculos_activos']);
         $this->assertContains('vasto_lateral_izq', $r['musculos_activos']);
         $this->assertContains('pectoral_mayor_izq', $r['musculos_activos']);

@@ -19,6 +19,12 @@
  | sus rangos siguen los de la maqueta (normal = lo..hi; precaución = margen del 30 % del ancho del rango).
  */
 
+// Radiación: derivados de 'radiacion' (más abajo) para que los rangos de referencia de las pantallas
+// y del simulador (normal/precaucion) no se desalineen de la regla que usa el evaluador.
+$gcrMinimo = min($radLimites = ['espacio_libre' => 1.3, 'superficie' => 0.9]);
+$margenRad = 0.8;      // supuesto del proyecto, no de la norma
+$dosisCarrera = 600;   // mSv de carrera (dato del encargo del Nivel 2, valor de ejemplo)
+
 return [
     'indicadores' => [
         'presion_arterial' => [
@@ -28,6 +34,8 @@ return [
             'riesgos' => ['gravedad_alterada', 'radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
+                // El estado por encima de lo normal lo decide 'presion_bandas' (más abajo); estos rangos
+                // quedan para el lado BAJO (hipotensión, sin banda definida), el simulador y los textos de pantalla.
                 'sistolica' => ['valido' => [50, 260], 'normal' => [90, 120], 'precaucion' => [80, 135]],
                 'diastolica' => ['valido' => [30, 160], 'normal' => [60, 80], 'precaucion' => [50, 90]],
             ],
@@ -69,6 +77,8 @@ return [
             'riesgos' => ['radiacion', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
+                // 'valido' = rango de validez. 'normal'/'precaucion' absolutos solo rigen SIN base personal
+                // (ni pre-vuelo ni base móvil); con base manda el salto de 'temperatura_salto'.
                 'valor' => ['valido' => [30, 45], 'normal' => [36.1, 37.2], 'precaucion' => [35.0, 38.0], 'decimales' => 1],
             ],
         ],
@@ -109,7 +119,8 @@ return [
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [0, 50], 'normal' => [0.0, 0.47], 'precaucion' => [0.0, 0.5], 'decimales' => 2],
+                // normal/precaucion: referencia (límite más estricto) para simulador y pantallas; el evaluador usa 'radiacion' por entorno.
+                'valor' => ['valido' => [0, 50], 'normal' => [0.0, round($gcrMinimo * $margenRad, 2)], 'precaucion' => [0.0, $gcrMinimo], 'decimales' => 2],
             ],
         ],
         'dosis_acumulada' => [
@@ -119,7 +130,7 @@ return [
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [0, 1000], 'normal' => [0, 70], 'precaucion' => [0, 100], 'decimales' => 1],
+                'valor' => ['valido' => [0, 1000], 'normal' => [0, $dosisCarrera * $margenRad], 'precaucion' => [0, $dosisCarrera], 'decimales' => 1],
             ],
         ],
         'hidratacion' => [
@@ -173,6 +184,52 @@ return [
                 'valor' => ['valido' => [0, 100], 'normal' => [50, 100], 'precaucion' => [25, 100]],
             ],
         ],
+    ],
+
+    /*
+     | Radiación (NASA-STD-3001 Vol. 1 Rev. C, según el encargo del Nivel 2). Valores de EJEMPLO, no validados.
+     | Estado: crítico cuando el valor llega al límite; precaución desde límite x margen_precaucion.
+     */
+    'radiacion' => [
+        'limite_msv_dia' => $radLimites,   // GCR, mSv/día
+        // Qué límite aplica a cada entorno de misión. supuesto del proyecto, no de la norma
+        'entorno_limite' => [
+            'estacion' => 'espacio_libre', 'nave' => 'espacio_libre',
+            'base_lunar' => 'superficie', 'base_marciana' => 'superficie',
+        ],
+        // Entorno desconocido o no indicado: se usa el límite más estricto. supuesto del proyecto, no de la norma
+        'limite_por_defecto' => 'superficie',
+        // Fracción del límite desde la que hay precaución. supuesto del proyecto, no de la norma
+        'margen_precaucion' => $margenRad,
+        'dosis_carrera_msv' => $dosisCarrera,
+        // Proyección de evento solar que se considera crítica (mSv) y su acción. SOLO regla y texto: aún no hay
+        // entrada de evento solar en el sistema (es del Nivel 3).
+        'evento_solar_critico_msv' => 250,
+        'evento_solar_accion' => 'alarma y refugio blindado',
+        // pendiente: límites por órgano y por año (requieren dosis por órgano, que no se registra).
+    ],
+
+    /*
+     | Presión arterial por bandas (mmHg). Cortes de la banda: del encargo del Nivel 2 (valores de ejemplo).
+     | El mapeo banda -> estado es supuesto del proyecto, no de la norma.
+     */
+    'presion_bandas' => [
+        'normal' => 'normal',
+        'elevada' => 'precaucion',
+        'hipertension_1' => 'precaucion',
+        'hipertension_2' => 'critico',
+        'crisis' => 'critico',   // y acción contactar a tierra (ya implícita en todo crítico)
+    ],
+
+    /*
+     | Temperatura: alerta por salto (°C) sobre la base personal (pre-vuelo o, si no hay, la móvil).
+     | Sin base personal se usan los rangos absolutos del indicador.
+     */
+    'temperatura_salto' => [
+        'precaucion_c' => 0.6,   // supuesto del proyecto, no de la norma
+        'critico_c' => 1.2,      // supuesto del proyecto, no de la norma
+        // Ventana tras ejercicio (rutina tipo 'ej' hecha) en que una temperatura alta no alerta.
+        'ventana_ejercicio_min' => 60,   // supuesto del proyecto, no de la norma
     ],
 
     'riesgos' => [
