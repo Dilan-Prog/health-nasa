@@ -222,3 +222,16 @@
 @media (prefers-reduced-motion: reduce) {
     .panel-fila, .panel-vista, .panel-tarjeta, .panel-progreso-barra { transition: none; }
 }
+
+/* Modo de visualización del cuerpo: 2D activo, 3D próximamente. */
+.panel-modo { flex: none; width: 100%; align-self: stretch; display: flex; justify-content: flex-start; gap: 8px; }
+.panel-modo-b {
+    font: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; min-width: 44px; padding: 0 14px; box-sizing: border-box; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-2); cursor: pointer;
+}
+.panel-modo-b .icono { font-size: 20px; }
+.panel-modo-b.is-activo { background: var(--hover); border-color: var(--primary); color: var(--primary); }
+.panel-modo-b:focus-visible { outline: 3px solid oklch(0.64 0.22 33); outline-offset: 2px; }
+.panel-modo-b:disabled { cursor: not-allowed; opacity: .65; }
+.panel-modo-pronto { font-size: 10px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); }

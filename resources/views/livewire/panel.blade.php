@@ -58,6 +58,16 @@
                 </div>
             </div>
 
+            <div class="panel-modo" role="group" aria-label="Modo de visualización del cuerpo">
+                <button type="button" class="panel-modo-b is-activo" aria-pressed="true">
+                    <span class="mono">2D</span>
+                </button>
+                <button type="button" class="panel-modo-b" disabled aria-disabled="true" title="Próximamente">
+                    <span class="mono">3D</span>
+                    <span class="panel-modo-pronto">Próximamente</span>
+                </button>
+            </div>
+
             <div class="panel-datos">
                 @foreach ([
                     ['height', $astronauta->altura_m ? number_format($astronauta->altura_m, 2, '.', '').' m' : '—', 'ALTURA'],

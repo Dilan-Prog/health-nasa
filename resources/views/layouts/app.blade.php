@@ -31,7 +31,8 @@
         ]],
         ['t' => 'Apoyo', 'links' => [
             ['t' => 'Aviso legal', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],
-            ['t' => 'Acceso', 'ic' => 'login'],
+            ['t' => 'Acceso', 'ic' => 'login', 'ruta' => 'login', 'href' => '/acceso'],
+            ['t' => 'Roles', 'ic' => 'admin_panel_settings'], // Próximamente: sin href, se muestra deshabilitado
         ]],
     ];
 @endphp
