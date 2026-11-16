@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Events\MedicionRegistrada;
 use App\Livewire\RegistrarMedicion;
+use App\Models\Astronauta;
 use App\Models\Medicion;
+use App\Models\Mision;
 use App\Support\TripulanteActual;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Event;
@@ -14,6 +16,15 @@ use Tests\TestCase;
 class RegistrarMedicionTest extends TestCase
 {
     use DatabaseTransactions;
+
+    /** Misión y tripulante propios: el test no depende de los datos de la BD local (se revierten con la transacción). */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $mision = Mision::create(['nombre' => 'Misión RM '.uniqid(), 'entorno' => 'estacion', 'inicio_en' => now()->subDays(10), 'duracion_dias' => 180]);
+        $a = Astronauta::create(['mision_id' => $mision->id, 'mision' => $mision->nombre, 'entorno' => 'estacion', 'nombre' => 'Tripulante Prueba']);
+        session(['mision_id' => $mision->id, 'astronauta_id' => $a->id]);
+    }
 
     private function limpiar($c)
     {
@@ -36,6 +47,7 @@ class RegistrarMedicionTest extends TestCase
 
     public function test_precarga_el_ultimo_valor(): void
     {
+        Medicion::create(['astronauta_id' => TripulanteActual::obtener()->id, 'indicador' => 'presion_arterial', 'valores' => ['sistolica' => 118, 'diastolica' => 76], 'medido_en' => now()->subHour(), 'origen' => 'manual']);
         $c = Livewire::test(RegistrarMedicion::class)->dispatch('abrir-registro');
         $this->assertCount(10, $c->get('campos'));
         $this->assertMatchesRegularExpression('#^\d+/\d+$#', $c->get('campos')['presion_arterial']);
