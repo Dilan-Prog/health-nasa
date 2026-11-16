@@ -21,6 +21,20 @@ An offline-first web tool that lets a crew member assess their own health during
 - **Security and privacy.** Role-based access (crew member, Crew Medical Officer, Flight Surgeon) behind a feature flag, an access audit log without medical values, encrypted medical-record fields, and a 15-day retention command for live measurements.
 - **Offline-first.** Local deployment, installable PWA shell, no external services at runtime.
 
+## Technology stack
+
+| Layer | Technology |
+|---|---|
+| Backend | PHP 8.1+ (8.2 recommended), Laravel 10 |
+| Database | Local MySQL |
+| UI | Livewire 3, Alpine.js, Tailwind CSS 3.4, Vite 5, Chart.js 4 |
+| Real time | Laravel Reverb + Laravel Echo (self-hosted, no external service) |
+| Installable app | PWA (web manifest and service worker) |
+| Tests | PHPUnit 10 (more than 900 tests) and the Node test runner for the Indicators model |
+| Design | IBM Plex Sans and Mono, Material Symbols Rounded, light / dark / high-contrast themes |
+
+Full architecture, modules, screens, commands and data model: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## NASA data and resources used
 
 - NASA-STD-3001, Volume 1, Revision C — https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
@@ -38,6 +52,8 @@ An offline-first web tool that lets a crew member assess their own health during
 Other sources: Canadian Space Agency articles on radiation monitoring and on science aboard the ISS (https://www.asc-csa.gc.ca/eng/news/articles/2026/2026-02-26-monitoring-radiation-astronaut-health.asp, https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp); SciELO article on body temperature in orbit (https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0026-17422014000400020); mood scales in spaceflight (https://pmc.ncbi.nlm.nih.gov/articles/PMC6218582/); sleep in space (https://anmdecolombia.org.co/dormir-en-el-espacio-exterior); vital signs reference (https://medlineplus.gov/ency/article/002341.htm).
 
 Open-source software and assets: Laravel (MIT), Livewire, Laravel Reverb and Echo, Chart.js, Tailwind CSS, Vite, MySQL, IBM Plex Sans and Mono (SIL Open Font License 1.1), Material Symbols Rounded (Apache License 2.0).
+
+The full list of sources, how each one is used, the project's reference documents (`docs/fuentes/`) and licenses is in [docs/SOURCES.md](docs/SOURCES.md).
 
 ## AI use disclosure
 
@@ -64,10 +80,27 @@ DB_DATABASE=healts_nasa_test php artisan migrate
 php artisan test
 ```
 
+## Tests and quality
+
+```bash
+php artisan test              # against healts_nasa_test, inside transactions
+php artisan test --testdox    # readable test names
+node --test resources/js/indicador/modelo.test.mjs
+php artisan i18n:audit        # language audit of the interface
+```
+
 ## Limitations and next steps
 
-- All health data is simulated; thresholds are unvalidated examples pending medical review.
-- The interface is in Spanish today; English localization is planned.
-- Local AI (Ollama) and n8n orchestration, additional biomarkers (VO₂max, bone density, retina, cabin sensors) and real wearable integration are "Coming soon".
+- All health data is simulated; thresholds are unvalidated example values pending medical review.
+- The interface is in English. The symptom analyzer and the floating Flight Surgeon assistant still accept Spanish input only; an English version is planned.
+- The Flight Surgeon assistant is rule-based and simulated. A local AI model (Ollama), n8n orchestration, additional biomarkers (VO₂max, bone density, retina, cabin sensors) and real wearable integration are "Coming soon".
+- Deployment items outside the application: MySQL disk encryption and TLS for the web server and the database connection.
 
-Spanish documentation: see `README.md`.
+## Documentation
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, technology, modules, screens, commands.
+- [docs/SOURCES.md](docs/SOURCES.md): sources, references, licenses and AI disclosure.
+- [docs/GLOSSARY_EN.md](docs/GLOSSARY_EN.md): English terminology and style guide.
+- `docs/` also contains the original requirements and technical plan (Spanish PDFs) and the Space Apps presentation material.
+
+Spanish version of this README: [README_ES.md](README_ES.md). Project based on Laravel, MIT license.
