@@ -12,12 +12,12 @@ use Symfony\Component\Yaml\Yaml;
  */
 class LectorFichas
 {
-    /** Sección del cuerpo => clave devuelta. */
+    /** Clave devuelta => cabeceras aceptadas (la primera es la canónica en inglés; la segunda, el respaldo en español). */
     private const SECCIONES = [
-        'Señales a vigilar' => 'senales',
-        'Qué chequear' => 'chequear',
-        'Cuándo escalar' => 'escalar',
-        'Límites de lo que puede afirmarse' => 'limites',
+        'senales' => ['Signs to watch', 'Señales a vigilar'],
+        'chequear' => ['What to check', 'Qué chequear'],
+        'escalar' => ['When to escalate', 'Cuándo escalar'],
+        'limites' => ['Limits of what can be stated', 'Límites de lo que puede afirmarse'],
     ];
 
     /** @return array{slug:string, patron:string, titulo:string, fuentes:array<int,string>, revision_medica:string, senales:string, chequear:string, escalar:string, limites:string} */
@@ -90,11 +90,18 @@ class LectorFichas
             'fuentes' => array_values($meta['fuentes']),
             'revision_medica' => $meta['revision_medica'],
         ];
-        foreach (self::SECCIONES as $titulo => $clave) {
-            if (! isset($secciones[$titulo]) || trim($secciones[$titulo]) === '') {
-                throw new RuntimeException("Falta la sección '{$titulo}' (o está vacía) en {$ruta}.");
+        foreach (self::SECCIONES as $clave => $titulos) {
+            $contenido = null;
+            foreach ($titulos as $titulo) {
+                if (isset($secciones[$titulo]) && trim($secciones[$titulo]) !== '') {
+                    $contenido = $secciones[$titulo];
+                    break;
+                }
             }
-            $ficha[$clave] = trim($secciones[$titulo]);
+            if ($contenido === null) {
+                throw new RuntimeException("Falta la sección '{$titulos[0]}' / '{$titulos[1]}' (o está vacía) en {$ruta}.");
+            }
+            $ficha[$clave] = trim($contenido);
         }
 
         return $ficha;

@@ -94,7 +94,7 @@ class ReglasExpediente
             'linea_base' => ['nullable', 'array', function ($attr, $valor, $fail) use ($marcadores) {
                 foreach (array_keys((array) $valor) as $clave) {
                     if (! in_array($clave, $marcadores, true)) {
-                        $fail("La línea base incluye un marcador desconocido: «{$clave}».");
+                        $fail("The personal baseline includes an unknown marker: \"{$clave}\".");
                     }
                 }
             }],
@@ -133,7 +133,7 @@ class ReglasExpediente
             // 4. Contactos de emergencia
             'contactos' => ['nullable', 'array', 'max:'.$maxItems['contactos'], function ($attr, $valor, $fail) {
                 if (is_array($valor) && $valor !== [] && ! collect($valor)->contains(fn ($c) => ! empty($c['principal']))) {
-                    $fail('Marca al menos un contacto de emergencia como principal.');
+                    $fail('Mark at least one emergency contact as primary.');
                 }
             }],
             'contactos.*.nombre' => ['required', 'string', 'max:120'],
@@ -181,62 +181,62 @@ class ReglasExpediente
         [$eMin, $eMax] = config('expediente.limites.edad');
 
         return [
-            'required' => 'El campo :attribute es obligatorio.',
-            'string' => 'El campo :attribute debe ser texto.',
-            'max.string' => 'El campo :attribute no puede superar :max caracteres.',
-            'max.array' => 'No puedes registrar más de :max elementos en :attribute.',
-            'numeric' => 'El campo :attribute debe ser un número.',
-            'integer' => 'El campo :attribute debe ser un número entero.',
-            'min.numeric' => 'El campo :attribute debe ser como mínimo :min.',
-            'max.numeric' => 'El campo :attribute debe ser como máximo :max.',
-            'date' => 'El campo :attribute no es una fecha válida.',
-            'boolean' => 'El campo :attribute debe ser sí o no.',
-            'array' => 'El campo :attribute tiene un formato no válido.',
-            'in' => 'El valor elegido en :attribute no es válido.',
-            'before_or_equal' => 'La fecha de :attribute no puede ser futura.',
-            'fecha_nacimiento.before_or_equal' => "El tripulante debe tener al menos {$eMin} años.",
-            'fecha_nacimiento.after' => "El tripulante no puede tener más de {$eMax} años.",
-            'altura_m.min' => "La altura debe estar entre {$aMin} y {$aMax} m.",
-            'altura_m.max' => "La altura debe estar entre {$aMin} y {$aMax} m.",
-            'peso_kg.min' => "El peso debe estar entre {$pMin} y {$pMax} kg.",
-            'peso_kg.max' => "El peso debe estar entre {$pMin} y {$pMax} kg.",
-            'contactos.*.telefono.regex' => 'El teléfono del contacto solo puede incluir dígitos, espacios, +, -, ( y ).',
-            'linea_base.*.numeric' => 'El valor de línea base de :attribute debe ser numérico.',
+            'required' => 'The :attribute field is required.',
+            'string' => 'The :attribute field must be text.',
+            'max.string' => 'The :attribute field may not exceed :max characters.',
+            'max.array' => 'You cannot enter more than :max items in :attribute.',
+            'numeric' => 'The :attribute field must be a number.',
+            'integer' => 'The :attribute field must be a whole number.',
+            'min.numeric' => 'The :attribute field must be at least :min.',
+            'max.numeric' => 'The :attribute field must be at most :max.',
+            'date' => 'The :attribute field is not a valid date.',
+            'boolean' => 'The :attribute field must be yes or no.',
+            'array' => 'The :attribute field has an invalid format.',
+            'in' => 'The value selected for :attribute is not valid.',
+            'before_or_equal' => 'The date for :attribute cannot be in the future.',
+            'fecha_nacimiento.before_or_equal' => "The crew member must be at least {$eMin} years old.",
+            'fecha_nacimiento.after' => "The crew member cannot be older than {$eMax} years.",
+            'altura_m.min' => "Height must be between {$aMin} and {$aMax} m.",
+            'altura_m.max' => "Height must be between {$aMin} and {$aMax} m.",
+            'peso_kg.min' => "Weight must be between {$pMin} and {$pMax} kg.",
+            'peso_kg.max' => "Weight must be between {$pMin} and {$pMax} kg.",
+            'contactos.*.telefono.regex' => 'The contact phone number may only include digits, spaces, +, -, ( and ).',
+            'linea_base.*.numeric' => 'The personal baseline value for :attribute must be numeric.',
         ];
     }
 
     public static function atributos(): array
     {
         return [
-            'nombre' => 'nombre', 'fecha_nacimiento' => 'fecha de nacimiento', 'sexo' => 'sexo',
-            'nacionalidad' => 'nacionalidad', 'agencia' => 'agencia', 'rol' => 'rol',
-            'fecha_ingreso' => 'fecha de ingreso', 'estado_servicio' => 'estado de servicio',
-            'altura_m' => 'altura', 'peso_kg' => 'peso', 'grupo_sanguineo' => 'grupo sanguíneo', 'evas' => 'EVAs',
-            'fc_reposo' => 'frecuencia cardíaca en reposo', 'fc_maxima' => 'frecuencia cardíaca máxima',
-            'presion_basal_sis' => 'presión sistólica basal', 'presion_basal_dia' => 'presión diastólica basal',
-            'spo2_basal' => 'saturación de O₂ basal', 'temperatura_basal' => 'temperatura basal',
-            'glucosa_basal' => 'glucosa basal', 'vo2max' => 'VO₂máx', 'grasa_corporal_pct' => 'grasa corporal',
-            'densidad_osea_tscore' => 'T-score de densidad ósea', 'horas_sueno_habituales' => 'horas de sueño habituales',
-            'fumador' => 'fumador', 'alcohol' => 'consumo de alcohol',
-            'actividad_fisica_semana_min' => 'actividad física semanal',
-            'dosis_radiacion_previa_msv' => 'dosis de radiación previa',
-            'linea_base' => 'línea base', 'linea_base.*' => 'marcador de línea base',
-            'alergias' => 'alergias', 'alergias.*.sustancia' => 'sustancia de la alergia',
-            'alergias.*.reaccion' => 'reacción de la alergia', 'alergias.*.gravedad' => 'gravedad de la alergia',
-            'condiciones' => 'condiciones médicas', 'condiciones.*.nombre' => 'nombre de la condición',
-            'condiciones.*.estado' => 'estado de la condición', 'condiciones.*.desde' => 'fecha de inicio de la condición',
-            'condiciones.*.notas' => 'notas de la condición',
-            'medicamentos' => 'medicamentos', 'medicamentos.*.nombre' => 'nombre del medicamento',
-            'medicamentos.*.dosis_texto' => 'dosis del medicamento', 'medicamentos.*.frecuencia' => 'frecuencia del medicamento',
-            'medicamentos.*.motivo' => 'motivo del medicamento', 'medicamentos.*.desde' => 'fecha de inicio del medicamento',
-            'medicamentos.*.activo' => 'medicamento activo',
-            'antecedentes' => 'antecedentes familiares', 'antecedentes.*.parentesco' => 'parentesco del antecedente',
-            'antecedentes.*.condicion' => 'condición del antecedente', 'antecedentes.*.edad_aparicion' => 'edad de aparición',
-            'aptitud_vuelo' => 'aptitud de vuelo', 'restricciones' => 'restricciones',
-            'ultimo_examen_en' => 'fecha del último examen', 'notas' => 'notas',
-            'contactos' => 'contactos de emergencia', 'contactos.*.nombre' => 'nombre del contacto',
-            'contactos.*.parentesco' => 'parentesco del contacto', 'contactos.*.telefono' => 'teléfono del contacto',
-            'contactos.*.principal' => 'contacto principal',
+            'nombre' => 'name', 'fecha_nacimiento' => 'date of birth', 'sexo' => 'sex',
+            'nacionalidad' => 'nationality', 'agencia' => 'agency', 'rol' => 'role',
+            'fecha_ingreso' => 'enlistment date', 'estado_servicio' => 'service status',
+            'altura_m' => 'height', 'peso_kg' => 'weight', 'grupo_sanguineo' => 'blood type', 'evas' => 'EVAs',
+            'fc_reposo' => 'resting heart rate', 'fc_maxima' => 'maximum heart rate',
+            'presion_basal_sis' => 'baseline systolic pressure', 'presion_basal_dia' => 'baseline diastolic pressure',
+            'spo2_basal' => 'baseline SpO₂', 'temperatura_basal' => 'baseline temperature',
+            'glucosa_basal' => 'baseline glucose', 'vo2max' => 'VO₂max', 'grasa_corporal_pct' => 'body fat',
+            'densidad_osea_tscore' => 'bone density T-score', 'horas_sueno_habituales' => 'usual sleep hours',
+            'fumador' => 'smoker', 'alcohol' => 'alcohol use',
+            'actividad_fisica_semana_min' => 'weekly physical activity',
+            'dosis_radiacion_previa_msv' => 'prior radiation dose',
+            'linea_base' => 'personal baseline', 'linea_base.*' => 'baseline marker',
+            'alergias' => 'allergies', 'alergias.*.sustancia' => 'allergy substance',
+            'alergias.*.reaccion' => 'allergy reaction', 'alergias.*.gravedad' => 'allergy severity',
+            'condiciones' => 'medical conditions', 'condiciones.*.nombre' => 'condition name',
+            'condiciones.*.estado' => 'condition status', 'condiciones.*.desde' => 'condition start date',
+            'condiciones.*.notas' => 'condition notes',
+            'medicamentos' => 'medications', 'medicamentos.*.nombre' => 'medication name',
+            'medicamentos.*.dosis_texto' => 'medication dose', 'medicamentos.*.frecuencia' => 'medication frequency',
+            'medicamentos.*.motivo' => 'medication reason', 'medicamentos.*.desde' => 'medication start date',
+            'medicamentos.*.activo' => 'active medication',
+            'antecedentes' => 'family history', 'antecedentes.*.parentesco' => 'family history relationship',
+            'antecedentes.*.condicion' => 'family history condition', 'antecedentes.*.edad_aparicion' => 'age of onset',
+            'aptitud_vuelo' => 'flight fitness', 'restricciones' => 'restrictions',
+            'ultimo_examen_en' => 'date of last exam', 'notas' => 'notes',
+            'contactos' => 'emergency contacts', 'contactos.*.nombre' => 'contact name',
+            'contactos.*.parentesco' => 'contact relationship', 'contactos.*.telefono' => 'contact phone number',
+            'contactos.*.principal' => 'primary contact',
         ];
     }
 }

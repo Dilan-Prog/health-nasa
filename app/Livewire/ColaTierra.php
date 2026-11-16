@@ -39,12 +39,12 @@ class ColaTierra extends Component
             return [
                 'id' => $f->id,
                 'enviada' => $enviada,
-                'estado' => $enviada ? 'Enviada' : 'Pendiente',
+                'estado' => $enviada ? 'Sent' : 'Pending',
                 'icono' => $enviada ? 'check_circle' : 'schedule',
-                'tripulante' => $nombres[$f->astronauta_id] ?? ($c['astronauta'] ?? 'Sin asignar'),
-                'creada' => $f->created_at?->copy()->utc()->format('d/m H:i') ?? '—',
-                'enviada_en' => $f->enviada_en?->copy()->utc()->format('d/m H:i'),
-                'resumen' => $partes ? implode(' · ', array_map('strval', $partes)) : 'Sin detalle',
+                'tripulante' => $nombres[$f->astronauta_id] ?? ($c['astronauta'] ?? 'Unassigned'),
+                'creada' => $f->created_at?->copy()->utc()->format('d M H:i') ?? '—',
+                'enviada_en' => $f->enviada_en?->copy()->utc()->format('d M H:i'),
+                'resumen' => $partes ? implode(' · ', array_map('strval', $partes)) : 'No detail',
             ];
         })->all();
 

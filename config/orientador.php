@@ -8,26 +8,27 @@ return [
     // Máximo de caracteres del texto libre (supuesto del proyecto).
     'max_caracteres' => 500,
 
-    // Atajos: [etiqueta del botón, texto que rellenan]. El usuario completa y envía.
+    // Atajos: [etiqueta del botón (inglés, visible), texto que rellenan]. El relleno se queda en ESPAÑOL a propósito:
+    // el analizador de síntomas (config/sintomas.php) entiende español. El usuario completa y envía.
     'atajos' => [
-        ['Me siento mareado', 'Me siento mareado'],
-        ['Me duele…', 'Me duele '],
-        ['Me falta el aire', 'Me falta el aire'],
+        ['I feel dizzy', 'Me siento mareado'],
+        ['It hurts…', 'Me duele '],
+        ['Short of breath', 'Me falta el aire'],
     ],
 
     // Síntomas que se pueden añadir a mano en "Entendí" (clave del contrato del analizador => etiqueta).
     'sintomas' => [
-        'dolor' => 'Dolor', 'mareo' => 'Mareo', 'falta_aire' => 'Falta de aire', 'nauseas' => 'Náuseas', 'fiebre' => 'Fiebre',
-        'fatiga' => 'Fatiga', 'palpitaciones' => 'Palpitaciones', 'dolor_cabeza' => 'Dolor de cabeza', 'vomito' => 'Vómito',
-        'desmayo' => 'Desmayo', 'confusion' => 'Confusión', 'vision' => 'Problemas de visión', 'debilidad' => 'Debilidad',
-        'entumecimiento' => 'Entumecimiento', 'hemorragia' => 'Hemorragia', 'convulsion' => 'Convulsión', 'escalofrios' => 'Escalofríos',
-        'presion_pecho' => 'Presión en el pecho',
+        'dolor' => 'Pain', 'mareo' => 'Dizziness', 'falta_aire' => 'Shortness of breath', 'nauseas' => 'Nausea', 'fiebre' => 'Fever',
+        'fatiga' => 'Fatigue', 'palpitaciones' => 'Palpitations', 'dolor_cabeza' => 'Headache', 'vomito' => 'Vomiting',
+        'desmayo' => 'Fainting', 'confusion' => 'Confusion', 'vision' => 'Vision problems', 'debilidad' => 'Weakness',
+        'entumecimiento' => 'Numbness', 'hemorragia' => 'Bleeding', 'convulsion' => 'Seizure', 'escalofrios' => 'Chills',
+        'presion_pecho' => 'Chest pressure',
     ],
 
     // Zonas que se pueden añadir a mano (clave => etiqueta).
     'zonas' => [
-        'pecho' => 'Pecho', 'cabeza' => 'Cabeza', 'cuello' => 'Cuello', 'brazo' => 'Brazo', 'triceps' => 'Tríceps', 'mano' => 'Mano',
-        'abdomen' => 'Abdomen', 'espalda' => 'Espalda', 'pierna' => 'Pierna', 'pie' => 'Pie',
+        'pecho' => 'Chest', 'cabeza' => 'Head', 'cuello' => 'Neck', 'brazo' => 'Arm', 'triceps' => 'Triceps', 'mano' => 'Hand',
+        'abdomen' => 'Abdomen', 'espalda' => 'Back', 'pierna' => 'Leg', 'pie' => 'Foot',
     ],
 
     // Indicadores que se vigilan en una emergencia (pulso y saturación) si el seguimiento no indica ninguno.

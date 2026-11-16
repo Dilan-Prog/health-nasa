@@ -21,13 +21,13 @@ use Livewire\Component;
 class Rutinas extends Component
 {
     public const ESTADOS = [
-        'done' => ['HECHA', 'check_circle', 'ok'],
-        'pending' => ['PENDIENTE', 'schedule', null],
-        'late' => ['ATRASADA', 'alarm', 'warn'],
-        'skipped' => ['OMITIDA', 'do_not_disturb_on', null],
+        'done' => ['DONE', 'check_circle', 'ok'],
+        'pending' => ['PENDING', 'schedule', null],
+        'late' => ['OVERDUE', 'alarm', 'warn'],
+        'skipped' => ['SKIPPED', 'do_not_disturb_on', null],
     ];
 
-    public const ESTADO3 = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['PRECAUCIÓN', 'warning'], 'crit' => ['CRÍTICO', 'error']];
+    public const ESTADO3 = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['CAUTION', 'warning'], 'crit' => ['CRITICAL', 'error']];
 
     /** Día seleccionado (Y-m-d, dentro de la semana actual); vacío = hoy. */
     #[Url(as: 'dia', except: '')]
@@ -186,13 +186,13 @@ class Rutinas extends Component
             'aInt' => ['nullable', 'in:'.implode(',', config('rutinas.intensidades'))],
             'aNotas' => ['nullable', 'string', 'max:200'],
         ], [
-            'aCantidad.required' => $unidad === 'ml' ? 'Indica la cantidad' : 'Indica la duración',
-            'aCantidad.numeric' => 'Debe ser un número mayor que 0',
-            'aCantidad.gt' => 'Debe ser un número mayor que 0',
-            'aCantidad.max' => 'Máximo '.$max.' '.$unidad,
-            'aHora.required' => 'Indica la hora de la actividad',
-            'aHora.date_format' => 'Indica la hora de la actividad',
-            'aNotas.max' => 'Máximo 200 caracteres',
+            'aCantidad.required' => $unidad === 'ml' ? 'Enter the amount' : 'Enter the duration',
+            'aCantidad.numeric' => 'Must be a number greater than 0',
+            'aCantidad.gt' => 'Must be a number greater than 0',
+            'aCantidad.max' => 'Maximum '.$max.' '.$unidad,
+            'aHora.required' => 'Enter the time of the activity',
+            'aHora.date_format' => 'Enter the time of the activity',
+            'aNotas.max' => 'Maximum 200 characters',
         ]);
 
         $a = TripulanteActual::obtener();
@@ -226,16 +226,16 @@ class Rutinas extends Component
             'rDias.*' => ['integer', 'between:1,7'],
             'rIndicador' => ['nullable', 'in:'.implode(',', array_keys(config('panel.indicadores', [])))],
         ], [
-            'rNombre.required' => 'Pon un nombre a la rutina',
-            'rNombre.max' => 'Máximo 120 caracteres',
-            'rHora.required' => 'Indica la hora de la rutina',
-            'rHora.date_format' => 'Indica la hora de la rutina',
-            'rCantidad.required' => $unidad === 'ml' ? 'Indica la cantidad' : 'Indica la duración',
-            'rCantidad.integer' => 'Debe ser un número entero',
-            'rCantidad.min' => $exigeCantidad ? 'Debe ser mayor que 0' : 'No puede ser negativa',
-            'rCantidad.max' => 'Máximo '.$max.' '.$unidad,
-            'rDias.required' => 'Elige al menos un día',
-            'rDias.min' => 'Elige al menos un día',
+            'rNombre.required' => 'Enter a name for the routine',
+            'rNombre.max' => 'Maximum 120 characters',
+            'rHora.required' => 'Enter the time of the routine',
+            'rHora.date_format' => 'Enter the time of the routine',
+            'rCantidad.required' => $unidad === 'ml' ? 'Enter the amount' : 'Enter the duration',
+            'rCantidad.integer' => 'Must be a whole number',
+            'rCantidad.min' => $exigeCantidad ? 'Must be greater than 0' : 'Cannot be negative',
+            'rCantidad.max' => 'Maximum '.$max.' '.$unidad,
+            'rDias.required' => 'Choose at least one day',
+            'rDias.min' => 'Choose at least one day',
         ]);
 
         $a = TripulanteActual::obtener();
@@ -319,7 +319,7 @@ class Rutinas extends Component
             $hechasSemana += $hechas;
             $totalSemana += $t->count();
             $dias[] = [
-                'fecha' => $s['fecha']->toDateString(), 'n' => $s['fecha']->day, 'abbr' => $i === $idxHoy ? 'HOY' : $cfg['dias'][$i + 1],
+                'fecha' => $s['fecha']->toDateString(), 'n' => $s['fecha']->day, 'abbr' => $i === $idxHoy ? 'TODAY' : $cfg['dias'][$i + 1],
                 'dia' => $cfg['dias'][$i + 1], 'mes' => $cfg['meses'][$s['fecha']->month], 'es_hoy' => $i === $idxHoy, 'sel' => $i === $idxSel,
                 'kinds' => $t->pluck('kind')->unique()->values()->all(), 'hechas' => $hechas, 'total' => $t->count(),
                 'frac' => $t->count() ? $hechas.'/'.$t->count() : '—',
@@ -335,7 +335,7 @@ class Rutinas extends Component
         $m = TripulanteActual::mision();
         $diaMision = $m?->inicio_en ? max(1, (int) $m->inicio_en->copy()->startOfDay()->diffInDays($hoy, false) + 1) : null;
         $etiqueta = $cfg['dias_largo'][$hoy->isoWeekday()].' '.$hoy->day.' '.mb_strtoupper($cfg['meses'][$hoy->month]).' '.$hoy->year
-            .($diaMision ? ' · DÍA '.$diaMision : '').' · '.$ahora->format('H:i').' UTC';
+            .($diaMision ? ' · DAY '.$diaMision : '').' · '.$ahora->format('H:i').' UTC';
 
         return [
             'etiqueta_fecha' => $etiqueta,
@@ -343,8 +343,8 @@ class Rutinas extends Component
             'sel_fecha' => $sel->toDateString(),
             'sel_es_hoy' => $sel->eq($hoy),
             'sel_futuro' => $sel->gt($hoy),
-            'agenda_titulo' => $sel->eq($hoy) ? 'Agenda de hoy' : 'Agenda · '.mb_strtolower($cfg['dias'][$idxSel + 1]).' '.$sel->day,
-            'agenda_cuenta' => count($tareas) ? collect($tareas)->where('estado', 'done')->count().' de '.count($tareas).' hechas' : '',
+            'agenda_titulo' => $sel->eq($hoy) ? "Today's agenda" : 'Agenda · '.ucfirst(mb_strtolower($cfg['dias'][$idxSel + 1])).' '.$sel->day,
+            'agenda_cuenta' => count($tareas) ? collect($tareas)->where('estado', 'done')->count().' of '.count($tareas).' done' : '',
             'tareas' => $tareas,
             'dias' => $dias,
             'semana_txt' => $semanaTxt,
@@ -375,14 +375,14 @@ class Rutinas extends Component
         $falta = $p['med_total'] - $p['med_hechas'];
 
         return [
-            $ring('EJERCICIO', 'fitness_center', $ej, $metas['ejercicio_min'], (string) $ej, '/ '.$metas['ejercicio_min'].' min',
-                $ej >= $metas['ejercicio_min'] ? 'Meta cumplida' : 'Faltan '.($metas['ejercicio_min'] - $ej).' min', 'ej'),
-            $ring('HIDRATACIÓN', 'water_drop', $agua, $metaAgua, number_format($agua, 1, '.', ''), '/ '.number_format($metaAgua, 1, '.', '').' L',
-                $agua >= $metaAgua ? 'Meta cumplida' : 'Faltan '.number_format($metaAgua - $agua, 1, '.', '').' L', 'med'),
-            $ring('SUEÑO', 'bedtime', $sueno ?? 0, $metas['sueno_h'], $sueno !== null ? number_format($sueno, 1, '.', '') : '—', '/ '.$metas['sueno_h'].' h anoche',
-                $sueno === null ? 'Sin registro de anoche' : ($sueno >= $metas['sueno_h'] ? 'Meta cumplida' : 'Por debajo de tu meta'), 'bien'),
-            $ring('MEDICIONES', 'monitor_heart', $p['med_hechas'], max(1, $p['med_total']), $p['med_hechas'].'/'.$p['med_total'], 'hechas',
-                $p['med_total'] === 0 ? 'Sin mediciones programadas' : ($falta > 0 ? $falta.' pendiente'.($falta > 1 ? 's' : '') : 'Todo al día'), 'ok'),
+            $ring('EXERCISE', 'fitness_center', $ej, $metas['ejercicio_min'], (string) $ej, '/ '.$metas['ejercicio_min'].' min',
+                $ej >= $metas['ejercicio_min'] ? 'Goal met' : ($metas['ejercicio_min'] - $ej).' min to go', 'ej'),
+            $ring('HYDRATION', 'water_drop', $agua, $metaAgua, number_format($agua, 1, '.', ''), '/ '.number_format($metaAgua, 1, '.', '').' L',
+                $agua >= $metaAgua ? 'Goal met' : number_format($metaAgua - $agua, 1, '.', '').' L to go', 'med'),
+            $ring('SLEEP', 'bedtime', $sueno ?? 0, $metas['sueno_h'], $sueno !== null ? number_format($sueno, 1, '.', '') : '—', '/ '.$metas['sueno_h'].' h last night',
+                $sueno === null ? 'No record from last night' : ($sueno >= $metas['sueno_h'] ? 'Goal met' : 'Below your goal'), 'bien'),
+            $ring('MEASUREMENTS', 'monitor_heart', $p['med_hechas'], max(1, $p['med_total']), $p['med_hechas'].'/'.$p['med_total'], 'done',
+                $p['med_total'] === 0 ? 'No measurements scheduled' : ($falta > 0 ? $falta.' pending' : 'All up to date'), 'ok'),
         ];
     }
 
@@ -418,14 +418,14 @@ class Rutinas extends Component
             $sueno = $act->tipo === 'Sueño' && $act->unidad === 'min';
             $fin = $sueno ? $act->inicio_en->copy()->addMinutes($act->cantidad) : $act->inicio_en;
             $dif = (int) $fin->copy()->startOfDay()->diffInDays($hoy, false);
-            $cuando = $dif === 0 ? 'Hoy' : ($dif === 1 ? 'Ayer' : ucfirst(mb_strtolower(config('rutinas.dias.'.$fin->isoWeekday()))).' '.$fin->day);
+            $cuando = $dif === 0 ? 'Today' : ($dif === 1 ? 'Yesterday' : ucfirst(mb_strtolower(config('rutinas.dias.'.$fin->isoWeekday()))).' '.$fin->day);
             $hora = $sueno ? $act->inicio_en->format('H:i').'→'.$fin->format('H:i') : $act->inicio_en->format('H:i');
             $cant = $act->cantidad;
             $cantTxt = $act->unidad === 'ml' ? $cant.' ml' : ($cant >= 60 ? intdiv($cant, 60).' h'.($cant % 60 ? ' '.($cant % 60).' min' : '') : $cant.' min');
 
             return [
-                'ic' => $cfg['icono'], 'kind' => $cfg['kind'], 'nombre' => $act->nombre.($act->nota ? ' · '.$act->nota : ''),
-                'cuando' => $cuando.' · '.$hora, 'cantidad' => $cantTxt, 'origen' => $act->origen === 'manual' ? 'Manual' : 'Recordatorio',
+                'ic' => $cfg['icono'], 'kind' => $cfg['kind'], 'nombre' => (config('rutinas.tipos.'.$act->nombre.'.label') ?? $act->nombre).($act->nota ? ' · '.$act->nota : ''),
+                'cuando' => $cuando.' · '.$hora, 'cantidad' => $cantTxt, 'origen' => $act->origen === 'manual' ? 'Manual' : 'Reminder',
                 'origen_ic' => $act->origen === 'manual' ? 'edit' : 'notifications',
             ];
         })->all();

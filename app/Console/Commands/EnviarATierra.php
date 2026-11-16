@@ -9,16 +9,16 @@ class EnviarATierra extends Command
 {
     protected $signature = 'tierra:enviar';
 
-    protected $description = 'Envía a tierra las alertas pendientes si hay enlace';
+    protected $description = 'Sends pending alerts to the ground if a link is available';
 
     public function handle(EnvioATierra $envio): int
     {
         if (! $envio->enlaceActivo()) {
-            $this->warn("Sin enlace con tierra. Pendientes: {$envio->pendientes()}");
+            $this->warn("No link to the ground. Pending: {$envio->pendientes()}");
 
             return self::SUCCESS;
         }
-        $this->info("Enviadas: {$envio->enviarPendientes()}. Pendientes: {$envio->pendientes()}");
+        $this->info("Sent: {$envio->enviarPendientes()}. Pending: {$envio->pendientes()}");
 
         return self::SUCCESS;
     }

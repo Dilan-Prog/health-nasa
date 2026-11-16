@@ -17,62 +17,62 @@
 return [
     'marcadores' => [
         'presion_arterial' => [
-            'parte' => 'Tórax',
-            'texto' => 'En microgravedad los fluidos suben hacia la cabeza y el pecho, lo que altera la presión y la regulación del corazón.',
+            'parte' => 'Chest',
+            'texto' => 'In microgravity, fluids shift toward the head and chest, which alters blood pressure and cardiac regulation.',
         ],
         'frecuencia_cardiaca' => [
-            'parte' => 'Corazón',
-            'texto' => 'El corazón trabaja menos sin gravedad y puede perder masa; el ejercicio aeróbico lo mantiene en forma.',
+            'parte' => 'Heart',
+            'texto' => 'The heart works less without gravity and can lose mass; aerobic exercise keeps it conditioned.',
             // Contexto histórico (referencia, no cambia los umbrales de la app).
-            'contexto' => 'En las misiones Apolo el pulso observado fue de 66 a 144 lpm; con media de ~96 lpm en el descenso y de 70 a 109 lpm en el ascenso.',
+            'contexto' => 'During the Apollo missions the observed pulse ranged from 66 to 144 bpm, averaging ~96 bpm on descent and 70 to 109 bpm on ascent.',
         ],
         'saturacion_o2' => [
-            'parte' => 'Pulmones',
-            'texto' => 'Mide cuánto oxígeno transporta la sangre. Depende de la atmósfera de la cabina y de la función pulmonar.',
+            'parte' => 'Lungs',
+            'texto' => 'Measures how much oxygen the blood carries. It depends on the cabin atmosphere and lung function.',
         ],
         'glucosa' => [
-            'parte' => 'Sangre',
-            'texto' => 'La menor actividad muscular reduce la sensibilidad a la insulina y eleva la glucosa.',
+            'parte' => 'Blood',
+            'texto' => 'Reduced muscle activity lowers insulin sensitivity and raises glucose.',
         ],
         'temperatura' => [
-            'parte' => 'Cuerpo entero',
-            'texto' => 'Sin convección natural, el cuerpo disipa peor el calor; la temperatura central suele subir algo en vuelo.',
+            'parte' => 'Whole body',
+            'texto' => 'Without natural convection, the body dissipates heat less effectively; core temperature tends to rise slightly in flight.',
         ],
         'imc' => [
-            'parte' => 'Cuerpo entero',
-            'texto' => 'Relaciona peso y altura. En misiones largas suele bajar por pérdida de músculo y hueso.',
+            'parte' => 'Whole body',
+            'texto' => 'Relates weight to height. On long missions it tends to fall because of muscle and bone loss.',
         ],
         'hidratacion' => [
-            'parte' => 'Riñones',
-            'texto' => 'En el espacio la sed disminuye; beber poco aumenta el riesgo de cálculos renales por el calcio liberado del hueso.',
+            'parte' => 'Kidneys',
+            'texto' => 'In space, thirst decreases; drinking too little raises the risk of kidney stones from calcium released from bone.',
         ],
         'perdida_osea' => [
-            'parte' => 'Cadera y columna',
-            'texto' => 'Sin carga sobre el esqueleto se pierde en torno al 1–1.5 % de densidad ósea al mes en cadera y columna.',
+            'parte' => 'Hip and spine',
+            'texto' => 'Without load on the skeleton, about 1–1.5 % of bone density is lost per month in the hip and spine.',
         ],
         'masa_muscular' => [
-            'parte' => 'Piernas y espalda',
-            'texto' => 'Los músculos posturales (piernas, espalda) se atrofian rápido sin ejercicio de resistencia.',
+            'parte' => 'Legs and back',
+            'texto' => 'Postural muscles (legs, back) atrophy quickly without resistance exercise.',
         ],
         'radiacion_diaria' => [
-            'parte' => 'Todo el cuerpo',
-            'texto' => 'Fuera de la protección completa de la atmósfera, la radiación cósmica y solar aumenta el riesgo a largo plazo.',
+            'parte' => 'Whole body',
+            'texto' => 'Outside the full protection of the atmosphere, cosmic and solar radiation increases long-term risk.',
         ],
         'dosis_acumulada' => [
-            'parte' => 'Todo el cuerpo',
-            'texto' => 'Suma de toda la radiación recibida; se compara con límites de misión y de carrera.',
+            'parte' => 'Whole body',
+            'texto' => 'Sum of all radiation received; it is compared with mission and career limits.',
         ],
         'sueno' => [
-            'parte' => 'Cerebro',
-            'texto' => 'Con 16 amaneceres al día, ruido y luz artificial, el ritmo circadiano se desajusta con facilidad.',
+            'parte' => 'Brain',
+            'texto' => 'With 16 sunrises per day, noise and artificial light, the circadian rhythm is easily disrupted.',
         ],
         'estres_cognitivo' => [
-            'parte' => 'Cerebro',
-            'texto' => 'El aislamiento y la carga de trabajo afectan atención, memoria y estado de ánimo.',
+            'parte' => 'Brain',
+            'texto' => 'Isolation and workload affect attention, memory and mood.',
         ],
         'vision_sans' => [
-            'parte' => 'Ojos',
-            'texto' => 'El síndrome neuro-ocular asociado al vuelo espacial (SANS) cambia la forma del ojo y la visión de cerca.',
+            'parte' => 'Eyes',
+            'texto' => 'Spaceflight Associated Neuro-ocular Syndrome (SANS) changes the shape of the eye and near vision.',
         ],
     ],
 
@@ -83,11 +83,11 @@ return [
     'extras' => [
         'animo' => [
             'umbral' => 'animo',
-            'label' => 'Estado de ánimo',
+            'label' => 'Mood',
             'ic' => 'mood',
-            'parte' => 'Cerebro',
-            'texto' => 'El aislamiento, el confinamiento y la distancia de la Tierra pueden afectar al ánimo. Se registra en una escala VAS de 0 a 100 (100 = muy bien); sirve para ver tendencias, no para diagnosticar.',
-            'rec' => 'Habla con un compañero o programa una llamada de apoyo; cuida tu rutina social.',
+            'parte' => 'Brain',
+            'texto' => 'Isolation, confinement and distance from Earth can affect mood. It is recorded on a VAS scale from 0 to 100 (100 = very good); it is used to track trends, not to diagnose.',
+            'rec' => 'Talk with a crewmate or schedule a support call; keep up your social routine.',
         ],
     ],
 ];

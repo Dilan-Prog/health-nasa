@@ -8,34 +8,34 @@ use Illuminate\Console\Command;
 
 class TokenDispositivo extends Command
 {
-    protected $signature = 'reloj:token {astronauta : ID del tripulante} {--dias= : Días de vigencia (por defecto mision.reloj_token_dias)}';
+    protected $signature = 'reloj:token {astronauta : Crew member ID} {--dias= : Validity in days (default mision.reloj_token_dias)}';
 
-    protected $description = 'Genera (o regenera) el token del reloj y su secreto de firma. Se muestran una sola vez; el token anterior sigue válido durante la gracia.';
+    protected $description = 'Generates (or regenerates) the watch token and its signing secret. They are shown only once; the previous token stays valid during the grace period.';
 
     public function handle(TokenReloj $tokens): int
     {
         $astronauta = Astronauta::find($this->argument('astronauta'));
         if (! $astronauta) {
-            $this->error('No existe ese tripulante.');
+            $this->error('That crew member does not exist.');
 
             return self::FAILURE;
         }
 
         $dias = $this->option('dias');
         if ($dias !== null && (! ctype_digit((string) $dias) || (int) $dias < 1)) {
-            $this->error('--dias debe ser un entero positivo.');
+            $this->error('--dias must be a positive integer.');
 
             return self::FAILURE;
         }
 
         $r = $tokens->emitir($astronauta, $dias !== null ? (int) $dias : null);
 
-        $this->info("Token para {$astronauta->nombre} (vence el {$r['vence_en']->format('Y-m-d H:i')}):");
+        $this->info("Token for {$astronauta->nombre} (expires {$r['vence_en']->format('Y-m-d H:i')}):");
         $this->line($r['token']);
-        $this->info('Secreto de firma (X-Firma). Guárdalo ahora: no se vuelve a mostrar:');
+        $this->info('Signing secret (X-Firma). Save it now: it will not be shown again:');
         $this->line($r['secreto']);
         if ($r['gracia_hasta']) {
-            $this->comment('El token anterior sigue válido hasta '.$r['gracia_hasta']->format('Y-m-d H:i').' (gracia).');
+            $this->comment('The previous token stays valid until '.$r['gracia_hasta']->format('Y-m-d H:i').' (grace period).');
         }
 
         return self::SUCCESS;

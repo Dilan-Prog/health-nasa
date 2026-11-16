@@ -11,25 +11,28 @@ use InvalidArgumentException;
 /** Consultas al médico de vuelo en tierra: envío por la cola existente y avance calculado por tiempo. */
 class ConsultasTierra
 {
-    private const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    private const MESES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    /** Stage labels shown in the UI (the model constant ETAPAS keeps the Spanish text). */
+    private const ETAPAS = ['Queued', 'Sent', 'Received', 'Answered'];
 
     private const ATT = [
-        ['Mediciones 15 días', 'CSV · 12 KB', 'table_chart'],
-        ['Tendencia: pérdida ósea', 'PNG · 84 KB', 'show_chart'],
-        ['Registro de sueño', 'CSV · 6 KB', 'bedtime'],
+        ['Measurements, 15 days', 'CSV · 12 KB', 'table_chart'],
+        ['Trend: bone loss', 'PNG · 84 KB', 'show_chart'],
+        ['Sleep log', 'CSV · 6 KB', 'bedtime'],
     ];
 
     public static function enviar(Astronauta $a, string $tipo, array $indicadores, ?string $nota = null, array $adjuntos = []): ConsultaTierra
     {
         if (! in_array($tipo, ['msg', 'video'], true)) {
-            throw new InvalidArgumentException('Tipo de consulta no válido: '.$tipo);
+            throw new InvalidArgumentException('Invalid consultation type: '.$tipo);
         }
         if ($tipo === 'video' && $a->misionDeVuelo?->triajeAutonomo()) {
-            throw new InvalidArgumentException('Triaje autónomo local: este nivel de atención no ofrece videoconsulta síncrona. Envía un mensaje asíncrono a tierra.');
+            throw new InvalidArgumentException('Local autonomous triage: this care level does not offer synchronous video consultation. Send an asynchronous message to the ground.');
         }
         $indicadores = array_values($indicadores);
         if ($indicadores === []) {
-            throw new InvalidArgumentException('Hay que indicar al menos un indicador.');
+            throw new InvalidArgumentException('At least one indicator is required.');
         }
 
         $enlace = app(EnvioATierra::class)->enlaceActivo();
@@ -116,15 +119,16 @@ class ConsultasTierra
     private static function titulo(string $tipo, array $indicadores): string
     {
         if ($tipo === 'video') {
-            return 'Videoconsulta · solicitud';
+            return 'Video consultation · request';
         }
         $et = [];
         foreach (array_slice($indicadores, 0, 2) as $k) {
             $e = config("panel.indicadores.$k.etiqueta") ?? config("indicadores.marcadores.$k.label") ?? (string) $k;
-            $et[] = mb_strtolower(trim(preg_replace('/\s*\(.*?\)/u', '', $e)));
+            $e = trim(preg_replace('/\s*\(.*?\)/u', '', $e));
+            $et[] = preg_match('/^\p{Lu}\p{Ll}/u', $e) ? mb_strtolower(mb_substr($e, 0, 1)).mb_substr($e, 1) : $e; // keeps acronyms (SpO₂, BMI)
         }
 
-        return 'Mensaje · '.implode(' y ', $et);
+        return 'Message · '.implode(' and ', $et);
     }
 
     private static function fila(ConsultaTierra $c, bool $enlace, int $retardo): array
@@ -168,14 +172,14 @@ class ConsultasTierra
         }
 
         $etapas = [];
-        foreach (ConsultaTierra::ETAPAS as $i => $l) {
+        foreach (self::ETAPAS as $i => $l) {
             $etapas[] = ['l' => $l, 'hora' => $tiempos[$i] ?? '', 'hecha' => $i <= $etapa];
         }
 
         $eta = null;
         if ($retardo > 0 && $etapa < 3) {
-            $eta = 'Llegada estimada '.$creada->copy()->addMinutes($retardo)->format('H:i')
-                .' UTC · respuesta estimada hacia las '.$creada->copy()->addMinutes($retardo * 2 + 10)->format('H:i').' UTC';
+            $eta = 'Estimated arrival '.$creada->copy()->addMinutes($retardo)->format('H:i')
+                .' UTC · estimated response around '.$creada->copy()->addMinutes($retardo * 2 + 10)->format('H:i').' UTC';
         }
 
         return [
@@ -183,7 +187,7 @@ class ConsultasTierra
             'tipo' => $c->tipo,
             'titulo' => $c->titulo,
             'cuando' => $creada->toDateString() === now()->utc()->toDateString()
-                ? 'Hoy '.$creada->format('H:i').' UTC'
+                ? 'Today '.$creada->format('H:i').' UTC'
                 : $creada->day.' '.self::MESES[$creada->month - 1],
             'etapa' => $etapa,
             'etapas' => $etapas,

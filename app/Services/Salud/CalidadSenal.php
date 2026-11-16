@@ -46,7 +46,7 @@ class CalidadSenal
             && ($instante - $ultima['instante']) <= ((int) ($c['ventana_min'] ?? 120)) * 60
             && abs($valor - $ultima['valor']) > $c['salto_max']) {
             return ['calidad' => self::SOSPECHOSA, 'motivo' => sprintf(
-                'Salto brusco: %s frente a %s en la lectura anterior (máximo plausible %s).',
+                'Abrupt jump: %s vs %s in the previous reading (maximum plausible %s).',
                 $this->num($valor), $this->num($ultima['valor']), $this->num($c['salto_max'])
             )];
         }
@@ -56,7 +56,7 @@ class CalidadSenal
         if ($n >= 2 && count($previas) >= $n - 1) {
             $ultimas = array_slice($previas, -($n - 1));
             if (count(array_filter($ultimas, fn ($p) => abs($p['valor'] - $valor) < 1e-9)) === $n - 1) {
-                return ['calidad' => self::SOSPECHOSA, 'motivo' => "Señal plana: {$n} lecturas idénticas seguidas ({$this->num($valor)})."];
+                return ['calidad' => self::SOSPECHOSA, 'motivo' => "Flat signal: {$n} identical consecutive readings ({$this->num($valor)})."];
             }
         }
 

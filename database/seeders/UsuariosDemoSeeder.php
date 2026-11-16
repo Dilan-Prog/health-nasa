@@ -19,15 +19,15 @@ class UsuariosDemoSeeder extends Seeder
         $cmo = $primero ? $astronautas->first(fn ($a) => $a->id !== $primero->id && $a->mision_id === $primero->mision_id) : null;
 
         $defs = [
-            [User::ROL_TRIPULANTE, 'DEMO_PASSWORD_TRIPULANTE', 'Tripulante demo', 'tripulante@demo.test', $primero],
+            [User::ROL_TRIPULANTE, 'DEMO_PASSWORD_TRIPULANTE', 'Crew member demo', 'tripulante@demo.test', $primero],
             [User::ROL_CMO, 'DEMO_PASSWORD_CMO', 'CMO demo', 'cmo@demo.test', $cmo],
-            [User::ROL_FLIGHT_SURGEON, 'DEMO_PASSWORD_FLIGHT_SURGEON', 'Flight surgeon demo', 'flight-surgeon@demo.test', null],
+            [User::ROL_FLIGHT_SURGEON, 'DEMO_PASSWORD_FLIGHT_SURGEON', 'Flight Surgeon demo', 'flight-surgeon@demo.test', null],
         ];
 
         foreach ($defs as [$rol, $var, $nombre, $correo, $astronauta]) {
             $clave = env($var);
             if (! $clave) {
-                $this->command?->warn("Falta {$var} en el .env: no se crea el usuario {$rol}.");
+                $this->command?->warn("Missing {$var} in .env: the {$rol} user was not created.");
 
                 continue;
             }

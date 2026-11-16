@@ -3,11 +3,11 @@
                 @php
                     $imc = $this->imc;
                     $imcTono = $imc === null ? 'neu' : ($imc >= 30 ? 'crit' : (($imc < 18.5 || $imc >= 25) ? 'warn' : 'ok'));
-                    $imcEt = ['neu' => 'Sin dato', 'ok' => 'Normal', 'warn' => ($imc !== null && $imc < 18.5) ? 'Bajo peso' : 'Sobrepeso', 'crit' => 'Obesidad'][$imcTono];
+                    $imcEt = ['neu' => 'No data', 'ok' => 'Normal', 'warn' => ($imc !== null && $imc < 18.5) ? 'Underweight' : 'Overweight', 'crit' => 'Obese'][$imcTono];
                     $imcIc = ['neu' => 'remove', 'ok' => 'check_circle', 'warn' => 'warning', 'crit' => 'error'][$imcTono];
                     $phNum = ['altura_m' => '1.70', 'peso_kg' => '65.0'];
 
-                    // Campo numérico: unidad dentro de la caja y rango como ayuda (se parte el texto "unidad · entre a y b").
+                    // Campo numérico: unit inside the box y rango como ayuda (se parte el texto "unidad · entre a y b").
                     $numero = function (array $def) use ($phNum) {
                         [$k, $et, , $attrs, $ayuda] = $def;
                         $rango = \Illuminate\Support\Str::after($ayuda, ' · ');
@@ -23,8 +23,8 @@
                 {{-- ---------- Biometría ---------- --}}
                 <section class="nt-seccion" aria-labelledby="nt-sec-biometria">
                     <div class="nt-seccion-cab">
-                        <h3 id="nt-sec-biometria" class="nt-seccion-t">Biometría</h3>
-                        <p class="nt-seccion-d">Medidas corporales y hábitos.</p>
+                        <h3 id="nt-sec-biometria" class="nt-seccion-t">Biometrics</h3>
+                        <p class="nt-seccion-d">Body measurements and habits.</p>
                     </div>
                     <div class="nt-rejilla">
                         @foreach ($bio as $def)
@@ -46,17 +46,17 @@
                         @endforeach
 
                         <div class="nt-campo nt-calculado" aria-live="polite">
-                            <span class="nt-etq">IMC calculado</span>
+                            <span class="nt-etq">Calculated BMI</span>
                             <div class="nt-calculado-v">
                                 <strong>{{ $imc !== null ? number_format($imc, 1, '.', '') : '—' }}</strong>
                                 <span class="nt-pildora" data-estado="{{ $imcTono }}"><span class="icono" aria-hidden="true">{{ $imcIc }}</span>{{ $imcEt }}</span>
                             </div>
-                            <p class="nt-ayuda">Se calcula con altura y peso (kg/m²). Es solo orientativo.</p>
+                            <p class="nt-ayuda">Calculated from height and weight (kg/m²). For guidance only.</p>
                         </div>
 
                         <div class="nt-campo" wire:key="c2-grupo_sanguineo">
                             @php $uid = $id('grupo_sanguineo'); $desc = $errors->has('grupo_sanguineo') ? $uid.'-error' : ''; @endphp
-                            <label for="{{ $uid }}">Grupo sanguíneo</label>
+                            <label for="{{ $uid }}">Blood type</label>
                             <span class="nt-control">
                                 <select id="{{ $uid }}" wire:model="grupo_sanguineo" aria-invalid="{{ $errors->has('grupo_sanguineo') ? 'true' : 'false' }}" @if ($desc) aria-describedby="{{ $desc }}" @endif>
                                     <option value="">{{ $placeholderSel }}</option>
@@ -67,7 +67,7 @@
                             @error('grupo_sanguineo') <p class="nt-error" id="{{ $uid }}-error"><span class="icono" aria-hidden="true">error</span>{{ $message }}</p> @enderror
                         </div>
 
-                        @foreach ([['fumador', 'Fumador', $siNo, false], ['alcohol', 'Consumo de alcohol', $cfg('alcohol', []), true]] as [$k, $et, $ops, $ancho])
+                        @foreach ([['fumador', 'Smoker', $siNo, false], ['alcohol', 'Alcohol use', $cfg('alcohol', []), true]] as [$k, $et, $ops, $ancho])
                             @php $uid = $id($k); $desc = $errors->has($k) ? $uid.'-error' : ''; @endphp
                             <div class="nt-campo {{ $ancho ? 'nt-ancho' : '' }}" wire:key="c2-{{ $k }}">
                                 <span class="nt-etq" id="{{ $uid }}-etq">{{ $et }}</span>
@@ -89,8 +89,8 @@
                 {{-- ---------- Valores basales y hábitos ---------- --}}
                 <section class="nt-seccion" aria-labelledby="nt-sec-basales">
                     <div class="nt-seccion-cab">
-                        <h3 id="nt-sec-basales" class="nt-seccion-t">Valores basales</h3>
-                        <p class="nt-seccion-d">En reposo, en Tierra, antes de la misión. Todos son opcionales.</p>
+                        <h3 id="nt-sec-basales" class="nt-seccion-t">Baseline values</h3>
+                        <p class="nt-seccion-d">At rest, on Earth, before the mission. All are optional.</p>
                     </div>
                     <div class="nt-rejilla">
                         @foreach (array_merge($basales, $habitos) as $def)
@@ -114,30 +114,30 @@
                 <section class="nt-seccion" aria-labelledby="nt-lb-titulo" aria-describedby="nt-lb-desc">
                     <div class="nt-lb-cab">
                         <div class="nt-lb-txt">
-                            <h3 id="nt-lb-titulo" class="nt-seccion-t">Línea base personal · {{ $lbRellenos }}/{{ count($marcadores) }}</h3>
-                            <p id="nt-lb-desc">Con tu línea base, la app compara contigo mismo, no solo con rangos generales. Todos los valores son opcionales y puedes editarlos uno a uno.</p>
+                            <h3 id="nt-lb-titulo" class="nt-seccion-t">Personal baseline · {{ $lbRellenos }}/{{ count($marcadores) }}</h3>
+                            <p id="nt-lb-desc">With a personal baseline, the app compares against the individual, not only against general ranges. All values are optional and can be edited one by one.</p>
                         </div>
                         <div class="nt-lb-acciones">
-                            <button type="button" class="nt-btn" wire:click="precargarLineaBase"><span class="icono" aria-hidden="true">auto_fix_high</span> Rellenar con valores de referencia</button>
-                            <button type="button" class="nt-btn nt-btn--suave" wire:click="vaciarLineaBase"><span class="icono" aria-hidden="true">backspace</span> Vaciar</button>
+                            <button type="button" class="nt-btn" wire:click="precargarLineaBase"><span class="icono" aria-hidden="true">auto_fix_high</span> Fill with reference values</button>
+                            <button type="button" class="nt-btn nt-btn--suave" wire:click="vaciarLineaBase"><span class="icono" aria-hidden="true">backspace</span> Clear</button>
                         </div>
                     </div>
                     @error('linea_base') <p class="nt-error" id="{{ $id('linea_base') }}-error"><span class="icono" aria-hidden="true">error</span>{{ $message }}</p> @enderror
 
                     <div class="nt-lb-tabla" role="table" aria-labelledby="nt-lb-titulo">
                         <div class="nt-lb-cols" role="row">
-                            <span role="columnheader">INDICADOR</span><span role="columnheader">VALOR BASE</span><span role="columnheader">RANGO NORMAL</span><span role="columnheader">ESTADO</span>
+                            <span role="columnheader">INDICATOR</span><span role="columnheader">BASELINE VALUE</span><span role="columnheader">NORMAL RANGE</span><span role="columnheader">STATUS</span>
                         </div>
                         @foreach ($marcadores as $clave => $m)
                             @php
                                 $uid = $id('lb-'.$clave); $campoLb = 'linea_base.'.$clave; $errId = $id($campoLb).'-error';
                                 $dec = (int) ($m['dec'] ?? 0);
                                 $fmt = fn ($x) => str_replace('-', '−', number_format((float) $x, $dec, '.', ''));
-                                $rango = $fmt($m['lo']).' – '.$fmt($m['hi']).(($m['ic'] ?? '') === 'monitor_heart' ? ' (sistólica)' : '');
+                                $rango = $fmt($m['lo']).' – '.$fmt($m['hi']).(($m['ic'] ?? '') === 'monitor_heart' ? ' (systolic)' : '');
                                 $txt = str_replace(',', '.', trim((string) ($linea_base[$clave] ?? '')));
                                 $val = $txt === '' ? null : (is_numeric($txt) ? (float) $txt : false);
                                 $tono = $val === null ? 'neu' : (($val !== false && $val >= $m['lo'] && $val <= $m['hi']) ? 'ok' : 'warn');
-                                $tonoEt = ['neu' => 'Sin dato', 'ok' => 'En rango', 'warn' => 'Fuera de rango'][$tono];
+                                $tonoEt = ['neu' => 'No data', 'ok' => 'In range', 'warn' => 'Out of range'][$tono];
                                 $tonoIc = ['neu' => 'remove', 'ok' => 'check_circle', 'warn' => 'warning'][$tono];
                                 $invalido = $errors->has($campoLb);
                             @endphp

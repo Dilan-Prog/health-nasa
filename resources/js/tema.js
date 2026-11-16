@@ -1,7 +1,7 @@
 // Tema de color: oscuro | claro | hc (alto contraste). El <head> del layout ya fijó data-theme antes del primer pintado;
 // aquí solo se gestionan los botones y la persistencia (localStorage con try/catch: puede estar bloqueado).
 const TEMAS = ['dark', 'light', 'hc'];
-const NOMBRES = { dark: 'oscuro', light: 'claro', hc: 'alto contraste' };
+const NOMBRES = { dark: 'dark', light: 'light', hc: 'high contrast' };
 
 function guardado() {
     try { const t = localStorage.getItem('tema'); return TEMAS.includes(t) ? t : null; } catch (e) { return null; }
@@ -15,7 +15,7 @@ function actual() {
 function marcarBotones() {
     const t = actual();
     document.querySelectorAll('[data-tema]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tema === t ? 'true' : 'false'));
-    document.querySelectorAll('[data-tema-ciclo]').forEach((b) => b.setAttribute('title', 'Tema actual: ' + NOMBRES[t] + '. Cambiar'));
+    document.querySelectorAll('[data-tema-ciclo]').forEach((b) => b.setAttribute('title', 'Current theme: ' + NOMBRES[t] + '. Change'));
 }
 
 export function aplicarTema(t) {

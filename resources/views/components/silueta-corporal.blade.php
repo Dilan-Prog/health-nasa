@@ -38,8 +38,8 @@
     $vista = array_key_exists($vista, MusculosCuerpo::VISTAS) ? $vista : 'frontal';
     $uid = \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)); // ids únicos de <mask> por instancia
     $set = array_flip(array_map('strval', (array) $activos));
-    $nombre = fn (string $id): string => MusculosCuerpo::nombre($id) ?? $id;
-    $etiqueta = fn (string $id): string => $nombre($id).(isset($set[$id]) ? ', resaltado' : '');
+    $nombre = fn (string $id): string => MusculosCuerpo::nombreEn($id) ?? $id;
+    $etiqueta = fn (string $id): string => $nombre($id).(isset($set[$id]) ? ', highlighted' : '');
     $conocidos = MusculosCuerpo::ids();
     $desconocidos = array_values(array_diff(array_keys($set), $conocidos));
     $resaltados = array_map($nombre, array_values(array_intersect($conocidos, array_keys($set))));
@@ -81,7 +81,7 @@
      x-on:silueta-vista.window="externa($event.detail)"
      x-ref="caja">
     @if ($selector)
-    <div class="silueta-vistas" role="group" aria-label="Cambiar vista">
+    <div class="silueta-vistas" role="group" aria-label="Change view">
         @foreach (MusculosCuerpo::VISTAS as $clave => $etiquetaVista)
             <button type="button" x-on:click="cambiar('{{ $clave }}')" x-bind:aria-pressed="vista === '{{ $clave }}'"
                     aria-pressed="{{ $clave === $vista ? 'true' : 'false' }}">{{ $etiquetaVista }}</button>
@@ -99,7 +99,7 @@
     </div>
     <div class="silueta-tooltip" role="tooltip" wire:ignore x-ref="tip" x-show="tip.visible" x-cloak
          x-bind:style="`left:${tip.x}px;top:${tip.y}px`" x-text="tip.texto"></div>
-    <p class="sr-only" aria-live="polite">{{ count($resaltados) ? 'Músculos resaltados: '.implode(', ', $resaltados).'.' : 'Ningún músculo resaltado.' }}</p>
+    <p class="sr-only" aria-live="polite">{{ count($resaltados) ? 'Highlighted muscles: '.implode(', ', $resaltados).'.' : 'No muscle highlighted.' }}</p>
     @if ($desconocidos && config('app.debug'))
         <!-- silueta-corporal: ids no reconocidos (ignorados): {{ implode(', ', $desconocidos) }} -->
     @endif

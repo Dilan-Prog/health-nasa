@@ -23,11 +23,11 @@ use Throwable;
  */
 class OrientadorSimulado implements Orientador
 {
-    public const SIN_ANTECEDENTES = 'Sin antecedentes relacionados';
-    public const SIN_TRATAMIENTOS = 'Sin tratamientos registrados';
-    public const SIN_ACCESO = 'Expediente no disponible para tu rol';
-    public const PENDIENTE = 'Pendiente de fuente verificable';
-    public const CONFIRMAR = 'Confirma esta orientación con el médico de vuelo antes de decidir.';
+    public const SIN_ANTECEDENTES = 'No related history';
+    public const SIN_TRATAMIENTOS = 'No treatments recorded';
+    public const SIN_ACCESO = 'Medical record not available for your role';
+    public const PENDIENTE = 'Pending verifiable source';
+    public const CONFIRMAR = 'Confirm this guidance with the Flight Surgeon before deciding.';
 
     public function __construct(private readonly FiltroSeguridad $filtro)
     {
@@ -68,11 +68,11 @@ class OrientadorSimulado implements Orientador
     private function porCatalogo(CasoClinico $caso, Astronauta $a, array $cfg, array $indicadores, string $sev, array $expediente, array $tratamientos, array $fuentes, array $accionesGuia, ?string $auditadoEn): Orientacion
     {
         $titulo = $this->titulo($cfg, [], (string) $caso->patron);
-        $hallazgo = 'Hipótesis a partir de los datos simulados: '.mb_strtolower($titulo).'. '
-            .'La redacción ampliada no superó el filtro de seguridad; se muestra el texto por reglas del catálogo. Aviso: '.config('ia.aviso');
+        $hallazgo = 'Hypothesis based on the simulated data: '.mb_strtolower($titulo).'. '
+            .'The expanded wording did not pass the safety filter; the catalog rule-based text is shown. Notice: '.config('ia.aviso');
         $acciones = array_values(array_filter($accionesGuia, fn ($x) => $this->filtro->permitido($x['texto'])));
         $acciones[] = ['texto' => self::CONFIRMAR, 'fuente' => $fuentes[0] ?? null];
-        $fuentes[] = ['etiqueta' => 'Aviso', 'texto' => (string) config('ia.aviso')];
+        $fuentes[] = ['etiqueta' => 'Notice', 'texto' => (string) config('ia.aviso')];
 
         return $this->armar($caso, $a, $titulo, $sev, $hallazgo, $acciones, $indicadores, $expediente, $tratamientos, $fuentes, $cfg, $auditadoEn, null);
     }
@@ -109,7 +109,7 @@ class OrientadorSimulado implements Orientador
         try {
             return app(LectorFichas::class)->ficha($patron);
         } catch (Throwable) {
-            return []; // sin ficha verificable: se dirá "Pendiente de fuente verificable"
+            return []; // no verifiable sheet: will say "Pending verifiable source"
         }
     }
 
@@ -128,7 +128,7 @@ class OrientadorSimulado implements Orientador
     {
         $t = trim((string) ($cfg['nombre'] ?? $ficha['titulo'] ?? ''));
 
-        return $t !== '' ? $t : 'Posible patrón: '.str_replace('_', ' ', $patron);
+        return $t !== '' ? $t : 'Possible pattern: '.str_replace('_', ' ', $patron);
     }
 
     private function etiqueta(string $indicador): string
@@ -139,15 +139,15 @@ class OrientadorSimulado implements Orientador
     private function hallazgo(array $cfg, array $ficha, array $indicadores, string $sev, Astronauta $a, string $patron): string
     {
         $etiquetas = implode(', ', array_map(fn ($i) => mb_strtolower($this->etiqueta($i)), $indicadores));
-        $estado = $sev === 'critico' ? 'valores en rango crítico' : 'valores en precaución';
-        $t = 'Hipótesis a partir de los datos simulados: '.mb_strtolower($this->titulo($cfg, $ficha, $patron))
+        $estado = $sev === 'critico' ? 'values in critical range' : 'values in caution range';
+        $t = 'Hypothesis based on the simulated data: '.mb_strtolower($this->titulo($cfg, $ficha, $patron))
             .($etiquetas !== '' ? " ({$etiquetas}: {$estado})" : '').'.';
 
         $senales = $this->lineas($ficha['senales'] ?? []);
         $t .= $senales !== []
-            ? ' Señales que la sostienen según la ficha: '.implode('; ', array_map(fn ($x) => rtrim($x, '. '), array_slice($senales, 0, 4))).'.'
-            : ' '.self::PENDIENTE.' para las señales de este patrón.';
-        $t .= ' No es un diagnóstico, solo una hipótesis que requiere confirmación del médico de vuelo.';
+            ? ' Signs that support it according to the knowledge sheet: '.implode('; ', array_map(fn ($x) => rtrim($x, '. '), array_slice($senales, 0, 4))).'.'
+            : ' '.self::PENDIENTE.' for the signs of this pattern.';
+        $t .= ' This is not a diagnosis, only a hypothesis that requires confirmation by the Flight Surgeon.';
 
         return trim($t.' '.$this->matiz($a, $indicadores));
     }
@@ -159,7 +159,7 @@ class OrientadorSimulado implements Orientador
         if (! $avisoTierra || ! $this->hayVotoUtil($a, $indicadores)) {
             return null;
         }
-        $t = 'La última vez avisaste a tierra y marcaste que te ayudó. Si al repetir las mediciones no mejora, vuelve a hacerlo.';
+        $t = 'Last time you alerted the ground and marked it as helpful. If repeating the measurements does not improve them, do it again.';
 
         return $this->filtro->permitido($t) ? $t : null;
     }
@@ -186,14 +186,14 @@ class OrientadorSimulado implements Orientador
             if ($valor === '') {
                 continue;
             }
-            $estado = mb_strtoupper(match ((string) ($s['estado'] ?? '')) { 'critico' => 'crítico', 'precaucion' => 'precaución', default => (string) ($s['estado'] ?? '') });
+            $estado = mb_strtoupper(match ((string) ($s['estado'] ?? '')) { 'critico' => 'critical', 'precaucion' => 'caution', default => (string) ($s['estado'] ?? '') });
             $partes[] = trim("$corta $valor".($estado !== '' ? " ($estado)" : ''));
         }
         if ($partes === []) {
             return '';
         }
         if (! empty($ev['ventana_min'])) {
-            $partes[] = 'VENTANA '.(int) $ev['ventana_min'].' MIN';
+            $partes[] = 'WINDOW '.(int) $ev['ventana_min'].' MIN';
         }
 
         return implode(' · ', $partes);
@@ -209,7 +209,7 @@ class OrientadorSimulado implements Orientador
         return $fecha ? $fecha->copy()->utc()->format('H:i') : null;
     }
 
-    private const MESES = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    private const MESES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
     private function diaMes(mixed $fecha): string
     {
@@ -222,7 +222,7 @@ class OrientadorSimulado implements Orientador
         $avisoTierra = $this->consultasRelacionadas($a, $indicadores)->contains(fn ($c) => ! $c->fallida);
         $util = $this->hayVotoUtil($a, $indicadores);
         if ($avisoTierra && ! $util) {
-            return 'Ya avisaste a tierra por estos indicadores en una ocasión anterior.';
+            return 'You already alerted the ground about these indicators on a previous occasion.';
         }
 
         return '';
@@ -236,9 +236,9 @@ class OrientadorSimulado implements Orientador
         $out = [];
         foreach ((array) ($ficha['fuentes'] ?? []) as $f) {
             if (is_array($f)) {
-                $out[] = ['etiqueta' => (string) ($f['etiqueta'] ?? 'Ficha de conocimiento'), 'texto' => (string) ($f['texto'] ?? $f['fuente'] ?? $f['archivo'] ?? '')];
+                $out[] = ['etiqueta' => (string) ($f['etiqueta'] ?? 'Knowledge sheet'), 'texto' => (string) ($f['texto'] ?? $f['fuente'] ?? $f['archivo'] ?? '')];
             } elseif (is_string($f) && $f !== '') {
-                $out[] = ['etiqueta' => 'Ficha de conocimiento', 'texto' => $f];
+                $out[] = ['etiqueta' => 'Knowledge sheet', 'texto' => $f];
             }
         }
 
@@ -277,7 +277,7 @@ class OrientadorSimulado implements Orientador
                 continue;
             }
             $fuente = ResolvedorRequisito::fuente(ResolvedorRequisito::para($clave))
-                ?? ['etiqueta' => 'Guía de la app (ejemplo, revisión médica pendiente)', 'texto' => 'config/guia.php · '.$this->etiqueta($clave)];
+                ?? ['etiqueta' => 'App guide (example, pending medical review)', 'texto' => 'config/guia.php · '.$this->etiqueta($clave)];
             $acciones[] = ['texto' => $catalogo->para($clave, $estado), 'fuente' => $fuente];
         }
 
@@ -342,7 +342,7 @@ class OrientadorSimulado implements Orientador
     private function expediente(Astronauta $a, string $patron): array
     {
         if (! Astronauta::visiblesPara(Auth::user())->whereKey($a->id)->exists()) {
-            return [[['etiqueta' => 'EXPEDIENTE', 'texto' => self::SIN_ACCESO]], [], null];
+            return [[['etiqueta' => 'MEDICAL RECORD', 'texto' => self::SIN_ACCESO]], [], null];
         }
         $auditoria = Auditoria::registrar('ver', 'expediente', $a->id, $a->id);
 
@@ -361,24 +361,24 @@ class OrientadorSimulado implements Orientador
         $rel = [];
         foreach ($a->condiciones()->get() as $c) {
             if ($coincide((string) $c->nombre, (string) $c->notas)) {
-                $rel[] = ['etiqueta' => 'CONDICIÓN MÉDICA', 'texto' => $c->nombre.' ('.$c->estado.')'];
+                $rel[] = ['etiqueta' => 'MEDICAL CONDITION', 'texto' => $c->nombre.' ('.$c->estado.')'];
             }
         }
         foreach ($a->antecedentes()->get() as $f) {
             if ($coincide((string) $f->condicion)) {
-                $rel[] = ['etiqueta' => 'ANTECEDENTE FAMILIAR', 'texto' => $f->condicion.' ('.$f->parentesco.')'];
+                $rel[] = ['etiqueta' => 'FAMILY HISTORY', 'texto' => $f->condicion.' ('.$f->parentesco.')'];
             }
         }
         foreach ($a->alergias()->get() as $al) {
             if ($coincide((string) $al->sustancia, (string) $al->reaccion)) {
-                $rel[] = ['etiqueta' => 'ALERGIA', 'texto' => $al->sustancia];
+                $rel[] = ['etiqueta' => 'ALLERGY', 'texto' => $al->sustancia];
             }
         }
 
         // Medicación registrada: contexto de solo lectura, sin dosis. No es una recomendación.
         $meds = [];
         foreach ($a->medicamentos()->where('activo', true)->get() as $m) {
-            $meds[] = ['etiqueta' => 'MEDICACIÓN REGISTRADA', 'texto' => $m->nombre, 'nota' => 'Solo contexto: el sistema no la recomienda ni la modifica'];
+            $meds[] = ['etiqueta' => 'RECORDED MEDICATION', 'texto' => $m->nombre, 'nota' => 'Context only: the system does not recommend or modify it'];
         }
 
         return [$rel, $meds, $auditoria?->ocurrido_en ? $this->horaUtc($auditoria->ocurrido_en) : null];
@@ -397,19 +397,19 @@ class OrientadorSimulado implements Orientador
         $out = [];
         $util = $this->hayVotoUtil($a, $indicadores);
         foreach ($this->consultasRelacionadas($a, $indicadores) as $c) {
-            $estado = $c->fallida ? 'no llegó a enviarse' : (ConsultaTierra::ETAPAS[$c->etapa] ?? 'enviada');
+            $estado = $c->fallida ? 'not sent' : (ConsultaTierra::ETAPAS[$c->etapa] ?? 'sent');
             $out[] = [
-                'etiqueta' => 'CONSULTA A TIERRA · '.$this->diaMes($c->created_at),
+                'etiqueta' => 'GROUND CONSULTATION · '.$this->diaMes($c->created_at),
                 'texto' => (string) $c->titulo,
-                'nota' => $util && ! $c->fallida ? 'Marcaste «me ayudó»' : 'Estado: '.mb_strtolower($estado).($c->respuesta ? ', con respuesta' : ''),
+                'nota' => $util && ! $c->fallida ? 'You marked "It helped"' : 'Status: '.mb_strtolower($estado).($c->respuesta ? ', with response' : ''),
             ];
         }
         if ($indicadores !== []) {
             foreach (OrientacionFeedback::query()->where('astronauta_id', $a->id)->whereIn('indicador', $indicadores)->orderBy('indicador')->get() as $f) {
                 $out[] = [
-                    'etiqueta' => 'ORIENTACIÓN · '.$this->diaMes($f->updated_at ?? $f->created_at),
-                    'texto' => 'Orientación sobre '.mb_strtolower($this->etiqueta($f->indicador)),
-                    'nota' => $f->voto === 'up' ? 'Marcaste «me ayudó»' : 'Marcaste «no me ayudó»',
+                    'etiqueta' => 'GUIDANCE · '.$this->diaMes($f->updated_at ?? $f->created_at),
+                    'texto' => 'Guidance on '.mb_strtolower($this->etiqueta($f->indicador)),
+                    'nota' => $f->voto === 'up' ? 'You marked "It helped"' : 'You marked "It did not help"',
                 ];
             }
         }

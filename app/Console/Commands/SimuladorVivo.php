@@ -9,22 +9,22 @@ use Throwable;
 
 class SimuladorVivo extends Command
 {
-    protected $signature = 'salud:simulador-vivo {--once : Una sola pasada y salir}';
+    protected $signature = 'salud:simulador-vivo {--once : Run a single pass and exit}';
 
-    protected $description = 'Genera mediciones simuladas en vivo para los tripulantes activos (se controla desde /simulacion). Ctrl+C para detener.';
+    protected $description = 'Generates live simulated measurements for active crew members (controlled from /simulacion). Ctrl+C to stop.';
 
     private bool $detener = false;
 
     public function handle(): int
     {
         if (app()->environment('production')) {
-            $this->error('La simulación en vivo está bloqueada en producción.');
+            $this->error('Live simulation is blocked in production.');
 
             return self::FAILURE;
         }
 
         if (! SimulacionMotor::actual()->activa) {
-            $this->warn('La simulación está apagada: enciéndela en /simulacion. El comando seguirá latiendo.');
+            $this->warn('The simulation is off: turn it on at /simulacion. The command will keep running.');
         }
 
         if ($this->option('once')) {
@@ -34,7 +34,7 @@ class SimuladorVivo extends Command
         }
 
         $this->instalarSenales();
-        $this->info('Simulador en vivo iniciado. Ctrl+C para detener.');
+        $this->info('Live simulator started. Ctrl+C to stop.');
 
         while (! $this->detener) {
             $this->pasada();
@@ -44,7 +44,7 @@ class SimuladorVivo extends Command
             }
         }
 
-        $this->info('Simulador en vivo detenido.');
+        $this->info('Live simulator stopped.');
 
         return self::SUCCESS;
     }
@@ -53,9 +53,9 @@ class SimuladorVivo extends Command
     {
         try {
             $r = ControlSimulacion::tick();
-            $this->line(sprintf('[%s] activos=%d generadas=%d omitidas=%d errores=%d', now()->format('H:i:s'), $r['activos'], $r['generadas'], $r['omitidas'], $r['errores']));
+            $this->line(sprintf('[%s] active=%d generated=%d skipped=%d errors=%d', now()->format('H:i:s'), $r['activos'], $r['generadas'], $r['omitidas'], $r['errores']));
         } catch (Throwable $e) {
-            $this->error('['.now()->format('H:i:s').'] fallo en la pasada: '.$e->getMessage());
+            $this->error('['.now()->format('H:i:s').'] pass failed: '.$e->getMessage());
         }
     }
 

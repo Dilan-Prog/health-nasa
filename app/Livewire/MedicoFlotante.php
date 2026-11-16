@@ -24,7 +24,7 @@ class MedicoFlotante extends Component
 {
     public const CLAVE = 'medico_flotante';
 
-    public const AVISO = 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. Orienta, no diagnostica. No es consejo médico real.';
+    public const AVISO = 'This is a simulated version of a local AI. It can make mistakes. Everything is simulated, based on the crew simulation. It guides, it does not diagnose. It is not real medical advice.';
 
     /** Horas que un caso cerrado sigue visible como mensaje (valor de interfaz, no clínico). */
     public const HORAS_CERRADO = 24;
@@ -145,12 +145,12 @@ class MedicoFlotante extends Component
         $this->resetErrorBag();
         $t = trim($this->texto);
         if ($t === '') {
-            $this->addError('texto', 'Escribe cómo te sientes.');
+            $this->addError('texto', 'Write how you feel.');
 
             return;
         }
         if (mb_strlen($t) > $max) {
-            $this->addError('texto', 'El texto supera el límite de '.$max.' caracteres.');
+            $this->addError('texto', 'The text exceeds the limit of '.$max.' characters.');
 
             return;
         }
@@ -165,6 +165,7 @@ class MedicoFlotante extends Component
         $a = TripulanteActual::obtener();
         $z = $a ? ZonaDolor::where('astronauta_id', $a->id)->find($zonaId) : null;
         if ($z) {
+            // El relleno va en español: el analizador de síntomas entiende español.
             $this->texto = 'Me duele '.mb_strtolower(ZonaDolor::nombre($z->musculo)).($z->tipo ? ', dolor '.mb_strtolower($z->tipo) : '');
         }
     }
@@ -190,7 +191,7 @@ class MedicoFlotante extends Component
         }
         $region = isset($zonas[$this->nuevaZona]) ? $this->nuevaZona : null;
         $lado = in_array($this->nuevoLado, ['izquierdo', 'derecho'], true) ? $this->nuevoLado : null;
-        $etiqueta = $sint[$this->nuevoSintoma].($region ? ' · '.mb_strtolower($zonas[$region]).($lado ? ' '.$lado : '') : '');
+        $etiqueta = $sint[$this->nuevoSintoma].($region ? ' · '.mb_strtolower($zonas[$region]).($lado ? ' '.($lado === 'izquierdo' ? 'left' : 'right') : '') : '');
         $s = $c->entidades['sintomas'] ?? [];
         $s[] = ['clave' => $this->nuevoSintoma, 'etiqueta' => $etiqueta, 'region' => $region, 'lado' => $lado, 'calidad' => null, 'intensidad' => null, 'duracion_min' => null, 'confianza' => 100];
         $this->nuevoSintoma = $this->nuevaZona = $this->nuevoLado = '';
@@ -352,10 +353,10 @@ class MedicoFlotante extends Component
             'maxCaracteres' => (int) config('orientador.max_caracteres', 500),
             'astronauta' => $a,
             'mensajes' => $mensajes,
-            'etiquetaCirculo' => 'Médico de vuelo'.($sinLeer ? ', '.count($sinLeer).' sin leer' : '').($critico ? ', caso crítico' : ''),
+            'etiquetaCirculo' => 'Flight Surgeon'.($sinLeer ? ', '.count($sinLeer).' unread' : '').($critico ? ', critical case' : ''),
             'critico' => $critico,
             'nSinLeer' => count($sinLeer),
-            'anuncio' => $sinLeer ? 'Médico de vuelo: '.implode('; ', array_map(fn ($m) => $m['o']->titulo.($m['caso']->severidad === 'critico' ? ' (crítico)' : ''), $sinLeer)).'.' : '',
+            'anuncio' => $sinLeer ? 'Flight Surgeon: '.implode('; ', array_map(fn ($m) => $m['o']->titulo.($m['caso']->severidad === 'critico' ? ' (critical)' : ''), $sinLeer)).'.' : '',
             'aviso' => (string) config('ia.aviso', self::AVISO),
         ]);
     }

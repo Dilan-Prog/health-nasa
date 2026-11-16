@@ -113,9 +113,9 @@ return [
 
     'escenarios' => [
         'deshidratacion' => [
-            'nombre' => 'Deshidratación',
+            'nombre' => 'Dehydration',
             'icono' => 'water_loss',
-            'descripcion' => 'Baja la ingesta de líquidos: hidratación en descenso, pulso más alto y presión algo más baja.',
+            'descripcion' => 'Reduced fluid intake: hydration falling, higher heart rate and slightly lower blood pressure.',
             'duracion_min' => 240,
             'curva' => ['entrada' => 0.25, 'meseta' => 0.5, 'salida' => 0.25],
             'indicadores' => [
@@ -126,9 +126,9 @@ return [
             ],
         ],
         'fiebre' => [
-            'nombre' => 'Fiebre',
+            'nombre' => 'Fever',
             'icono' => 'thermometer',
-            'descripcion' => 'Cuadro febril: la temperatura sube a rango de alerta y el pulso la acompaña.',
+            'descripcion' => 'Febrile episode: temperature rises into the alert range and heart rate follows.',
             'duracion_min' => 360,
             'curva' => ['entrada' => 0.2, 'meseta' => 0.55, 'salida' => 0.25],
             'indicadores' => [
@@ -137,9 +137,9 @@ return [
             ],
         ],
         'falta_sueno' => [
-            'nombre' => 'Falta de sueño',
+            'nombre' => 'Sleep deprivation',
             'icono' => 'bedtime_off',
-            'descripcion' => 'Noche corta: pocas horas de sueño, peor rendimiento cognitivo y pulso algo elevado.',
+            'descripcion' => 'Short night: few hours of sleep, poorer cognitive performance and slightly elevated heart rate.',
             'duracion_min' => 300,
             'curva' => ['entrada' => 0.2, 'meseta' => 0.6, 'salida' => 0.2],
             'indicadores' => [
@@ -149,9 +149,9 @@ return [
             ],
         ],
         'arritmia' => [
-            'nombre' => 'Arritmia',
+            'nombre' => 'Arrhythmia',
             'icono' => 'ecg_heart',
-            'descripcion' => 'Pulso muy elevado e irregular durante un episodio corto.',
+            'descripcion' => 'Very high, irregular heart rate during a short episode.',
             'duracion_min' => 90,
             'curva' => ['entrada' => 0.1, 'meseta' => 0.7, 'salida' => 0.2],
             'indicadores' => [
@@ -160,9 +160,9 @@ return [
             ],
         ],
         'estres' => [
-            'nombre' => 'Estrés agudo',
+            'nombre' => 'Acute stress',
             'icono' => 'psychology_alt',
-            'descripcion' => 'Carga de estrés: el rendimiento cognitivo cae y suben pulso y presión.',
+            'descripcion' => 'Stress load: cognitive performance drops and heart rate and blood pressure rise.',
             'duracion_min' => 180,
             'curva' => ['entrada' => 0.25, 'meseta' => 0.5, 'salida' => 0.25],
             'indicadores' => [
@@ -172,9 +172,9 @@ return [
             ],
         ],
         'hipoxia' => [
-            'nombre' => 'Hipoxia',
+            'nombre' => 'Hypoxia',
             'icono' => 'air',
-            'descripcion' => 'Falta de oxígeno: saturación baja, pulso alto y deterioro cognitivo (el CO₂ no es un indicador).',
+            'descripcion' => 'Oxygen deficiency: low saturation, high heart rate and cognitive impairment (CO₂ is not an indicator).',
             'duracion_min' => 120,
             'curva' => ['entrada' => 0.2, 'meseta' => 0.55, 'salida' => 0.25],
             'indicadores' => [
@@ -184,9 +184,9 @@ return [
             ],
         ],
         'fallo_sensor' => [
-            'nombre' => 'Fallo de sensor',
+            'nombre' => 'Sensor failure',
             'icono' => 'sensors_off',
-            'descripcion' => 'El pulsómetro se congela en el último valor y el oxímetro envía lecturas imposibles.',
+            'descripcion' => 'The heart rate monitor freezes at the last value and the pulse oximeter sends impossible readings.',
             'duracion_min' => 60,
             'curva' => ['entrada' => 0.05, 'meseta' => 0.9, 'salida' => 0.05],
             'indicadores' => [

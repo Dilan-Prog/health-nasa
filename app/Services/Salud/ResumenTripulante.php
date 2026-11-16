@@ -139,7 +139,7 @@ class ResumenTripulante
                 'musculos' => $cfg['musculos'],
                 'acciones' => $cfg['acciones'],
                 'valor' => $valor,
-                'sospechoso' => $m && $m->calidad === 'sospechosa' ? ($m->calidad_motivo ?: 'Lectura dudosa') : null,
+                'sospechoso' => $m && $m->calidad === 'sospechosa' ? ($m->calidad_motivo ?: 'Questionable sensor reading.') : null,
                 'estado' => $estado,
                 'razon' => $valor !== null && $estado !== null && $estado !== 'ok' ? $this->razon($cfg, $valor) : null,
                 'medido_en' => $m?->medido_en?->copy(),
@@ -208,20 +208,20 @@ class ResumenTripulante
 
         if ($cfg['perdida']) {
             return $n > $max
-                ? "Pérdida de {$n} {$unidad}: supera tu límite de {$max} {$unidad}"
-                : "Pérdida de {$n} {$unidad}: cerca de tu límite de {$max} {$unidad}";
+                ? "Loss of {$n} {$unidad}: exceeds your limit of {$max} {$unidad}"
+                : "Loss of {$n} {$unidad}: near your limit of {$max} {$unidad}";
         }
         if ($cfg['unidad'] === 'mSv') { // dosis acumulada: % del límite de misión
-            return $valor.' mSv: '.(int) round($n / $max * 100)." % de tu límite de misión ({$max} mSv)";
+            return $valor.' mSv: '.(int) round($n / $max * 100)." % of your mission limit ({$max} mSv)";
         }
         if ($n > $max) {
-            return "{$valor} {$unidad} supera tu máximo de {$maxTxt}";
+            return "{$valor} {$unidad} exceeds your maximum of {$maxTxt}";
         }
         if ($n < $lim['min']) {
-            return "{$valor} {$unidad} está por debajo de tu mínimo de ".($lim['min_txt'] ?? $lim['min']);
+            return "{$valor} {$unidad} is below your minimum of ".($lim['min_txt'] ?? $lim['min']);
         }
 
-        return "{$valor} {$unidad} está cerca de tu límite de {$maxTxt}";
+        return "{$valor} {$unidad} is near your limit of {$maxTxt}";
     }
 
     /**

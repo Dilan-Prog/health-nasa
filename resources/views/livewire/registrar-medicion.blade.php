@@ -4,9 +4,9 @@
     @if ($abierto)
         @php
             $insignias = [
-                'ok' => ['BIEN', 'check_circle'],
-                'warn' => ['REVISAR', 'warning'],
-                'crit' => ['CRÍTICO', 'error'],
+                'ok' => ['NORMAL', 'check_circle'],
+                'warn' => ['CAUTION', 'warning'],
+                'crit' => ['CRITICAL', 'error'],
             ];
         @endphp
         <div class="reg-fondo"
@@ -36,10 +36,10 @@
                   wire:submit="guardar" novalidate>
                 <div class="reg-cabecera">
                     <div class="reg-titulos">
-                        <span class="reg-sobretitulo mono">MEDICIÓN DE HOY · {{ $hora }} UTC</span>
-                        <span class="reg-titulo" id="reg-titulo">Registrar medición · {{ $nombre }}</span>
+                        <span class="reg-sobretitulo mono">TODAY'S MEASUREMENT · {{ $hora }} UTC</span>
+                        <span class="reg-titulo" id="reg-titulo">Log measurement · {{ $nombre }}</span>
                     </div>
-                    <button type="button" class="reg-cerrar" aria-label="Cerrar" wire:click="cerrar">
+                    <button type="button" class="reg-cerrar" aria-label="Close" wire:click="cerrar">
                         <span class="icono" aria-hidden="true">close</span>
                     </button>
                 </div>
@@ -77,9 +77,9 @@
                 @endif
 
                 <div class="reg-acciones">
-                    <button type="button" class="reg-btn" wire:click="cerrar">Cancelar</button>
+                    <button type="button" class="reg-btn" wire:click="cerrar">Cancel</button>
                     <button type="submit" class="reg-btn reg-btn-primario" wire:loading.attr="disabled" wire:target="guardar">
-                        <span class="icono" aria-hidden="true">save</span>Guardar medición
+                        <span class="icono" aria-hidden="true">save</span>Save measurement
                     </button>
                 </div>
             </form>

@@ -1,27 +1,27 @@
 ---
 slug: estres
 patron: estres
-titulo: Posible estrés agudo
+titulo: Possible acute stress
 fuentes:
   - "docs/fuentes/salud_astronautas_y_monitoreo.txt, sección 1.8 (Salud mental y conducta)"
   - "docs/fuentes/variacion_dosis_efectiva.txt, sección Estado de ánimo (escalas POMS, PANAS, AMS, VAS)"
 revision_medica: pendiente
 ---
 
-## Señales a vigilar
-- Estrés cognitivo en precaución o crítico según los umbrales del proyecto.
-- Como apoyo, pulso o presión arterial alterados en la misma ventana.
-- La fuente describe ansiedad, irritabilidad, estrés prolongado, dificultades de concentración, memoria y toma de decisiones, y fatiga mental.
+## Signs to watch
+- Cognitive stress in caution or critical according to the project's thresholds.
+- As supporting signs, altered pulse or blood pressure in the same window.
+- The source describes anxiety, irritability, prolonged stress, difficulties with concentration, memory and decision-making, and mental fatigue.
 
-## Qué chequear
-- Las escalas de estado de ánimo que cita la referencia (por ejemplo las escalas visuales VAS), que permiten una evaluación rápida de estrés, cansancio y ánimo.
-- La carga de trabajo, el aislamiento y la distancia de la familia, factores que la fuente menciona como origen de estrés psicológico.
-- Si coincide con una noche corta (ver la ficha de falta de sueño).
+## What to check
+- The mood scales cited by the reference (for example the visual analog scales, VAS), which allow a quick assessment of stress, tiredness and mood.
+- Workload, isolation and distance from family, factors the source mentions as origins of psychological stress.
+- Whether it coincides with a short night (see the sleep deprivation card).
 
-## Cuándo escalar
-- El sistema envía el caso a tierra cuando su severidad es crítica (regla del proyecto, no de la norma).
-- Criterios clínicos adicionales de escalado: Pendiente de fuente verificable.
+## When to escalate
+- The system sends the case to the ground when its severity is critical (project rule, not a standard).
+- Additional clinical escalation criteria: Pending verifiable source.
 
-## Límites de lo que puede afirmarse
-- Solo un posible estrés agudo (hipótesis); no se evalúa salud mental ni se diagnostica.
-- La fuente no relaciona el estrés con cambios concretos de pulso o presión: Pendiente de fuente verificable.
+## Limits of what can be stated
+- Only a possible acute stress (hypothesis); mental health is not assessed and no diagnosis is made.
+- The source does not link stress to specific changes in pulse or pressure: Pending verifiable source.

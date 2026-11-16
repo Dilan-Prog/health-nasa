@@ -29,7 +29,7 @@ class Simulacion extends Component
 
     public const ESTADO_UI = ['normal' => 'ok', 'precaucion' => 'warn', 'critico' => 'crit'];
 
-    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['ATENCIÓN', 'warning'], 'crit' => ['GRAVE', 'error']];
+    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['CAUTION', 'warning'], 'crit' => ['CRITICAL', 'error']];
 
     /** Elección del selector de escenario por tripulante (id => clave). */
     public array $escenarioSel = [];
@@ -76,7 +76,7 @@ class Simulacion extends Component
         }
         $t = SimulacionTripulante::de($a);
         if ($t->fuente !== 'simulado') {
-            $this->errores[$id] = 'Con fuente reloj no se simula.';
+            $this->errores[$id] = 'A watch source is not simulated.';
 
             return;
         }
@@ -165,7 +165,7 @@ class Simulacion extends Component
         $recientes = Medicion::with(['evaluacion', 'astronauta:id,nombre'])->where('origen', 'simulado')
             ->whereIn('astronauta_id', $ids ?: [0])->orderByDesc('medido_en')->orderByDesc('id')->limit(12)->get()
             ->map(fn ($m) => [
-                'quien' => $m->astronauta?->nombre ?? '—', 'hora' => $m->medido_en->copy()->utc()->format('d/m H:i:s'),
+                'quien' => $m->astronauta?->nombre ?? '—', 'hora' => $m->medido_en->copy()->utc()->format('d M H:i:s'),
                 'ind' => $indicadores[$m->indicador]['etiqueta'] ?? $m->indicador,
                 'valor' => $this->valor($m->valores, $indicadores[$m->indicador]['unidad'] ?? ''),
                 'estado' => $m->evaluacion ? (self::ESTADO_UI[$m->evaluacion->estado] ?? null) : null,
@@ -176,7 +176,7 @@ class Simulacion extends Component
                 'quien' => $x->carga['astronauta'] ?? '—',
                 'ind' => $indicadores[$x->carga['indicador'] ?? '']['etiqueta'] ?? ($x->carga['indicador'] ?? '—'),
                 'estado' => ['crit' => 'crit', 'critico' => 'crit', 'warn' => 'warn', 'precaucion' => 'warn'][$x->carga['severidad'] ?? ''] ?? null,
-                'hora' => $x->created_at?->copy()->utc()->format('d/m H:i') ?? '—',
+                'hora' => $x->created_at?->copy()->utc()->format('d M H:i') ?? '—',
             ]);
 
         return view('livewire.simulacion', [
@@ -192,12 +192,12 @@ class Simulacion extends Component
     private function chip(SimulacionMotor $m, array $lista): array
     {
         return match (true) {
-            $lista === [] => ['SIN TRIPULANTES', 'group_off', 'warn'],
+            $lista === [] => ['NO CREW MEMBERS', 'group_off', 'warn'],
             collect($lista)->contains(fn ($f) => $f['t']->ultimo_error) => ['ERROR', 'error', 'crit'],
-            ! $m->corriendo() => ['PARADO', 'stop_circle', 'warn'],
-            ! $m->activa => ['PAUSADA', 'pause_circle', 'warn'],
-            collect($lista)->contains(fn ($f) => $f['t']->escenario) => ['ESCENARIO EN CURSO', 'model_training', 'warn'],
-            default => ['EN MARCHA', 'play_circle', 'ok'],
+            ! $m->corriendo() => ['STOPPED', 'stop_circle', 'warn'],
+            ! $m->activa => ['PAUSED', 'pause_circle', 'warn'],
+            collect($lista)->contains(fn ($f) => $f['t']->escenario) => ['SCENARIO RUNNING', 'model_training', 'warn'],
+            default => ['RUNNING', 'play_circle', 'ok'],
         };
     }
 

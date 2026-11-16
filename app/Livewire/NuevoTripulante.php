@@ -28,20 +28,20 @@ use Livewire\Component;
 class NuevoTripulante extends Component
 {
     public const PASOS = [
-        1 => ['Identidad', 'badge'],
-        2 => ['Biometría y línea base', 'monitor_weight'],
-        3 => ['Historia clínica', 'clinical_notes'],
-        4 => ['Contactos', 'contact_phone'],
-        5 => ['Revisión', 'fact_check'],
+        1 => ['Identity', 'badge'],
+        2 => ['Biometrics and baseline', 'monitor_weight'],
+        3 => ['Clinical history', 'clinical_notes'],
+        4 => ['Contacts', 'contact_phone'],
+        5 => ['Review', 'fact_check'],
     ];
 
     /** Texto de ayuda bajo el título de cada paso. */
     public const PASOS_DESC = [
-        1 => 'Datos personales y de servicio del tripulante.',
-        2 => 'Medidas, hábitos y valores en reposo antes de la misión.',
-        3 => 'Aptitud de vuelo, alergias, condiciones, medicamentos y antecedentes. La app orienta, no diagnostica.',
-        4 => 'A quién avisar si algo va mal. Marca exactamente uno como principal.',
-        5 => 'Comprueba los datos antes de guardar. Los datos recomendados que falten no impiden guardar.',
+        1 => 'Personal and service details of the crew member.',
+        2 => 'Measurements, habits, and resting values before the mission.',
+        3 => 'Flight fitness, allergies, conditions, medications, and family history. The app provides guidance only; it does not diagnose.',
+        4 => 'Whom to notify if something goes wrong. Mark exactly one as primary.',
+        5 => 'Check the data before saving. Missing recommended data does not prevent saving.',
     ];
 
     /** Campos numéricos: se acepta coma decimal. */
@@ -186,7 +186,7 @@ class NuevoTripulante extends Component
     #[Computed]
     public function rolResumen(): string
     {
-        return collect([$this->rol, $this->agencia])->map(fn ($v) => trim($v))->filter()->implode(' · ') ?: 'Rol sin definir';
+        return collect([$this->rol, $this->agencia])->map(fn ($v) => trim($v))->filter()->implode(' · ') ?: 'Role not set';
     }
 
     /** Tono del IMC: estado (ok|warn|crit), etiqueta e icono; null si no hay IMC. */
@@ -199,9 +199,9 @@ class NuevoTripulante extends Component
         }
         $estado = $v >= 30 ? 'crit' : (($v < 18.5 || $v >= 25) ? 'warn' : 'ok');
 
-        return ['estado' => $estado] + ['ok' => ['etiqueta' => 'Bien', 'icono' => 'check_circle'],
-            'warn' => ['etiqueta' => 'Revisar', 'icono' => 'warning'],
-            'crit' => ['etiqueta' => 'Crítico', 'icono' => 'error']][$estado];
+        return ['estado' => $estado] + ['ok' => ['etiqueta' => 'Normal', 'icono' => 'check_circle'],
+            'warn' => ['etiqueta' => 'Caution', 'icono' => 'warning'],
+            'crit' => ['etiqueta' => 'Critical', 'icono' => 'error']][$estado];
     }
 
     /** Pasos (1-5) que tienen errores de validación visibles. @return int[] */
@@ -241,7 +241,7 @@ class NuevoTripulante extends Component
             $nombre = $atributos[$clave] ?? $atributos[$generica] ?? str_replace(['_', '.'], ' ', $clave);
             $etiqueta = mb_strtoupper(mb_substr($nombre, 0, 1)).mb_substr($nombre, 1);
             if (preg_match('/\.(\d+)(?=\.|$)/', $clave, $m)) {
-                $etiqueta .= ' (n.º '.((int) $m[1] + 1).')';
+                $etiqueta .= ' (no. '.((int) $m[1] + 1).')';
             }
             $items[] = [
                 'clave' => $clave,

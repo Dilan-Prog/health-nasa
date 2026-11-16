@@ -51,10 +51,10 @@ class OrientacionAlertas
             } else {
                 $tarjetas[] = array_merge($base, [
                     'kind' => 'rule', 'rule' => 'R-'.(11 + count($tarjetas)),
-                    'finding' => "{$i['etiqueta']} fuera de rango: {$i['valor']} {$i['unidad']}.",
-                    'steps' => $i['acciones'] ?: ['Comenta este valor con el médico de vuelo en la próxima ventana.'],
+                    'finding' => "{$i['etiqueta']} out of range: {$i['valor']} {$i['unidad']}.",
+                    'steps' => $i['acciones'] ?: ['Discuss this value with the Flight Surgeon in the next window.'],
                     'pend' => null, 'conf' => null, 'safe' => 'none',
-                    'src' => [['l' => 'Umbral: '.$i['rango'], 't' => 'Regla fija del monitor. Se activa al salir del rango normal.', 'ic' => 'rule']],
+                    'src' => [['l' => 'Threshold: '.$i['rango'], 't' => 'Fixed monitor rule. Triggered when the value leaves the normal range.', 'ic' => 'rule']],
                 ]);
             }
         }

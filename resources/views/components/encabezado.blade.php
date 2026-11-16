@@ -17,8 +17,8 @@
 <header class="encabezado">
     <h1 class="encabezado-titulo">{{ $tituloA }} <span class="muted">—</span> {{ $tituloB }}</h1>
     <div class="encabezado-datos mono">
-        <div><span class="dato-et">DÍA DE MISIÓN</span><span class="dato-val">{{ $dia ?? '—' }} / {{ $total ?? '—' }}</span></div>
-        <div><span class="dato-et">ÓRBITA</span><span class="dato-val">{{ $orbita ? $orbita.' km' : '—' }}</span></div>
-        <div><span class="dato-et">ÚLTIMA LECTURA</span><span class="dato-val">{{ $ultima ? $ultima.' UTC' : '—' }}</span></div>
+        <div><span class="dato-et">MISSION DAY</span><span class="dato-val">{{ $dia ?? '—' }} / {{ $total ?? '—' }}</span></div>
+        <div><span class="dato-et">ORBIT</span><span class="dato-val">{{ $orbita ? $orbita.' km' : '—' }}</span></div>
+        <div><span class="dato-et">LAST READING</span><span class="dato-val">{{ $ultima ? $ultima.' UTC' : '—' }}</span></div>
     </div>
 </header>

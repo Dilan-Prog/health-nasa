@@ -23,7 +23,28 @@ use Illuminate\Support\Facades\DB;
  */
 class ExpedicionSeeder extends Seeder
 {
-    public const MISION = 'Expedición 74';
+    /** Stored lookup key (kept in Spanish on purpose: other seeders and services query by it). */
+    public const MISION = 'Expedition 74';
+
+    /** Nombre anterior (en español): lo usa i18n:datos para renombrar la misión ya guardada en el sitio. */
+    public const MISION_ANTERIOR = 'Expedición 74';
+
+    /** Spanish role => English role (also applied to rows seeded before the translation). */
+    public const ROLES_ANTERIORES = [
+        'Especialista de misión' => 'Mission Specialist',
+        'Comandante' => 'Commander',
+        'Ingeniero de vuelo' => 'Flight Engineer',
+        'Especialista médica' => 'Medical Specialist',
+        'Especialista de carga útil' => 'Payload Specialist',
+    ];
+
+    /** Updates roles of already seeded rows in place (display text only). Safe to repeat. */
+    public static function migrarRolesAnteriores(): void
+    {
+        foreach (self::ROLES_ANTERIORES as $es => $en) {
+            Astronauta::where('rol', $es)->update(['rol' => $en]);
+        }
+    }
 
     /** Orden de los valores de TRIPULACION[i]['m'] (= orden del panel). */
     public const CLAVES = [
@@ -44,20 +65,21 @@ class ExpedicionSeeder extends Seeder
      * @var array<int, array{nombre:string, rol:string, edad:int, altura:float, peso:float, grupo:string, evas:int, hora:?string, hora_previa:string, m:array}>
      */
     public const TRIPULACION = [
-        ['nombre' => 'Dilan García', 'rol' => 'Especialista de misión', 'edad' => 36, 'altura' => 1.78, 'peso' => 73.4, 'grupo' => 'A+', 'evas' => 4, 'hora' => '07:31', 'hora_previa' => '07:20',
+        ['nombre' => 'Dilan García', 'rol' => 'Mission Specialist', 'edad' => 36, 'altura' => 1.78, 'peso' => 73.4, 'grupo' => 'A+', 'evas' => 4, 'hora' => '07:31', 'hora_previa' => '07:20',
             'm' => [[128, 84, 'warn'], [66, 'ok'], [97, 'ok'], [112, 'ok'], [37.1, 'ok'], [23.2, 'ok'], [-1.6, 'crit'], [-4.2, 'crit'], [0.54, 'ok'], [76.7, 'ok']]],
-        ['nombre' => 'Elena Moreau', 'rol' => 'Comandante', 'edad' => 44, 'altura' => 1.69, 'peso' => 61.2, 'grupo' => 'O−', 'evas' => 7, 'hora' => '06:58', 'hora_previa' => '07:05',
+        ['nombre' => 'Elena Moreau', 'rol' => 'Commander', 'edad' => 44, 'altura' => 1.69, 'peso' => 61.2, 'grupo' => 'O−', 'evas' => 7, 'hora' => '06:58', 'hora_previa' => '07:05',
             'm' => [[118, 76, 'ok'], [58, 'warn'], [98, 'ok'], [96, 'ok'], [36.7, 'ok'], [21.4, 'ok'], [-0.8, 'ok'], [-1.6, 'ok'], [0.48, 'ok'], [92.3, 'ok']]],
-        ['nombre' => 'Kenji Arai', 'rol' => 'Ingeniero de vuelo', 'edad' => 39, 'altura' => 1.74, 'peso' => 70.8, 'grupo' => 'B+', 'evas' => 2, 'hora' => null, 'hora_previa' => '07:10',
+        ['nombre' => 'Kenji Arai', 'rol' => 'Flight Engineer', 'edad' => 39, 'altura' => 1.74, 'peso' => 70.8, 'grupo' => 'B+', 'evas' => 2, 'hora' => null, 'hora_previa' => '07:10',
             'm' => [[142, 92, 'crit'], [84, 'ok'], [96, 'ok'], [148, 'warn'], [37.0, 'ok'], [23.4, 'ok'], [-1.1, 'warn'], [-2.4, 'warn'], [0.41, 'ok'], [58.1, 'ok']]],
-        ['nombre' => 'Amara Osei', 'rol' => 'Especialista médica', 'edad' => 33, 'altura' => 1.65, 'peso' => 58.9, 'grupo' => 'AB+', 'evas' => 1, 'hora' => '07:12', 'hora_previa' => '07:15',
+        ['nombre' => 'Amara Osei', 'rol' => 'Medical Specialist', 'edad' => 33, 'altura' => 1.65, 'peso' => 58.9, 'grupo' => 'AB+', 'evas' => 1, 'hora' => '07:12', 'hora_previa' => '07:15',
             'm' => [[112, 72, 'ok'], [71, 'ok'], [99, 'ok'], [88, 'ok'], [36.5, 'ok'], [21.6, 'ok'], [-0.6, 'ok'], [-1.2, 'ok'], [0.39, 'ok'], [31.5, 'ok']]],
-        ['nombre' => 'Lucas Ferreira', 'rol' => 'Especialista de carga útil', 'edad' => 41, 'altura' => 1.82, 'peso' => 79.6, 'grupo' => 'O+', 'evas' => 3, 'hora' => null, 'hora_previa' => '06:40',
+        ['nombre' => 'Lucas Ferreira', 'rol' => 'Payload Specialist', 'edad' => 41, 'altura' => 1.82, 'peso' => 79.6, 'grupo' => 'O+', 'evas' => 3, 'hora' => null, 'hora_previa' => '06:40',
             'm' => [[124, 82, 'warn'], [74, 'ok'], [94, 'warn'], [104, 'ok'], [37.3, 'ok'], [24.0, 'ok'], [-1.3, 'warn'], [-3.1, 'crit'], [0.46, 'ok'], [64.8, 'ok']]],
     ];
 
     public function run(): void
     {
+        self::migrarRolesAnteriores();
         $hoy = Carbon::now('UTC')->startOfDay();
 
         $mision = Mision::updateOrCreate(

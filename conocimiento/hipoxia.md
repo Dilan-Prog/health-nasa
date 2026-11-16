@@ -1,29 +1,29 @@
 ---
 slug: hipoxia
 patron: hipoxia
-titulo: Posible hipoxia
+titulo: Possible hypoxia
 fuentes:
   - "docs/fuentes/salud_astronautas_y_monitoreo.txt, sección 1.6 (Sistema respiratorio y oxigenación)"
   - "docs/fuentes/datos_medicos.txt, sección 2 (Radiación y cabina: presión parcial de CO2, O2 y humedad)"
 revision_medica: pendiente
 ---
 
-## Señales a vigilar
-- Saturación de O₂ en precaución o crítico según los umbrales actuales del proyecto (valores de ejemplo, no validados).
-- Como apoyo, pulso alterado y estrés cognitivo alterado dentro de la misma ventana.
-- La fuente describe la hipoxia como disminución del oxígeno disponible en los tejidos, con fatiga, dolor de cabeza y disminución de la concentración cuando la oxigenación o la ventilación son inadecuadas.
+## Signs to watch
+- SpO₂ in caution or critical according to the project's current thresholds (example values, not validated).
+- As supporting signs, altered pulse and altered cognitive stress within the same window.
+- The source describes hypoxia as a decrease in the oxygen available to tissues, with fatigue, headache and reduced concentration when oxygenation or ventilation is inadequate.
 
-## Qué chequear
-- Que la lectura de saturación no sea un fallo del oxímetro (ver la ficha de fallo de sensor): una lectura marcada como sospechosa no dispara este patrón.
-- Los síntomas que menciona la fuente: fatiga, dolor de cabeza, menor concentración.
-- La presión parcial de O₂ y de CO₂ de la cabina, que la guía de referencia lista como variable ambiental a monitorizar.
-- Comparar con la propia línea base del tripulante.
+## What to check
+- That the saturation reading is not a pulse oximeter failure (see the sensor failure card): a reading flagged as suspect does not trigger this pattern.
+- The symptoms the source mentions: fatigue, headache, reduced concentration.
+- The cabin partial pressure of O₂ and CO₂, which the reference guide lists as an environmental variable to monitor.
+- Compare against the crew member's own baseline.
 
-## Cuándo escalar
-- El sistema envía el caso a tierra cuando su severidad es crítica (regla del proyecto, no de la norma).
-- Criterios clínicos adicionales de escalado: Pendiente de fuente verificable.
+## When to escalate
+- The system sends the case to the ground when its severity is critical (project rule, not a standard).
+- Additional clinical escalation criteria: Pending verifiable source.
 
-## Límites de lo que puede afirmarse
-- Solo se puede hablar de una posible hipoxia (hipótesis). El sistema no mide oxígeno en tejidos ni diagnostica.
-- La fuente no define cifras de saturación para esta hipótesis: Pendiente de fuente verificable.
-- El CO₂ no es un indicador de la aplicación; la hipercapnia que cita la fuente no puede evaluarse aquí.
+## Limits of what can be stated
+- Only a possible hypoxia (hypothesis) can be stated. The system does not measure tissue oxygen and does not diagnose.
+- The source does not define saturation figures for this hypothesis: Pending verifiable source.
+- CO₂ is not an indicator in the application; the hypercapnia cited by the source cannot be assessed here.

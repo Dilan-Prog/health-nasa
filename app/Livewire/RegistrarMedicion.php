@@ -118,12 +118,12 @@ class RegistrarMedicion extends Component
 
         $lleno = array_filter($analisis, fn ($a, $clave) => trim((string) ($this->campos[$clave] ?? '')) !== '', ARRAY_FILTER_USE_BOTH);
         if ($lleno === []) {
-            $this->errorGeneral = 'Escribe al menos un valor para guardar.';
+            $this->errorGeneral = 'Enter at least one value to save.';
 
             return;
         }
         if (array_filter($lleno, fn ($a) => $a['error'] !== null) !== []) {
-            $this->errorGeneral = 'Revisa los campos marcados antes de guardar.';
+            $this->errorGeneral = 'Review the marked fields before saving.';
             $this->dispatch('registro-foco-error');
 
             return;
@@ -145,7 +145,7 @@ class RegistrarMedicion extends Component
                 }
             });
         } catch (ValidationException) {
-            $this->errorGeneral = 'Revisa los campos marcados antes de guardar.';
+            $this->errorGeneral = 'Review the marked fields before saving.';
             $this->dispatch('registro-foco-error');
 
             return;
@@ -161,7 +161,7 @@ class RegistrarMedicion extends Component
         }
 
         $n = count($emitir);
-        $this->exito = $n === 1 ? 'Medición guardada.' : "{$n} mediciones guardadas.";
+        $this->exito = $n === 1 ? 'Measurement saved.' : "{$n} measurements saved.";
         $this->abierto = false;
         $this->dispatch('medicion-guardada', astronautaId: $astronauta->id);
         $this->dispatch('medicion-registrada', astronautaId: $astronauta->id);

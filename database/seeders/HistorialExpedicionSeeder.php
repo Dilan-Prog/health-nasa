@@ -45,6 +45,7 @@ class HistorialExpedicionSeeder extends Seeder
 
     public function run(): void
     {
+        ExpedicionSeeder::migrarRolesAnteriores();
         $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->first();
         if (! $mision) {
             $this->call(ExpedicionSeeder::class);

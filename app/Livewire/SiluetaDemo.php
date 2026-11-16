@@ -31,7 +31,7 @@ class SiluetaDemo extends Component
     {
         return view('livewire.silueta-demo', [
             'activos' => self::EJEMPLOS[$this->ejemplo] ?? [],
-            'nombreSeleccionado' => $this->seleccionado ? MusculosCuerpo::nombre($this->seleccionado) : null,
+            'nombreSeleccionado' => $this->seleccionado ? MusculosCuerpo::nombreEn($this->seleccionado) : null,
         ]);
     }
 }

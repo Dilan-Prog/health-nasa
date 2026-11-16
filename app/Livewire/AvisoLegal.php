@@ -10,9 +10,9 @@ use Livewire\Component;
 class AvisoLegal extends Component
 {
     public const FUENTES = [
-        ['NASA-STD-3001 Vol. 1 Rev. C', 'Norma de salud y desempeño de la tripulación (NASA).'],
-        ['NASA HRP', 'Human Research Program: observaciones de investigación, solo como contexto.'],
-        ['CSA', 'Agencia Espacial Canadiense: material de referencia.'],
+        ['NASA-STD-3001 Vol. 1 Rev. C', 'Crew health and performance standard (NASA).'],
+        ['NASA HRP', 'Human Research Program: research findings, for context only.'],
+        ['CSA', 'Canadian Space Agency: reference material.'],
     ];
 
     public function render()

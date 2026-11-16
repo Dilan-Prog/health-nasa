@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class CifrarExpediente extends Command
 {
-    protected $signature = 'expediente:cifrar {--confirmar : Escribe los cambios (sin esta opción solo simula)}';
+    protected $signature = 'expediente:cifrar {--confirmar : Writes the changes (without this option it only simulates)}';
 
-    protected $description = 'Cifra en la base los datos sensibles del expediente que aún estén en texto plano (idempotente).';
+    protected $description = 'Encrypts sensitive medical record data in the database that is still in plain text (idempotent).';
 
     /** tabla => columnas cifradas (deben coincidir con los casts EncryptedFlexible de los modelos). */
     public const COLUMNAS = [
@@ -26,7 +26,7 @@ class CifrarExpediente extends Command
     public function handle(): int
     {
         $escribir = (bool) $this->option('confirmar');
-        $this->line($escribir ? 'Modo ESCRITURA: se cifrarán los valores en texto plano.' : 'SIMULACIÓN: no se escribe nada (use --confirmar).');
+        $this->line($escribir ? 'WRITE mode: plain-text values will be encrypted.' : 'SIMULATION: nothing is written (use --confirmar).');
 
         $total = 0;
         foreach (self::COLUMNAS as $tabla => $columnas) {
@@ -50,10 +50,10 @@ class CifrarExpediente extends Command
                 }
             });
             $total += $n;
-            $this->line(sprintf('  %-26s %d fila(s) %s', $tabla, $n, $escribir ? 'cifrada(s)' : 'por cifrar'));
+            $this->line(sprintf('  %-26s %d row(s) %s', $tabla, $n, $escribir ? 'encrypted' : 'to encrypt'));
         }
 
-        $this->info($escribir ? "Listo: $total fila(s) cifrada(s)." : "Simulación: $total fila(s) por cifrar.");
+        $this->info($escribir ? "Done: $total row(s) encrypted." : "Simulation: $total row(s) to encrypt.");
 
         return self::SUCCESS;
     }

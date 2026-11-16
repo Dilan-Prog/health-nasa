@@ -18,11 +18,11 @@ class EvaluadorEstado
     public function evaluar(string $clave, array $valores, array $contexto = []): Estado
     {
         $def = $this->config['indicadores'][$clave]
-            ?? throw new InvalidArgumentException("Indicador desconocido: {$clave}");
+            ?? throw new InvalidArgumentException("Unknown indicator: {$clave}");
 
         foreach (array_keys($def['componentes']) as $componente) {
             if (! isset($valores[$componente])) {
-                throw new InvalidArgumentException("Falta el componente '{$componente}'.");
+                throw new InvalidArgumentException("Missing component '{$componente}'.");
             }
         }
 
@@ -49,12 +49,13 @@ class EvaluadorEstado
         return $estado;
     }
 
-    private const BANDAS = [
+    /** Visible band labels keyed by the stable band key (claveBanda). */
+    public const BANDAS = [
         'normal' => 'Normal',
-        'elevada' => 'Elevada',
-        'hipertension_1' => 'Hipertensión 1',
-        'hipertension_2' => 'Hipertensión 2',
-        'crisis' => 'Crisis hipertensiva',
+        'elevada' => 'Elevated',
+        'hipertension_1' => 'Hypertension stage 1',
+        'hipertension_2' => 'Hypertension stage 2',
+        'crisis' => 'Hypertensive crisis',
     ];
 
     /**

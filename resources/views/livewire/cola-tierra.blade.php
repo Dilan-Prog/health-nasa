@@ -1,20 +1,20 @@
 <div class="pag">
-    <x-encabezado titulo-a="Cola a" titulo-b="Tierra" />
+    <x-encabezado titulo-a="Ground" titulo-b="queue" />
 
     <main class="pag-main" id="cola-tierra-contenido">
-        <section class="pag-card pag-resumen" aria-label="Resumen de la cola">
+        <section class="pag-card pag-resumen" aria-label="Queue summary">
             <span class="pag-chip mono" data-estado="{{ $pendientes ? 'warn' : 'ok' }}">
-                <span class="icono" aria-hidden="true">schedule</span>{{ $pendientes }} pendientes
+                <span class="icono" aria-hidden="true">schedule</span>{{ $pendientes }} pending
             </span>
             <span class="pag-enlace mono" data-estado="{{ $enlace ? 'ok' : 'warn' }}">
-                <span class="icono" aria-hidden="true">satellite_alt</span>{{ $enlace ? 'ENLACE ACTIVO · RESPUESTA ~1 MIN' : 'SIN ENLACE · LOS AVISOS ESPERAN' }}
+                <span class="icono" aria-hidden="true">satellite_alt</span>{{ $enlace ? 'LINK ACTIVE · RESPONSE ~1 MIN' : 'NO LINK · ALERTS WAIT' }}
             </span>
         </section>
 
-        <section class="pag-card" aria-label="Avisos a tierra">
-            <h2 class="pag-h2">Avisos a tierra</h2>
+        <section class="pag-card" aria-label="Alerts to ground">
+            <h2 class="pag-h2">Alerts to ground</h2>
             @if (! $avisos)
-                <p class="pag-vacio">No hay avisos en la cola.</p>
+                <p class="pag-vacio">No alerts in the queue.</p>
             @else
                 <ul class="pag-avisos">
                     @foreach ($avisos as $a)
@@ -26,12 +26,12 @@
                             </div>
                             <span class="pag-hora mono">
                                 {{ $a['creada'] }} UTC
-                                @if ($a['enviada_en'])<br>enviada {{ $a['enviada_en'] }}@endif
+                                @if ($a['enviada_en'])<br>sent {{ $a['enviada_en'] }}@endif
                             </span>
                         </li>
                     @endforeach
                 </ul>
-                <p class="pag-nota">Se muestran los {{ $limite }} avisos más recientes.</p>
+                <p class="pag-nota">Showing the {{ $limite }} most recent alerts.</p>
             @endif
         </section>
     </main>

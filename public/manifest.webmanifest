@@ -1,8 +1,8 @@
 {
-  "name": "Monitor de salud para astronautas",
-  "short_name": "Salud Astro",
-  "description": "Autoevaluación de salud a bordo, sin internet.",
-  "lang": "es",
+  "name": "Health monitor for astronauts",
+  "short_name": "Astro Health",
+  "description": "Onboard health self-assessment, no internet required.",
+  "lang": "en",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

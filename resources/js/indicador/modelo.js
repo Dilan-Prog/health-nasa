@@ -4,21 +4,24 @@
 
 const ST = {
   ok:   { c: 'var(--ok)', t: 'var(--ok-text)', soft: 'var(--ok-soft)', l: 'NORMAL', ic: 'check_circle' },
-  warn: { c: 'var(--warn)',  t: 'var(--warn-text)', soft: 'var(--warn-soft)',  l: 'ATENCIÓN', ic: 'warning' },
-  crit: { c: 'var(--crit)', t: 'var(--crit-text)',  soft: 'var(--crit-soft)', l: 'GRAVE', ic: 'error' },
+  warn: { c: 'var(--warn)',  t: 'var(--warn-text)', soft: 'var(--warn-soft)',  l: 'CAUTION', ic: 'warning' },
+  crit: { c: 'var(--crit)', t: 'var(--crit-text)',  soft: 'var(--crit-soft)', l: 'CRITICAL', ic: 'error' },
 };
 const SERIES_COLORS = ['var(--serie-1)', 'var(--serie-2)', 'var(--serie-3)', 'var(--serie-4)', 'var(--serie-5)', 'var(--serie-6)'];
-const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-const PRESETS = [['24h', '24 h'], ['7', '7 d'], ['10', '10 d'], ['30', '30 d'], ['all', 'Misión completa'], ['custom', 'Personalizado']];
-const VIEWS = [['bars', 'Barras', 'bar_chart', '1'], ['lines', 'Líneas', 'show_chart', '2'], ['forecast', 'Pronóstico', 'online_prediction', '3'], ['heat', 'Mapa de calor', 'grid_on', '4']];
+const MES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const PRESETS = [['24h', '24 h'], ['7', '7 d'], ['10', '10 d'], ['30', '30 d'], ['all', 'Full mission'], ['custom', 'Custom']];
+const VIEWS = [['bars', 'Bars', 'bar_chart', '1'], ['lines', 'Lines', 'show_chart', '2'], ['forecast', 'Forecast', 'online_prediction', '3'], ['heat', 'Heat map', 'grid_on', '4']];
 const MODOS = ['ind', 'cmp', 'mini'];
 const ESTADOS = ['ok', 'carga', 'error', 'vacio'];
 const CMP_DEFECTO = ['presion_arterial', 'glucosa', 'perdida_osea', 'sueno'];
-const SISTEMAS_DEFECTO = [['Cardiovascular', 'cardiology'], ['Metabólico', 'nutrition'], ['Musculoesquelético', 'skeleton'], ['Inmune y radiación', 'shield'], ['Mental', 'psychology']];
+const SISTEMAS_DEFECTO = [['Cardiovascular', 'cardiology'], ['Metabolism', 'nutrition'], ['Musculoskeletal', 'skeleton'], ['Immune & radiation', 'shield'], ['Mental health', 'psychology']];
 
 const num = (x, d = 0) => (Number.isFinite(+x) && x !== null && x !== '' ? +x : d);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad2 = n => String(n).padStart(2, '0');
+const dias = n => n + (n === 1 ? ' day' : ' days');
+// Separador de miles (en-US) en la parte entera; el punto decimal ya lo da toFixed.
+const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/, ',').replace(/^(\d+)/, x => x.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
 
 // Marcador vacío para pantallas sin datos (evita excepciones).
 const VACIO = Object.freeze({ id: '', label: '—', ic: 'help', unit: '', sys: 0, val: 0, disp: '—', lo: 0, hi: 1, base: 0, dec: 0, rec: '', estado: 'ok', loss: false, cum: false, signo: false });
@@ -80,7 +83,7 @@ export function crearModelo(payload) {
     if (v >= m.lo && v <= m.hi) return 'ok';
     return (v < m.lo ? m.lo - v : v - m.hi) <= margin(m) ? 'warn' : 'crit';
   };
-  const fmt = (m, v) => (v < 0 ? '−' : m.signo && v > 0 ? '+' : '') + Math.abs(v).toFixed(m.dec);
+  const fmt = (m, v) => (v < 0 ? '−' : m.signo && v > 0 ? '+' : '') + miles(Math.abs(v).toFixed(m.dec));
   const xLabel = (r, x) => r.hourly ? pad2(x) + ':00' : 'D' + x + ' · ' + fdate(x);
   const actual = st => MKI[st.id] || MK[0] || VACIO;
 
@@ -107,7 +110,7 @@ export function crearModelo(payload) {
   // ---------- Rango y series ----------
   function range(st) {
     const { pre, from, to } = st;
-    if (pre === '24h') return { hourly: true, a: DAYS, b: DAYS, bad: false, text: `D${DAYS} · últimas 24 h` };
+    if (pre === '24h') return { hourly: true, a: DAYS, b: DAYS, bad: false, text: `D${DAYS} · last 24 h` };
     let a, b, bad = false;
     if (pre === 'all') [a, b] = [1, DAYS];
     else if (pre === 'custom') {
@@ -117,7 +120,7 @@ export function crearModelo(payload) {
       const k = Math.round(+pre);
       [a, b] = [Math.max(1, DAYS - (Number.isFinite(k) && k >= 1 ? k : 10) + 1), DAYS];
     }
-    return { a, b, bad, text: bad ? 'Rango no válido: la fecha inicial debe ser anterior a la final' : `D${a} – D${b} · ${b - a + 1} días` };
+    return { a, b, bad, text: bad ? 'Invalid range: the start date must be earlier than the end date' : `D${a} – D${b} · ${dias(b - a + 1)}` };
   }
 
   function seriesFor(st, m, r, offset = 0) {
@@ -171,7 +174,7 @@ export function crearModelo(payload) {
   function svgParts(st, cd, r, H) {
     const view = st.view, { ser, n, N, h, xs, prev, fc, norm, cmp, lo, hi, mg, Y, X, m0 } = cd;
     const bands = [], refs = [], polys = [], bars = [], lines = [], dots = [], keys = [];
-    if (norm) { bands.push({ y: Y(100), h: Y(0) - Y(100), fill: 'var(--ok-faint)' }); refs.push({ y: Y(100), stroke: 'var(--crit-text)', dash: '6 4' }, { y: Y(0), stroke: 'var(--muted)', dash: '3 4' }); keys.push({ t: '100 % = límite del rango normal', bg: 'transparent', h: '0', bt: '2px dashed var(--crit-text)' }); }
+    if (norm) { bands.push({ y: Y(100), h: Y(0) - Y(100), fill: 'var(--ok-faint)' }); refs.push({ y: Y(100), stroke: 'var(--crit-text)', dash: '6 4' }, { y: Y(0), stroke: 'var(--muted)', dash: '3 4' }); keys.push({ t: '100 % = normal range limit', bg: 'transparent', h: '0', bt: '2px dashed var(--crit-text)' }); }
     else if (!cmp) {
       if (m0.cum) { bands.push({ y: Y(75), h: Y(0) - Y(75), fill: 'var(--ok-faint)' }, { y: Y(100), h: Y(75) - Y(100), fill: 'var(--warn-faint)' }); }
       else {
@@ -179,10 +182,10 @@ export function crearModelo(payload) {
         if (!m0.loss) bands.push({ y: Y(hi + mg), h: Y(hi) - Y(hi + mg), fill: 'var(--warn-faint)' });
       }
       if (!m0.cum) refs.push({ y: Y(m0.base), stroke: 'var(--muted)', dash: '5 4' });
-      keys.push({ t: 'Rango normal', bg: 'var(--ok-soft)', h: '10px', bt: '0' }, { t: 'Atención', bg: 'var(--warn-soft)', h: '10px', bt: '0' });
-      if (!m0.cum) keys.push({ t: 'Tu base', bg: 'transparent', h: '0', bt: '2px dashed var(--muted)' });
+      keys.push({ t: 'Normal range', bg: 'var(--ok-soft)', h: '10px', bt: '0' }, { t: 'Caution', bg: 'var(--warn-soft)', h: '10px', bt: '0' });
+      if (!m0.cum) keys.push({ t: 'Your baseline', bg: 'transparent', h: '0', bt: '2px dashed var(--muted)' });
     }
-    if (prev && view !== 'heat') { lines.push({ pts: prev.v.map((v, j) => X(j) + ',' + Y(v)).join(' '), stroke: 'var(--ch-prev)', w: 2, dash: '0' }); keys.push({ t: 'Periodo anterior', bg: 'var(--ch-prev)', h: '3px', bt: '0' }); }
+    if (prev && view !== 'heat') { lines.push({ pts: prev.v.map((v, j) => X(j) + ',' + Y(v)).join(' '), stroke: 'var(--ch-prev)', w: 2, dash: '0' }); keys.push({ t: 'Previous period', bg: 'var(--ch-prev)', h: '3px', bt: '0' }); }
     if (view === 'bars') {
       const k = ser.length, slot = 720 / N, bw = slot * 0.78 / k;
       ser.forEach((s, si) => s.v.forEach((v, j) => {
@@ -190,7 +193,7 @@ export function crearModelo(payload) {
         const sk = status(s.m, s.raw[j]), last = j === n - 1;
         bars.push({ x: (j * slot + slot * 0.11 + si * bw).toFixed(1), y: top, w: Math.max(0.8, bw - 0.6).toFixed(1), h: hh, fill: cmp ? s.color : last ? ST[sk].c : 'var(--ch-bar)' });
       }));
-      if (!cmp) keys.push({ t: 'Último día con color de su estado', bg: ST[status(m0, ser[0].raw[n - 1])].c, h: '10px', bt: '0' });
+      if (!cmp) keys.push({ t: 'Last day colored by status', bg: ST[status(m0, ser[0].raw[n - 1])].c, h: '10px', bt: '0' });
     } else if (view !== 'heat') {
       ser.forEach((s, si) => {
         lines.push({ pts: s.v.map((v, j) => X(j) + ',' + Y(v)).join(' '), stroke: s.color, w: 2.5, dash: '0' });
@@ -204,7 +207,7 @@ export function crearModelo(payload) {
           lines.push({ pts: f.map((q, j) => X(n - 1 + j) + ',' + Y(q.y)).join(' '), stroke: s.color, w: 2.5, dash: '6 5' });
         }
       });
-      if (h) keys.push({ t: `Proyección ${h} ${r.hourly ? 'h' : 'días'}`, bg: 'transparent', h: '0', bt: '2px dashed var(--primary)' }, { t: 'Incertidumbre', bg: 'var(--ch-incert)', h: '10px', bt: '0' });
+      if (h) keys.push({ t: `Projection ${h} ${r.hourly ? 'h' : 'days'}`, bg: 'transparent', h: '0', bt: '2px dashed var(--primary)' }, { t: 'Uncertainty', bg: 'var(--ch-incert)', h: '10px', bt: '0' });
     }
     const ticks = 4, yLabels = Array.from({ length: ticks + 1 }, (_, i) => { const v = cd.yMin + (cd.yMax - cd.yMin) * (i / ticks); return { top: (Y(v) / H * 100).toFixed(1) + '%', t: norm ? Math.round(v) + '%' : fmt(m0, v) }; });
     const paso = st.group === 'semana' && n > 1 ? xs[1] - xs[0] : 1;
@@ -254,10 +257,10 @@ export function crearModelo(payload) {
     const tipRows = hv == null ? [] : cd.ser.map(s => {
       const isF = hv >= cd.n, raw = isF ? null : s.raw[hv], fv = isF ? cd.fc[cd.ser.indexOf(s)][hv - cd.n + 1].y : null;
       const val = isF ? fv : raw, sk = isF ? null : status(s.m, raw), pv = !isF && hv > 0 ? s.raw[hv - 1] : null, d = pv == null ? 0 : raw - pv;
-      return { label: s.m.label + (isF ? ' · estimado' : ''), color: s.color, v: cd.norm && !isF ? Math.round(s.v[hv]) + '%' : cd.norm ? Math.round(fv) + '%' : fmt(s.m, val), unit: cd.norm ? 'del rango' : s.m.unit,
-        st: sk ? ST[sk].l : 'ESTIMACIÓN', stIc: sk ? ST[sk].ic : 'online_prediction', text: sk ? ST[sk].t : 'var(--primary)',
+      return { label: s.m.label + (isF ? ' · estimated' : ''), color: s.color, v: cd.norm && !isF ? Math.round(s.v[hv]) + '%' : cd.norm ? Math.round(fv) + '%' : fmt(s.m, val), unit: cd.norm ? 'of range' : s.m.unit,
+        st: sk ? ST[sk].l : 'ESTIMATE', stIc: sk ? ST[sk].ic : 'online_prediction', text: sk ? ST[sk].t : 'var(--primary)',
         trIc: pv == null ? 'remove' : Math.abs(d) < (s.m.hi - s.m.lo) * 0.01 ? 'trending_flat' : d > 0 ? 'trending_up' : 'trending_down', tr: pv == null ? '' : (d >= 0 ? '+' : '−') + Math.abs(d).toFixed(s.m.dec) };
-    }).concat(hv != null && hv < cd.n && cd.prev && cd.prev.v[hv] !== undefined ? [{ label: 'Periodo anterior', color: 'var(--ch-prev)', v: fmt(m, cd.prev.v[hv]), unit: m.unit, st: ST[status(m, cd.prev.v[hv])].l, stIc: ST[status(m, cd.prev.v[hv])].ic, text: 'var(--muted-3)', trIc: 'history', tr: '' }] : []);
+    }).concat(hv != null && hv < cd.n && cd.prev && cd.prev.v[hv] !== undefined ? [{ label: 'Previous period', color: 'var(--ch-prev)', v: fmt(m, cd.prev.v[hv]), unit: m.unit, st: ST[status(m, cd.prev.v[hv])].l, stIc: ST[status(m, cd.prev.v[hv])].ic, text: 'var(--muted-3)', trIc: 'history', tr: '' }] : []);
     const hx = hv == null ? -10 : cd.X(hv), hpct = hx / 720 * 100;
 
     // Mapa de calor
@@ -271,14 +274,14 @@ export function crearModelo(payload) {
         cd.ser.forEach(s => { heat.cells.push(rowH(s.m.label.split(' ')[0])); s.raw.forEach((v, j) => heat.cells.push(cell(s.m, v, xLabel(r, cd.xs[j])))); });
       } else if (r.hourly) {
         heat.cols = 24; heat.minW = (64 + 24 * 22) + 'px'; heat.colLabels = Array.from({ length: 24 }, (_, i) => i % 3 ? '' : pad2(i));
-        heat.cells.push(rowH('Hoy')); cd.ser[0].raw.forEach((v, j) => heat.cells.push(cell(m, v, pad2(j) + ':00')));
+        heat.cells.push(rowH('Today')); cd.ser[0].raw.forEach((v, j) => heat.cells.push(cell(m, v, pad2(j) + ':00')));
       } else {
-        heat.cols = 7; heat.colLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+        heat.cols = 7; heat.colLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
         const first = cd.xs[0], dow = (dayDate(first).getUTCDay() + 6) % 7;
         const all = [...Array(dow).fill(null), ...cd.xs.map((d, j) => ({ d, v: cd.ser[0].raw[j] }))];
         for (let i = 0; i < all.length; i += 7) {
-          const wk = all.slice(i, i + 7); heat.cells.push(rowH('Sem ' + (Math.floor((first - dow + i - 1) / 7) + 1)));
-          for (let k = 0; k < 7; k++) { const e = wk[k]; heat.cells.push(e ? cell(m, e.v, 'D' + e.d + ' · ' + fdate(e.d)) : { role: 'gridcell', t: '', title: 'Sin dato', bg: 'var(--bg)', fg: 'transparent', align: 'center' }); }
+          const wk = all.slice(i, i + 7); heat.cells.push(rowH('Wk ' + (Math.floor((first - dow + i - 1) / 7) + 1)));
+          for (let k = 0; k < 7; k++) { const e = wk[k]; heat.cells.push(e ? cell(m, e.v, 'D' + e.d + ' · ' + fdate(e.d)) : { role: 'gridcell', t: '', title: 'No data', bg: 'var(--bg)', fg: 'transparent', align: 'center' }); }
         }
       }
       heat.legend = ['ok', 'warn', 'crit'].map(k => ({ t: ST[k].l[0] + ST[k].l.slice(1).toLowerCase(), ic: ST[k].ic, text: ST[k].t, bg: bgOf(k) }));
@@ -296,7 +299,7 @@ export function crearModelo(payload) {
     const minis = vis.map(x => {
       const v = daily(x).slice(-30), lo2 = x.cum ? 0 : x.lo, hi2 = x.cum ? 75 : x.hi, mn = Math.min(...v, lo2), mx = Math.max(...v, hi2), Yy = y => +(38 - (y - mn) / (mx - mn || 1) * 36).toFixed(1), sk = x.estado;
       const bandY = Yy(hi2), bandH = Math.max(0, Yy(lo2) - Yy(hi2)), pts = v.map((y, j) => (j * 200 / Math.max(1, v.length - 1)).toFixed(1) + ',' + Yy(y)).join(' ');
-      return { id: x.id, label: x.label, ic: x.ic, value: x.disp, unit: x.unit, st: ST[sk].l, stIc: ST[sk].ic, soft: ST[sk].soft, text: ST[sk].t, color: ST[sk].c, aria: `${x.label}: ${x.disp} ${x.unit}, ${ST[sk].l}. Abrir detalle`,
+      return { id: x.id, label: x.label, ic: x.ic, value: x.disp, unit: x.unit, st: ST[sk].l, stIc: ST[sk].ic, soft: ST[sk].soft, text: ST[sk].t, color: ST[sk].c, aria: `${x.label}: ${x.disp} ${x.unit}, ${ST[sk].l}. Open detail`,
         bandY, bandH, pts, svg: svgMini(bandY, bandH, pts, ST[sk].c), onOpen: () => fade({ id: x.id, mode: 'ind' }) };
     });
 
@@ -307,15 +310,15 @@ export function crearModelo(payload) {
       pm: {
         role: narrow ? 'dialog' : 'region', modal: narrow ? 'true' : 'false', pos: narrow ? 'fixed' : 'sticky', top: narrow ? 'auto' : '12px', side: narrow ? '0' : 'auto', bottom: narrow ? '0' : 'auto',
         maxH: narrow ? '82vh' : 'calc(100vh - 24px)', radius: narrow ? '16px 16px 0 0' : '14px', shadow: narrow ? '0 -12px 40px ' + 'color-mix(in srgb, var(--shadow-c) 20%, transparent)' : 'none',
-        count: cmp ? st.cmp.length + ' seleccionados' : mini ? MK.length : m.label,
-        modes: [['ind', 'Individual', 'looks_one'], ['cmp', 'Comparar', 'stacked_line_chart'], ['mini', 'Miniaturas', 'grid_view']].map(([id, label, ic]) => ({ label, ic, ...seg(st.mode === id), onClick: () => fade({ mode: id }) })),
+        count: cmp ? st.cmp.length + ' selected' : mini ? MK.length : m.label,
+        modes: [['ind', 'Single', 'looks_one'], ['cmp', 'Compare', 'stacked_line_chart'], ['mini', 'Thumbnails', 'grid_view']].map(([id, label, ic]) => ({ label, ic, ...seg(st.mode === id), onClick: () => fade({ mode: id }) })),
         query: st.query, onQuery: e => set({ query: e && e.target ? e.target.value : '' }),
-        filters: [['all', 'Todos', 'var(--muted)'], ['warn', 'Solo atención', ST.warn.c], ['crit', 'Solo graves', ST.crit.c]].map(([id, label, dot]) => ({ label, dot, ...btn(st.filter === id), onClick: () => set({ filter: id }) })),
+        filters: [['all', 'All', 'var(--muted)'], ['warn', 'Needs attention', ST.warn.c], ['crit', 'Critical only', ST.crit.c]].map(([id, label, dot]) => ({ label, dot, ...btn(st.filter === id), onClick: () => set({ filter: id }) })),
         none: !vis.length,
         groups: SYS.map(([name, ic], si) => {
           const items = vis.filter(x => x.sys === si); if (!items.length) return null;
           const allOn = items.every(x => st.cmp.includes(x.id));
-          return { name, ic, showAll: cmp, allLabel: allOn ? 'Quitar sistema' : 'Todo el sistema',
+          return { name, ic, showAll: cmp, allLabel: allOn ? 'Clear system' : 'Whole system',
             onAll: () => fade({ cmp: allOn ? st.cmp.filter(id => !items.some(x => x.id === id)) : [...new Set([...st.cmp, ...items.map(x => x.id)])] }),
             items: items.map(x => { const on = cmp ? st.cmp.includes(x.id) : x.id === m.id, sk = x.estado;
               return { id: x.id, label: x.label, value: x.disp, unit: x.unit, st: ST[sk].l, stIc: ST[sk].ic, soft: ST[sk].soft, text: ST[sk].t,
@@ -330,15 +333,15 @@ export function crearModelo(payload) {
         isCustom: st.pre === 'custom', from: st.from, to: st.to, min: iso(1), max: iso(DAYS), invalid: r.bad ? 'true' : 'false', inBorder: r.bad ? ST.crit.c : 'var(--border-strong)',
         onFrom: e => fade({ from: e && e.target ? e.target.value : '' }), onTo: e => fade({ to: e && e.target ? e.target.value : '' }),
         compare: !!st.compare && !cmp, compareDisabled: cmp || !!r.hourly, onCompare: e => fade({ compare: !!(e && e.target && e.target.checked) }),
-        groups: [['hora', 'Hora'], ['dia', 'Día'], ['semana', 'Semana']].map(([id, label]) => { const dis = r.hourly ? id !== 'hora' : id === 'hora' || (id === 'semana' && r.b - r.a < 13); const on = r.hourly ? id === 'hora' : st.group === id; return { label, ...btn(on), disabled: dis, op: dis ? '0.45' : '1', onClick: () => { if (!dis) fade({ group: id }); } }; }),
+        groups: [['hora', 'Hour'], ['dia', 'Day'], ['semana', 'Week']].map(([id, label]) => { const dis = r.hourly ? id !== 'hora' : id === 'hora' || (id === 'semana' && r.b - r.a < 13); const on = r.hourly ? id === 'hora' : st.group === id; return { label, ...btn(on), disabled: dis, op: dis ? '0.45' : '1', onClick: () => { if (!dis) fade({ group: id }); } }; }),
         showHorizon: view === 'forecast' && !mini,
         horizons: [3, 7, 14].map(hz => ({ label: hz + (r.hourly ? ' h' : ' d'), ...btn(st.horizon === hz), onClick: () => fade({ horizon: hz }) })),
       },
-      sel: { pad: narrow ? '0' : '10px', labelDisplay: narrow ? 'none' : 'inline', views: VIEWS.map(([id, label, ic, key]) => ({ label, ic, key, aria: label + ' (tecla ' + key + ')', ...seg(view === id), onClick: () => setView(id) })) },
+      sel: { pad: narrow ? '0' : '10px', labelDisplay: narrow ? 'none' : 'inline', views: VIEWS.map(([id, label, ic, key]) => ({ label, ic, key, aria: label + ' (key ' + key + ')', ...seg(view === id), onClick: () => setView(id) })) },
       ch: {
-        title: mini ? 'Todos los marcadores' : cmp ? `Comparación · ${cd.ser.length} marcadores` : `${m.label} · ${m.unit}`,
-        showSelector: !mini, aria: `${mini ? 'Miniaturas' : cmp ? 'Comparación' : m.label}, ${r.text}, vista ${VIEWS.find(v => v[0] === view)[1]}`,
-        toggleTable: () => set({ table: !st.table }), tablePressed: st.table ? 'true' : 'false', tableBg: st.table ? 'var(--hover)' : 'var(--surface)', tableIc: st.table ? 'monitoring' : 'table', tableLabel: st.table ? 'Ver gráfico' : 'Ver como tabla',
+        title: mini ? 'All indicators' : cmp ? `Comparison · ${cd.ser.length} indicators` : `${m.label} · ${m.unit}`,
+        showSelector: !mini, aria: `${mini ? 'Thumbnails' : cmp ? 'Comparison' : m.label}, ${r.text}, ${VIEWS.find(v => v[0] === view)[1]} view`,
+        toggleTable: () => set({ table: !st.table }), tablePressed: st.table ? 'true' : 'false', tableBg: st.table ? 'var(--hover)' : 'var(--surface)', tableIc: st.table ? 'monitoring' : 'table', tableLabel: st.table ? 'View chart' : 'View as table',
         hasLegend: cmp && !mini, norm: !!st.norm, onNorm: e => fade({ norm: !!(e && e.target && e.target.checked) }),
         legend: st.cmp.filter(id => MKI[id]).map(id => { const off = st.hidden.includes(id); return { label: MKI[id].label, color: SERIES_COLORS[st.cmp.indexOf(id) % SERIES_COLORS.length], pressed: off ? 'false' : 'true', op: off ? '0.5' : '1', bg: off ? 'var(--surface)' : 'var(--bg)', border: 'var(--border)', ic: off ? 'visibility_off' : 'visibility', onClick: () => fade({ hidden: off ? st.hidden.filter(x => x !== id) : [...st.hidden, id] }) }; }),
         forecastNote: view === 'forecast' && !mini, loading, error, empty: empty && !mini,
@@ -358,17 +361,17 @@ export function crearModelo(payload) {
         },
         lanes,
       },
-      tip: { show: hv != null && !st.table, left: hpct.toFixed(1) + '%', shift: hpct > 55 ? 'calc(-100% - 10px)' : '10px', date: hv == null ? '' : (hv >= cd.n ? 'Estimación · ' : '') + xLabel(r, sp.xAt(hv)), rows: tipRows },
+      tip: { show: hv != null && !st.table, left: hpct.toFixed(1) + '%', shift: hpct > 55 ? 'calc(-100% - 10px)' : '10px', date: hv == null ? '' : (hv >= cd.n ? 'Estimate · ' : '') + xLabel(r, sp.xAt(hv)), rows: tipRows },
       heat,
       tbl: { heads: cd.n ? cd.ser.map(s => s.m.label + ' (' + s.m.unit + ')') : [], rows: cd.n ? cd.xs.map((x, j) => ({ date: xLabel(r, x), cells: cd.ser.map(s => { const sk = status(s.m, s.raw[j]); return { v: fmt(s.m, s.raw[j]), st: ST[sk].l, text: ST[sk].t }; }) })).reverse() : [] },
       minis,
       sum: {
         show: !cmp && !mini && ok && !!m.id, label: m.label.toUpperCase(), value: m.disp, unit: m.unit, st: ST[sk0].l, stIc: ST[sk0].ic, soft: ST[sk0].soft, text: ST[sk0].t, color: ST[sk0].c,
-        trIc: flat ? 'trending_flat' : diff > 0 ? 'trending_up' : 'trending_down', tr: flat ? 'Estable' : diff > 0 ? 'Subiendo' : 'Bajando',
-        range: m.cum ? 'límite de misión 100 mSv' : `${fmt(m, m.lo)} – ${fmt(m, m.hi)} ${m.unit}`,
-        stats: [['MÍN', sv.length ? Math.min(...sv) : 0], ['MÁX', sv.length ? Math.max(...sv) : 0], ['PROMEDIO', avg]].map(([k, v]) => ({ k, v: sv.length ? fmt(m, v) : '—', u: m.unit })),
+        trIc: flat ? 'trending_flat' : diff > 0 ? 'trending_up' : 'trending_down', tr: flat ? 'Stable' : diff > 0 ? 'Rising' : 'Falling',
+        range: m.cum ? 'mission limit 100 mSv' : `${fmt(m, m.lo)} – ${fmt(m, m.hi)} ${m.unit}`,
+        stats: [['MIN', sv.length ? Math.min(...sv) : 0], ['MAX', sv.length ? Math.max(...sv) : 0], ['AVERAGE', avg]].map(([k, v]) => ({ k, v: sv.length ? fmt(m, v) : '—', u: m.unit })),
         // Desviación frente a la línea base pre-vuelo (solo si el servidor la envió).
-        desv: m.desv ? `${m.desv.pct > 0 ? '+' : m.desv.pct < 0 ? '−' : ''}${Math.abs(m.desv.pct).toFixed(1)} % vs base pre-vuelo (${fmt(m, m.desv.base)} ${m.unit})` : '',
+        desv: m.desv ? `${m.desv.pct > 0 ? '+' : m.desv.pct < 0 ? '−' : ''}${Math.abs(m.desv.pct).toFixed(1)} % vs pre-flight baseline (${fmt(m, m.desv.base)} ${m.unit})` : '',
         sospechoso: m.sospechoso || '',
         rec: m.rec,
         regUrl,

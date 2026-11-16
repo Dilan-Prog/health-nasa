@@ -1,7 +1,7 @@
 ---
 slug: arritmia
 patron: arritmia
-titulo: Posible irregularidad del pulso (requiere ECG)
+titulo: Possible pulse irregularity (requires ECG)
 fuentes:
   - "docs/fuentes/variacion_dosis_efectiva.txt, sección Frecuencia cardíaca (datos de las misiones Apolo)"
   - "docs/fuentes/datos_medicos.txt, sección 1 (captura de ECG por wearables)"
@@ -9,20 +9,20 @@ fuentes:
 revision_medica: pendiente
 ---
 
-## Señales a vigilar
-- Frecuencia cardíaca en precaución o crítico según los umbrales del proyecto.
-- Como apoyo, estrés cognitivo alterado en la misma ventana.
-- Contexto histórico de la referencia: en las misiones Apolo el pulso fue de 66 a 144 lpm; un aumento aislado puede tener componentes ortostáticos y psicológicos.
+## Signs to watch
+- Heart rate in caution or critical according to the project's thresholds.
+- As a supporting sign, altered cognitive stress in the same window.
+- Historical context from the reference: during the Apollo missions the pulse ranged from 66 to 144 bpm; an isolated increase can have orthostatic and psychological components.
 
-## Qué chequear
-- Que la lectura no sea un artefacto del sensor (interferencias o mal contacto con la piel): una lectura sospechosa no dispara este patrón.
-- Si el pulso se mantiene alterado en lecturas sucesivas o fue un valor aislado.
-- Contactar con tierra y, si el equipo está disponible, registrar un ECG (la guía de referencia lista el ECG por wearable como fuente de datos). Que el ECG sea necesario para valorar el ritmo es un criterio del proyecto.
+## What to check
+- That the reading is not a sensor artifact (interference or poor skin contact): a suspect reading does not trigger this pattern.
+- Whether the pulse stays altered over successive readings or was an isolated value.
+- Contact the ground and, if the equipment is available, record an ECG (the reference guide lists wearable ECG as a data source). That an ECG is needed to assess rhythm is a project criterion.
 
-## Cuándo escalar
-- El sistema envía el caso a tierra cuando su severidad es crítica (regla del proyecto, no de la norma).
-- Criterios clínicos adicionales de escalado: Pendiente de fuente verificable.
+## When to escalate
+- The system sends the case to the ground when its severity is critical (project rule, not a standard).
+- Additional clinical escalation criteria: Pending verifiable source.
 
-## Límites de lo que puede afirmarse
-- Con una lectura cada pocos minutos no se puede hablar de arritmia: solo de una posible irregularidad del pulso que requiere ECG.
-- Los documentos de referencia no definen criterios de arritmia: Pendiente de fuente verificable.
+## Limits of what can be stated
+- With one reading every few minutes, arrhythmia cannot be stated: only a possible pulse irregularity that requires an ECG.
+- The reference documents do not define arrhythmia criteria: Pending verifiable source.

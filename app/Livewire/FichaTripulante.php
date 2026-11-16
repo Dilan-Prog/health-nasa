@@ -25,9 +25,9 @@ class FichaTripulante extends Component
 {
     public const ESTADOS = [
         'ok' => ['Normal', 'check_circle'],
-        'warn' => ['Precaución', 'warning'],
-        'crit' => ['Crítico', 'error'],
-        'neu' => ['Sin dato', 'remove'],
+        'warn' => ['Caution', 'warning'],
+        'crit' => ['Critical', 'error'],
+        'neu' => ['No data', 'remove'],
     ];
 
     private const APTITUD_TONO = ['apto' => 'ok', 'apto_restricciones' => 'warn', 'no_apto' => 'crit', 'pendiente' => 'neu'];
@@ -109,14 +109,14 @@ class FichaTripulante extends Component
             $reglas["lb.$k.hasta"] = "nullable|date|after_or_equal:lb.$k.desde";
         }
         $this->validate($reglas, [
-            'lb.*.valor.numeric' => 'El valor debe ser un número.',
-            'lb.*.valor.min' => 'El valor no puede ser negativo.',
-            'lb.*.valor.max' => 'El valor es demasiado grande.',
-            'lb.*.unidad.max' => 'La unidad admite hasta 20 caracteres.',
-            'lb.*.fuente.max' => 'La fuente admite hasta 120 caracteres.',
-            'lb.*.desde.date' => 'Fecha no válida.',
-            'lb.*.hasta.date' => 'Fecha no válida.',
-            'lb.*.hasta.after_or_equal' => 'La ventana debe terminar el mismo día o después de empezar.',
+            'lb.*.valor.numeric' => 'The value must be a number.',
+            'lb.*.valor.min' => 'The value cannot be negative.',
+            'lb.*.valor.max' => 'The value is too large.',
+            'lb.*.unidad.max' => 'The unit allows up to 20 characters.',
+            'lb.*.fuente.max' => 'The source allows up to 120 characters.',
+            'lb.*.desde.date' => 'Invalid date.',
+            'lb.*.hasta.date' => 'Invalid date.',
+            'lb.*.hasta.after_or_equal' => 'The window must end on or after its start date.',
         ]);
 
         $a = $this->tripulante();
@@ -135,7 +135,7 @@ class FichaTripulante extends Component
                 'fuente' => filled($f['fuente']) ? $f['fuente'] : null,
             ]);
         }
-        $this->okLb = 'Línea base guardada.';
+        $this->okLb = 'Baseline saved.';
     }
 
     /** Guarda la ficha ASCAN. Solo registra: sin cálculo ni interpretación. */
@@ -149,10 +149,10 @@ class FichaTripulante extends Component
             $reglas["asc.$k.estado"] = 'required|in:'.implode(',', ExamenAscan::ESTADOS);
         }
         $this->validate($reglas, [
-            'asc.*.resultado.max' => 'El resultado admite hasta 255 caracteres.',
-            'asc.*.fecha.date' => 'Fecha no válida.',
-            'asc.*.estado.in' => 'Estado no válido.',
-            'asc.*.estado.required' => 'Elige un estado.',
+            'asc.*.resultado.max' => 'The result allows up to 255 characters.',
+            'asc.*.fecha.date' => 'Invalid date.',
+            'asc.*.estado.in' => 'Invalid status.',
+            'asc.*.estado.required' => 'Choose a status.',
         ]);
 
         $a = $this->tripulante();
@@ -169,7 +169,7 @@ class FichaTripulante extends Component
                 'estado' => $f['estado'],
             ]);
         }
-        $this->okAsc = 'Ficha ASCAN guardada.';
+        $this->okAsc = 'ASCAN record saved.';
     }
 
     private function tripulante(): Astronauta
@@ -190,7 +190,7 @@ class FichaTripulante extends Component
         return view('livewire.ficha-tripulante', [
             'a' => $a,
             'iniciales' => $this->iniciales($a->nombre),
-            'subtitulo' => collect([$a->rol, $edad !== null ? $edad.' años' : null, $a->agencia, $a->nacionalidad])->filter()->implode(' · '),
+            'subtitulo' => collect([$a->rol, $edad !== null ? $edad.' yr' : null, $a->agencia, $a->nacionalidad])->filter()->implode(' · '),
             'pildoras' => $this->pildoras($a),
             'bateriaBaja' => $a->bateria_pct !== null && $a->bateria_pct < (int) config('mision.reloj_bateria_baja_pct', 20) ? $a->bateria_pct : null,
             'restriccion' => $e && $e->aptitud_vuelo === 'apto_restricciones' && filled($e->restricciones) ? $e->restricciones : null,
@@ -198,7 +198,7 @@ class FichaTripulante extends Component
             'linea' => $this->lineaBase($a),
             'lbMetricas' => $this->metricasBase($a),
             'ascGrupos' => config('ascan.grupos'),
-            'ascEstados' => ['pendiente' => 'Pendiente', 'normal' => 'Normal', 'anormal' => 'Anormal'],
+            'ascEstados' => ['pendiente' => 'Pending', 'normal' => 'Normal', 'anormal' => 'Abnormal'],
             'bio' => $this->biometria($a),
             'listas' => $this->listas($a),
         ]);
@@ -221,10 +221,10 @@ class FichaTripulante extends Component
             $out[] = ['l' => config('expediente.aptitudes')[$apt], 'ic' => self::ESTADOS[$t][1], 'tono' => $t];
         }
         foreach ($a->alergias->where('gravedad', 'grave') as $al) {
-            $out[] = ['l' => 'Alergia grave: '.$al->sustancia, 'ic' => 'error', 'tono' => 'crit'];
+            $out[] = ['l' => 'Severe allergy: '.$al->sustancia, 'ic' => 'error', 'tono' => 'crit'];
         }
         if (filled($a->grupo_sanguineo)) {
-            $out[] = ['l' => 'Grupo '.str_replace('-', self::MENOS, $a->grupo_sanguineo), 'ic' => 'bloodtype', 'tono' => 'neu'];
+            $out[] = ['l' => 'Blood type '.str_replace('-', self::MENOS, $a->grupo_sanguineo), 'ic' => 'bloodtype', 'tono' => 'neu'];
         }
 
         return $out;
@@ -265,7 +265,7 @@ class FichaTripulante extends Component
             $estado = $m['estado'] ?? 'neu';
             $filas[] = [
                 'clave' => $clave, 'label' => $cfg['label'], 'ic' => $cfg['ic'], 'unit' => $cfg['unit'],
-                'base' => $b !== null ? $this->num((float) $b, $dec).($clave === 'presion_arterial' ? ' (sist.)' : '') : null,
+                'base' => $b !== null ? $this->num((float) $b, $dec).($clave === 'presion_arterial' ? ' (sys.)' : '') : null,
                 'ultimo' => $m['disp'] ?? null,
                 'delta' => $delta,
                 'estado' => $estado, 'estado_txt' => self::ESTADOS[$estado][0], 'estado_ic' => self::ESTADOS[$estado][1],
@@ -323,73 +323,73 @@ class FichaTripulante extends Component
         $n = fn ($v, $suf = '') => $v !== null && $v !== '' ? rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.').$suf : null;
 
         $items = [
-            ['Altura', $a->altura_m ? number_format($a->altura_m, 2, '.', '').' m' : null, null],
-            ['Peso', $n($a->peso_kg, ' kg'), null],
-            ['IMC', $imc !== null ? number_format($imc, 1, '.', '') : null, $tonoImc],
-            ['EVAs previas', $a->evas !== null ? (string) $a->evas : null, null],
-            ['FC reposo', $n($e?->fc_reposo, ' lpm'), null],
-            ['FC máxima', $n($e?->fc_maxima, ' lpm'), null],
-            ['Presión basal', $e?->presion_basal_sis && $e?->presion_basal_dia ? $e->presion_basal_sis.'/'.$e->presion_basal_dia.' mmHg' : null, null],
-            ['SpO₂ basal', $n($e?->spo2_basal, ' %'), null],
-            ['VO₂ máx', $n($e?->vo2max), null],
-            ['Grasa corporal', $n($e?->grasa_corporal_pct, ' %'), null],
-            ['Densidad ósea (T)', $n($e?->densidad_osea_tscore), null],
-            ['Sueño habitual', $n($e?->horas_sueno_habituales, ' h'), null],
-            ['Fumador', $e ? ($e->fumador ? 'Sí' : 'No') : null, null],
+            ['Height', $a->altura_m ? number_format($a->altura_m, 2, '.', '').' m' : null, null],
+            ['Weight', $n($a->peso_kg, ' kg'), null],
+            ['BMI', $imc !== null ? number_format($imc, 1, '.', '') : null, $tonoImc],
+            ['Prior EVAs', $a->evas !== null ? (string) $a->evas : null, null],
+            ['Resting HR', $n($e?->fc_reposo, ' bpm'), null],
+            ['Max HR', $n($e?->fc_maxima, ' bpm'), null],
+            ['Baseline BP', $e?->presion_basal_sis && $e?->presion_basal_dia ? $e->presion_basal_sis.'/'.$e->presion_basal_dia.' mmHg' : null, null],
+            ['Baseline SpO₂', $n($e?->spo2_basal, ' %'), null],
+            ['VO₂max', $n($e?->vo2max), null],
+            ['Body fat', $n($e?->grasa_corporal_pct, ' %'), null],
+            ['Bone density (T)', $n($e?->densidad_osea_tscore), null],
+            ['Usual sleep', $n($e?->horas_sueno_habituales, ' h'), null],
+            ['Smoker', $e ? ($e->fumador ? 'Yes' : 'No') : null, null],
             ['Alcohol', $e && $e->alcohol ? (config('expediente.alcohol')[$e->alcohol] ?? $e->alcohol) : null, null],
-            ['Último examen médico', $e?->ultimo_examen_en?->format('d/m/Y'), null],
+            ['Last medical exam', $e?->ultimo_examen_en?->format('d M Y'), null],
         ];
 
-        return array_map(fn ($i) => ['l' => $i[0], 'v' => $i[1] ?? 'Sin dato', 'vacio' => $i[1] === null, 'tono' => $i[2]], $items);
+        return array_map(fn ($i) => ['l' => $i[0], 'v' => $i[1] ?? 'No data', 'vacio' => $i[1] === null, 'tono' => $i[2]], $items);
     }
 
     /** @return array<int, array<string, mixed>> */
     private function listas(Astronauta $a): array
     {
         $grav = config('expediente.gravedades');
-        $fecha = fn ($d) => $d ? Carbon::parse($d)->format('d/m/Y') : null;
+        $fecha = fn ($d) => $d ? Carbon::parse($d)->format('d M Y') : null;
         $unir = fn (array $p) => collect($p)->filter(fn ($x) => filled($x))->implode(' · ');
 
         return [
             [
-                'id' => 'alergias', 'titulo' => 'Alergias', 'ic' => 'allergy', 'aviso' => null, 'vacio' => 'Sin alergias registradas.',
+                'id' => 'alergias', 'titulo' => 'Allergies', 'ic' => 'allergy', 'aviso' => null, 'vacio' => 'No allergies recorded.',
                 'filas' => $a->alergias->map(function ($r) use ($grav) {
                     $t = self::GRAVEDAD_TONO[$r->gravedad] ?? 'neu';
 
                     return [
-                        'main' => $r->sustancia, 'sub' => 'Reacción: '.($r->reaccion ?: 'sin dato'), 'resalta' => $r->gravedad === 'grave',
+                        'main' => $r->sustancia, 'sub' => 'Reaction: '.($r->reaccion ?: 'no data'), 'resalta' => $r->gravedad === 'grave',
                         'pill' => $r->gravedad ? ['l' => $grav[$r->gravedad] ?? $r->gravedad, 'ic' => self::ESTADOS[$t][1], 'tono' => $t] : null,
                     ];
                 })->all(),
             ],
             [
-                'id' => 'condiciones', 'titulo' => 'Condiciones médicas', 'ic' => 'medical_information', 'aviso' => null, 'vacio' => 'Sin condiciones registradas.',
+                'id' => 'condiciones', 'titulo' => 'Medical conditions', 'ic' => 'medical_information', 'aviso' => null, 'vacio' => 'No conditions recorded.',
                 'filas' => $a->condiciones->map(fn ($r) => [
                     'main' => $r->nombre, 'resalta' => false, 'pill' => null,
-                    'sub' => $unir([config('expediente.estados_condicion')[$r->estado] ?? $r->estado, $r->desde ? 'desde '.$fecha($r->desde) : null, $r->notas]),
+                    'sub' => $unir([config('expediente.estados_condicion')[$r->estado] ?? $r->estado, $r->desde ? 'since '.$fecha($r->desde) : null, $r->notas]),
                 ])->all(),
             ],
             [
-                'id' => 'medicamentos', 'titulo' => 'Medicamentos actuales', 'ic' => 'medication', 'vacio' => 'Sin medicamentos registrados.',
-                'aviso' => 'Registro de lo que ya toma. La app no receta ni cambia dosis.',
+                'id' => 'medicamentos', 'titulo' => 'Current medications', 'ic' => 'medication', 'vacio' => 'No medications recorded.',
+                'aviso' => 'Record of what is already being taken. The app does not prescribe or change doses.',
                 'filas' => $a->medicamentos->map(fn ($r) => [
                     'main' => trim($r->nombre.' '.$r->dosis_texto), 'sub' => $unir([$r->frecuencia, $r->motivo]), 'resalta' => false,
-                    'pill' => $r->activo ? null : ['l' => 'Ya no lo toma', 'ic' => 'pause_circle', 'tono' => 'neu'],
+                    'pill' => $r->activo ? null : ['l' => 'No longer taking', 'ic' => 'pause_circle', 'tono' => 'neu'],
                 ])->all(),
             ],
             [
-                'id' => 'antecedentes', 'titulo' => 'Antecedentes familiares', 'ic' => 'family_restroom', 'aviso' => null, 'vacio' => 'Sin antecedentes registrados.',
+                'id' => 'antecedentes', 'titulo' => 'Family history', 'ic' => 'family_restroom', 'aviso' => null, 'vacio' => 'No family history recorded.',
                 'filas' => $a->antecedentes->map(fn ($r) => [
                     'main' => $r->condicion, 'resalta' => false, 'pill' => null,
-                    'sub' => $unir([config('expediente.parentescos')[$r->parentesco] ?? $r->parentesco, $r->edad_aparicion !== null ? 'a los '.$r->edad_aparicion.' años' : null]),
+                    'sub' => $unir([config('expediente.parentescos')[$r->parentesco] ?? $r->parentesco, $r->edad_aparicion !== null ? 'at age '.$r->edad_aparicion : null]),
                 ])->all(),
             ],
             [
-                'id' => 'contactos', 'titulo' => 'Contactos de emergencia', 'ic' => 'contact_phone', 'aviso' => null, 'vacio' => 'Sin contactos registrados.',
+                'id' => 'contactos', 'titulo' => 'Emergency contacts', 'ic' => 'contact_phone', 'aviso' => null, 'vacio' => 'No contacts recorded.',
                 'filas' => $a->contactos->sortByDesc('principal')->values()->map(fn ($r) => [
                     'main' => $r->nombre, 'resalta' => false,
                     'sub' => $unir([config('expediente.parentescos')[$r->parentesco] ?? $r->parentesco, $r->telefono]),
-                    'pill' => $r->principal ? ['l' => 'Principal', 'ic' => 'star', 'tono' => 'acc'] : null,
+                    'pill' => $r->principal ? ['l' => 'Primary', 'ic' => 'star', 'tono' => 'acc'] : null,
                 ])->all(),
             ],
         ];

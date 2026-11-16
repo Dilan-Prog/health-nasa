@@ -11,6 +11,6 @@ class OrientadorProximamente implements Orientador
 {
     public function orientar(CasoClinico $caso): Orientacion
     {
-        throw new RuntimeException('Próximamente');
+        throw new RuntimeException('Coming soon');
     }
 }

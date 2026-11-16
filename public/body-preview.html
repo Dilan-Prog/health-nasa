@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Figura anatómica interactiva · Monitor de salud</title>
+<title>Interactive anatomical figure · Health monitor</title>
 <style>
   :root{
     --navy:#071E4A; --blue:#0B3D91; --blue-2:#1B58B8; --red:#FC3D21;
@@ -71,19 +71,19 @@
 <body>
 <header>
   <div class="brand"><div class="logo">HM</div>
-    <div><h1>Monitor de salud · Astronautas</h1><small>Estación Espacial Internacional · Día 142</small></div></div>
-  <button class="switch" type="button">Cambiar usuario</button>
+    <div><h1>Health monitor · Astronauts</h1><small>International Space Station · Day 142</small></div></div>
+  <button class="switch" type="button">Switch user</button>
 </header>
 
 <main>
   <section class="card figure-card" id="figureCard">
     <div class="profile">
-      <div><h2>Cmdr. Elena Vargas</h2><p>Ingeniera de vuelo · 38 años</p></div>
-      <div class="stats"><div>Altura<b>1.68 m</b></div><div>Peso<b>61 kg</b></div><div>IMC<b>21.6</b></div></div>
+      <div><h2>Cmdr. Elena Vargas</h2><p>Flight engineer · 38 years</p></div>
+      <div class="stats"><div>Height<b>1.68 m</b></div><div>Weight<b>61 kg</b></div><div>BMI<b>21.6</b></div></div>
     </div>
-    <div class="tabs" role="group" aria-label="Vista del cuerpo">
-      <button type="button" data-view="front" aria-pressed="true">Frente</button>
-      <button type="button" data-view="back" aria-pressed="false">Espalda</button>
+    <div class="tabs" role="group" aria-label="Body view">
+      <button type="button" data-view="front" aria-pressed="true">Front</button>
+      <button type="button" data-view="back" aria-pressed="false">Back</button>
     </div>
 
     <!-- ===== SVG COMPARTIDO: silueta de media figura (se espeja) ===== -->
@@ -230,7 +230,7 @@
     </svg>
 
     <!-- ===== VISTA FRENTE ===== -->
-    <svg class="body" id="v-front" viewBox="0 0 300 700" role="img" aria-label="Figura humana, vista frontal">
+    <svg class="body" id="v-front" viewBox="0 0 300 700" role="img" aria-label="Human figure, front view">
       <ellipse cx="150" cy="690" rx="90" ry="6" fill="#0B3D91" opacity=".12"/>
       <use href="#fsil" class="skin"/>
       <use href="#fsil" class="skin" transform="translate(300,0) scale(-1,1)"/>
@@ -238,19 +238,19 @@
       <use href="#f-det"/>
       <use href="#f-det" transform="translate(300,0) scale(-1,1)"/>
 
-      <use href="#f-bone" class="zone" data-zone="bone" role="button" tabindex="0" aria-label="Salud ósea"/>
-      <use href="#f-bone" class="zone" data-zone="bone" transform="translate(300,0) scale(-1,1)" role="button" tabindex="-1" aria-label="Salud ósea"/>
+      <use href="#f-bone" class="zone" data-zone="bone" role="button" tabindex="0" aria-label="Bone health"/>
+      <use href="#f-bone" class="zone" data-zone="bone" transform="translate(300,0) scale(-1,1)" role="button" tabindex="-1" aria-label="Bone health"/>
       <rect class="band zone" data-zone="bmi" x="108" y="266" width="84" height="32" rx="10" role="button" tabindex="0" aria-label="IMC"/>
-      <path class="zf zone" data-zone="bp" role="button" tabindex="0" aria-label="Presión arterial"
+      <path class="zf zone" data-zone="bp" role="button" tabindex="0" aria-label="Blood pressure"
             d="M172,184 C159,175 157,162 164,159 C169,157 172,160 172,163 C172,160 175,157 180,159 C187,162 185,175 172,184 Z"/>
       <path class="zf zone" data-zone="glucose" role="button" tabindex="0" aria-label="Glucosa"
             d="M62,372 C69,381 74,388 74,394 C74,401 69,405 62,405 C55,405 50,401 50,394 C50,388 55,381 62,372 Z"/>
-      <use href="#fhalo" class="halo zone" data-zone="rad" role="button" tabindex="0" aria-label="Radiación"/>
-      <use href="#fhalo" class="halo zone" data-zone="rad" transform="translate(300,0) scale(-1,1)" aria-label="Radiación"/>
+      <use href="#fhalo" class="halo zone" data-zone="rad" role="button" tabindex="0" aria-label="Radiation"/>
+      <use href="#fhalo" class="halo zone" data-zone="rad" transform="translate(300,0) scale(-1,1)" aria-label="Radiation"/>
     </svg>
 
     <!-- ===== VISTA ESPALDA ===== -->
-    <svg class="body" id="v-back" viewBox="0 0 300 700" role="img" aria-label="Figura humana, vista posterior" hidden>
+    <svg class="body" id="v-back" viewBox="0 0 300 700" role="img" aria-label="Human figure, back view" hidden>
       <ellipse cx="150" cy="690" rx="80" ry="6" fill="#0B3D91" opacity=".12"/>
       <use href="#sil" class="skin"/>
       <use href="#sil" class="skin" transform="translate(300,0) scale(-1,1)"/>
@@ -259,40 +259,40 @@
       <use href="#b-det" transform="translate(300,0) scale(-1,1)"/>
       <path class="ln" d="M150,86 L150,356"/>
 
-      <use href="#b-bone" class="zone" data-zone="bone" role="button" tabindex="0" aria-label="Salud ósea"/>
-      <use href="#b-bone" class="zone" data-zone="bone" transform="translate(300,0) scale(-1,1)" role="button" tabindex="-1" aria-label="Salud ósea"/>
+      <use href="#b-bone" class="zone" data-zone="bone" role="button" tabindex="0" aria-label="Bone health"/>
+      <use href="#b-bone" class="zone" data-zone="bone" transform="translate(300,0) scale(-1,1)" role="button" tabindex="-1" aria-label="Bone health"/>
       <rect class="band zone" data-zone="bmi" x="112" y="268" width="76" height="30" rx="9" role="button" tabindex="0" aria-label="IMC"/>
-      <use href="#halo-out" class="halo zone" data-zone="rad" role="button" tabindex="0" aria-label="Radiación"/>
-      <use href="#halo-out" class="halo zone" data-zone="rad" transform="translate(300,0) scale(-1,1)" aria-label="Radiación"/>
+      <use href="#halo-out" class="halo zone" data-zone="rad" role="button" tabindex="0" aria-label="Radiation"/>
+      <use href="#halo-out" class="halo zone" data-zone="rad" transform="translate(300,0) scale(-1,1)" aria-label="Radiation"/>
     </svg>
 
     <div class="tip" id="tip"></div>
     <div class="legend">
       <span><i class="dot" style="background:var(--ok)"></i>Normal</span>
-      <span><i class="dot" style="background:var(--warn)"></i>Precaución</span>
-      <span><i class="dot" style="background:var(--crit)"></i>Crítico</span>
+      <span><i class="dot" style="background:var(--warn)"></i>Caution</span>
+      <span><i class="dot" style="background:var(--crit)"></i>Critical</span>
     </div>
   </section>
 
-  <section class="list" id="list" aria-label="Indicadores y sugerencias"></section>
+  <section class="list" id="list" aria-label="Indicators and suggestions"></section>
 </main>
-<p class="note">Esta herramienta orienta y no sustituye el criterio médico. Datos de ejemplo.</p>
+<p class="note">This tool provides guidance only and does not replace medical judgment. Example data.</p>
 
 <script>
 const COLORS = {ok:'var(--ok)', warn:'var(--warn)', crit:'var(--crit)'};
-const LABEL  = {ok:'✔ Normal', warn:'▲ Precaución', crit:'⚠ Crítico'};
+const LABEL  = {ok:'✔ Normal', warn:'▲ Caution', crit:'⚠ Critical'};
 // Datos de ejemplo: reemplazar por la salida del motor de evaluación.
 const DATA = [
-  {zone:'rad',     view:'front', name:'Radiación acumulada', value:'96', unit:'mSv · 84 % del límite', status:'crit',
-   tip:'Cerca del límite de misión. Reduce actividad extravehicular y contacta a tierra.'},
-  {zone:'bp',      view:'front', name:'Presión arterial', value:'138/88', unit:'mmHg', status:'warn',
-   tip:'Ligeramente elevada. Hidrátate, descansa 10 min y repite la medición en 2 h.'},
-  {zone:'bone',    view:'front', name:'Salud ósea', value:'−4.5', unit:'% vs línea base', status:'warn',
-   tip:'Pérdida moderada. Cumple la rutina de ejercicio de resistencia (2 sesiones hoy).'},
-  {zone:'glucose', view:'front', name:'Glucosa en sangre', value:'92', unit:'mg/dL', status:'ok',
-   tip:'Dentro del rango normal. Mantén tu plan de nutrición.'},
-  {zone:'bmi',     view:'front', name:'Índice de masa corporal', value:'21.6', unit:'kg/m²', status:'ok',
-   tip:'Peso saludable. Continúa con el seguimiento semanal.'}
+  {zone:'rad',     view:'front', name:'Cumulative radiation', value:'96', unit:'mSv · 84 % of limit', status:'crit',
+   tip:'Close to the mission limit. Reduce extravehicular activity and contact the ground.'},
+  {zone:'bp',      view:'front', name:'Blood pressure', value:'138/88', unit:'mmHg', status:'warn',
+   tip:'Slightly elevated. Hydrate, rest for 10 min, and repeat the measurement in 2 h.'},
+  {zone:'bone',    view:'front', name:'Bone health', value:'−4.5', unit:'% vs baseline', status:'warn',
+   tip:'Moderate loss. Follow the resistance exercise routine (2 sessions today).'},
+  {zone:'glucose', view:'front', name:'Blood glucose', value:'92', unit:'mg/dL', status:'ok',
+   tip:'Within the normal range. Keep your nutrition plan.'},
+  {zone:'bmi',     view:'front', name:'Body mass index', value:'21.6', unit:'kg/m²', status:'ok',
+   tip:'Healthy weight. Continue the weekly follow-up.'}
 ];
 
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];

@@ -24,11 +24,11 @@ class ControlSimulacion
     {
         $escenarios = (new SimuladorVivo())->escenarios();
         if (! isset($escenarios[$clave])) {
-            throw new InvalidArgumentException("Escenario desconocido: {$clave}");
+            throw new InvalidArgumentException("Unknown scenario: {$clave}");
         }
         $t = SimulacionTripulante::de($a);
         if ($t->fuente === 'reloj') {
-            throw new InvalidArgumentException('Este tripulante usa el reloj real; no se puede simular.');
+            throw new InvalidArgumentException('This crew member uses the real clock; it cannot be simulated.');
         }
 
         if ($t->escenario) {

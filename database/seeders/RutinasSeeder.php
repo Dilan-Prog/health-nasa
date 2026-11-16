@@ -20,18 +20,19 @@ class RutinasSeeder extends Seeder
 {
     /** [hora, icono, nombre, tipo, kind, cantidad, indicador que la motiva] */
     public const PLANTILLA = [
-        ['06:30', 'fitness_center', 'Sesión ARED 45 min', 'Ejercicio resistido', 'ej', 45, 'perdida_osea'],
-        ['07:30', 'monitor_heart', 'Medir presión arterial', 'Medición', 'med', 0, 'presion_arterial'],
-        ['08:15', 'self_improvement', 'Estiramientos 10 min', 'Otro', 'ej', 10, null],
-        ['09:00', 'flare', 'Revisar dosis de radiación', 'Medición', 'med', 0, 'radiacion_diaria'],
-        ['11:00', 'directions_run', 'Rutina de fuerza de piernas 30 min', 'Ejercicio resistido', 'ej', 30, 'masa_muscular'],
-        ['13:00', 'water_drop', 'Hidratación: 500 ml', 'Hidratación', 'bien', 500, null],
-        ['16:00', 'pedal_bike', 'Cardio en cicloergómetro 30 min', 'Cardio', 'ej', 30, null],
-        ['21:00', 'mood', 'Registrar ánimo', 'Otro', 'bien', 0, null],
+        ['06:30', 'fitness_center', 'ARED session, 45 min', 'Ejercicio resistido', 'ej', 45, 'perdida_osea'],
+        ['07:30', 'monitor_heart', 'Measure blood pressure', 'Medición', 'med', 0, 'presion_arterial'],
+        ['08:15', 'self_improvement', 'Stretching, 10 min', 'Otro', 'ej', 10, null],
+        ['09:00', 'flare', 'Check radiation dose', 'Medición', 'med', 0, 'radiacion_diaria'],
+        ['11:00', 'directions_run', 'Leg strength routine, 30 min', 'Ejercicio resistido', 'ej', 30, 'masa_muscular'],
+        ['13:00', 'water_drop', 'Hydration: 500 ml', 'Hidratación', 'bien', 500, null],
+        ['16:00', 'pedal_bike', 'Cycle ergometer cardio (CEVIS), 30 min', 'Cardio', 'ej', 30, null],
+        ['21:00', 'mood', 'Log mood', 'Otro', 'bien', 0, null],
     ];
 
     public function run(): void
     {
+        ExpedicionSeeder::migrarRolesAnteriores();
         $mision = Mision::where('nombre', ExpedicionSeeder::MISION)->first();
         if (! $mision) {
             return;
@@ -73,11 +74,11 @@ class RutinasSeeder extends Seeder
 
                 // Historial manual del diseño (HIST0) + hidratación de hoy.
                 $manual = [
-                    ['Sueño', 'Sueño', $hoy->copy()->subDay()->setTime(22, 40), 372, null, null],
-                    ['Hidratación', 'Hidratación', $hoy->copy()->setTime(8, 10), 1400, null, null],
-                    ['Hidratación', 'Hidratación', $hoy->copy()->subDay()->setTime(19, 10), 500, null, null],
-                    ['Comida', 'Comida', $hoy->copy()->subDay()->setTime(13, 5), 25, null, null],
-                    ['EVA', 'EVA · mantenimiento panel solar', $hoy->copy()->subDays(2)->setTime(8, 0), 390, 'Media', null],
+                    ['Sueño', 'Sleep', $hoy->copy()->subDay()->setTime(22, 40), 372, null, null],
+                    ['Hidratación', 'Hydration', $hoy->copy()->setTime(8, 10), 1400, null, null],
+                    ['Hidratación', 'Hydration', $hoy->copy()->subDay()->setTime(19, 10), 500, null, null],
+                    ['Comida', 'Meal', $hoy->copy()->subDay()->setTime(13, 5), 25, null, null],
+                    ['EVA', 'EVA · solar panel maintenance', $hoy->copy()->subDays(2)->setTime(8, 0), 390, 'Media', null],
                 ];
                 foreach ($manual as [$tipo, $nombre, $inicio, $cantidad, $intensidad, $nota]) {
                     Actividad::create([

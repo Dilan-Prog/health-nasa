@@ -22,17 +22,17 @@ use Livewire\Component;
 class Panel extends Component
 {
     public const PREGUNTAS = [
-        '¿Sientes mareo o inestabilidad?',
-        '¿Tienes dolor de cabeza?',
-        '¿Te falta el aire o respiras con esfuerzo?',
-        '¿Notas palpitaciones o el corazón acelerado?',
-        '¿Tienes visión borrosa o ves puntos de luz?',
+        'Do you feel dizzy or unsteady?',
+        'Do you have a headache?',
+        'Are you short of breath or breathing with effort?',
+        'Do you notice palpitations or a racing heart?',
+        'Do you have blurred vision or see spots of light?',
     ];
 
     public const RESULTADOS = [
-        'green' => ['k' => 'ok', 'ic' => 'visibility', 'titulo' => 'Vigilar', 'texto' => 'Sin síntomas. Sigue con tu rutina y repite el autochequeo si algo cambia.'],
-        'orange' => ['k' => 'warn', 'ic' => 'front_hand', 'titulo' => 'Aplicar medida', 'texto' => 'Aplica las acciones de las tarjetas y repite el autochequeo en 15 min.'],
-        'red' => ['k' => 'crit', 'ic' => 'emergency', 'titulo' => 'Contactar a tierra ahora', 'texto' => 'Tus síntomas necesitan valoración del flight surgeon. Avisa a tierra y mantente en reposo.'],
+        'green' => ['k' => 'ok', 'ic' => 'visibility', 'titulo' => 'Monitor', 'texto' => 'No symptoms. Continue your routine and repeat the self-check if anything changes.'],
+        'orange' => ['k' => 'warn', 'ic' => 'front_hand', 'titulo' => 'Apply measure', 'texto' => 'Apply the actions on the cards and repeat the self-check in 15 min.'],
+        'red' => ['k' => 'crit', 'ic' => 'emergency', 'titulo' => 'Contact ground now', 'texto' => 'Your symptoms need assessment by the Flight Surgeon. Alert ground and rest.'],
     ];
 
     /** Indicador seleccionado (clave de config/panel.php) o null. */
@@ -122,7 +122,7 @@ class Panel extends Component
             ->whereHas('medicion', fn ($q) => $q->where('astronauta_id', $astronauta->id)
                 ->when($clave !== 'chk', fn ($q) => $q->where('indicador', $clave)))
             ->with('medicion')->latest('id')->first();
-        $etiqueta = $clave === 'chk' ? 'Autochequeo de síntomas' : config('panel.indicadores.'.$clave.'.etiqueta');
+        $etiqueta = $clave === 'chk' ? 'Symptom self-check' : config('panel.indicadores.'.$clave.'.etiqueta');
         // Sin evaluación previa el aviso viaja igual (evaluacion_id es opcional): solo sin valores ni estado.
         $carga = [
             'astronauta' => $astronauta->nombre,

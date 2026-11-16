@@ -5,10 +5,10 @@
     $total = collect(config('peligros.grupos'))->sum(fn ($g) => count($g['riesgos']));
 @endphp
 <section class="peli" aria-labelledby="peli-t">
-    <h3 class="peli-titulo" id="peli-t">Peligros y riesgos</h3>
-    <p class="peli-sub">Los 5 peligros del vuelo espacial y los {{ $total }} riesgos del HRP, con la cobertura que les da este sistema ({{ config('peligros.etiqueta_ejemplo') }}).</p>
+    <h3 class="peli-titulo" id="peli-t">Hazards and risks</h3>
+    <p class="peli-sub">The 5 spaceflight hazards and the {{ $total }} HRP risks, with the coverage this system gives them ({{ config('peligros.etiqueta_ejemplo') }}).</p>
 
-    <h4 class="peli-sec mono">5 PELIGROS</h4>
+    <h4 class="peli-sec mono">5 HAZARDS</h4>
     <ul class="peli-peligros">
         @foreach ($peligros as $p)
             <li class="peli-peligro"><span class="icono" aria-hidden="true">{{ $p['ic'] }}</span>{{ $p['nombre'] }}</li>
@@ -16,11 +16,11 @@
     </ul>
     <p class="peli-nota" role="note"><span class="icono" aria-hidden="true">info</span>{{ config('peligros.nota') }}</p>
 
-    <h4 class="peli-sec mono">{{ $total }} RIESGOS Y COBERTURA</h4>
+    <h4 class="peli-sec mono">{{ $total }} RISKS AND COVERAGE</h4>
     <div class="peli-tabla-envol">
         <table class="peli-tabla">
-            <caption class="peli-sr">Cobertura del sistema para cada riesgo HRP</caption>
-            <thead><tr><th scope="col">Riesgo</th><th scope="col">Cobertura</th><th scope="col">Detalle</th></tr></thead>
+            <caption class="peli-sr">System coverage for each HRP risk</caption>
+            <thead><tr><th scope="col">Risk</th><th scope="col">Coverage</th><th scope="col">Detail</th></tr></thead>
             @foreach (config('peligros.grupos') as $g)
                 <tbody>
                     <tr class="peli-grupo"><th scope="rowgroup" colspan="3">{{ $g['nombre'] }} ({{ count($g['riesgos']) }})</th></tr>
@@ -36,13 +36,13 @@
         </table>
     </div>
 
-    <h4 class="peli-sec mono">PELIGRO × INDICADOR</h4>
+    <h4 class="peli-sec mono">HAZARD × INDICATOR</h4>
     <div class="peli-tabla-envol">
         <table class="peli-tabla peli-matriz">
-            <caption class="peli-sr">Qué indicadores se ven afectados por cada peligro</caption>
+            <caption class="peli-sr">Which indicators are affected by each hazard</caption>
             <thead>
                 <tr>
-                    <th scope="col">Indicador</th>
+                    <th scope="col">Indicator</th>
                     @foreach ($peligros as $p)<th scope="col">{{ $p['nombre'] }}</th>@endforeach
                 </tr>
             </thead>
@@ -51,12 +51,12 @@
                     <tr>
                         <th scope="row">{{ $ind['nombre'] }}</th>
                         @foreach ($peligros as $k => $p)
-                            <td>@if (in_array($k, $ind['riesgos'] ?? [], true))<span class="icono" aria-hidden="true">check</span><span class="peli-sr">Sí</span>@else<span class="peli-sr">No</span>@endif</td>
+                            <td>@if (in_array($k, $ind['riesgos'] ?? [], true))<span class="icono" aria-hidden="true">check</span><span class="peli-sr">Yes</span>@else<span class="peli-sr">No</span>@endif</td>
                         @endforeach
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
-    <p class="peli-pie">«Distancia de la Tierra» no tiene indicador propio: se refleja en el retardo de comunicación de la misión.</p>
+    <p class="peli-pie">“Distance from Earth” has no indicator of its own: it is reflected in the mission’s communication delay.</p>
 </section>

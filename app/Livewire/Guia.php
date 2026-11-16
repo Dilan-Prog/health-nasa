@@ -20,7 +20,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Guia extends Component
 {
-    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['PRECAUCIÓN', 'warning'], 'crit' => ['CRÍTICO', 'error']];
+    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle'], 'warn' => ['CAUTION', 'warning'], 'crit' => ['CRITICAL', 'error']];
 
     #[On('tripulante-cambiado')]
     public function refrescar(): void
@@ -63,11 +63,11 @@ class Guia extends Component
             $g = $texto[$clave] ?? ['parte' => '', 'texto' => ''];
             $dec = $c['dec'] ?? 0;
             if ($clave === 'presion_arterial') {
-                $rango = 'MÍN 90/60 · MÁX 120/80 '.$c['unit'];
+                $rango = 'MIN 90/60 · MAX 120/80 '.$c['unit'];
             } elseif (! empty($c['cum'])) {
-                $rango = 'MÁX '.$num($c['hi'], $dec).' '.$c['unit'];
+                $rango = 'MAX '.$num($c['hi'], $dec).' '.$c['unit'];
             } else {
-                $rango = 'MÍN '.$num($c['lo'], $dec).' · MÁX '.$num($c['hi'], $dec).' '.$c['unit'];
+                $rango = 'MIN '.$num($c['lo'], $dec).' · MAX '.$num($c['hi'], $dec).' '.$c['unit'];
             }
             $v = $vivos[$clave] ?? null;
             $out[] = [
@@ -115,7 +115,7 @@ class Guia extends Component
         foreach (config('guia.extras', []) as $clave => $e) {
             $u = config('umbrales.indicadores.'.($e['umbral'] ?? $clave).'.componentes.valor', []);
             $unidad = (string) config('umbrales.indicadores.'.($e['umbral'] ?? $clave).'.unidad', '');
-            $rango = isset($u['normal']) ? 'MÍN '.$u['normal'][0].' · MÁX '.$u['normal'][1].' '.$unidad : $unidad;
+            $rango = isset($u['normal']) ? 'MIN '.$u['normal'][0].' · MAX '.$u['normal'][1].' '.$unidad : $unidad;
 
             $valor = $estado = null;
             if ($a) {

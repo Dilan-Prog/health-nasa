@@ -1,7 +1,7 @@
 ---
 slug: falta_sueno
 patron: falta_sueno
-titulo: Posible falta de sueño
+titulo: Possible sleep deprivation
 fuentes:
   - "docs/fuentes/variacion_dosis_efectiva.txt, sección Sueño (7 a 9 horas; promedio real en órbita de 6 a 6,5 horas)"
   - "docs/fuentes/datos_medicos.txt, sección 3 (fila Fatiga cognitiva crítica: sueño efectivo menor a 6 horas por más de 48 horas, severidad preventiva)"
@@ -9,21 +9,21 @@ fuentes:
 revision_medica: pendiente
 ---
 
-## Señales a vigilar
-- Sueño en precaución o crítico. Su estado ya incorpora la regla de ventana del proyecto (config/ventanas.php), que traduce el enunciado de la guía "menos de 6 horas por más de 48 horas" a lecturas diarias consecutivas.
-- Como apoyo, estrés cognitivo y pulso alterados.
-- La fuente asocia el sueño insuficiente con fatiga, menor concentración, posibles errores operativos y menor velocidad de respuesta psicomotora.
+## Signs to watch
+- Sleep in caution or critical. Its state already incorporates the project's window rule (config/ventanas.php), which translates the guide's statement "less than 6 hours for more than 48 hours" into consecutive daily readings.
+- As supporting signs, altered cognitive stress and pulse.
+- The source associates insufficient sleep with fatigue, reduced concentration, possible operational errors and slower psychomotor response speed.
 
-## Qué chequear
-- Las horas de sueño registradas de las últimas noches y si falta algún dato diario.
-- La acción preventiva que indica la guía: bloquear tareas críticas y recomendar higiene del sueño.
-- Cambios de iluminación y horarios que dificulten el ritmo circadiano (sección 1.9 de la fuente).
+## What to check
+- The sleep hours logged for the last nights and whether any daily entry is missing.
+- The preventive action the guide gives: block critical tasks and recommend sleep hygiene.
+- Lighting and schedule changes that disrupt the circadian rhythm (section 1.9 of the source).
 
-## Cuándo escalar
-- El sistema envía el caso a tierra cuando su severidad es crítica (regla del proyecto, no de la norma).
-- Criterios clínicos adicionales de escalado: Pendiente de fuente verificable.
+## When to escalate
+- The system sends the case to the ground when its severity is critical (project rule, not a standard).
+- Additional clinical escalation criteria: Pending verifiable source.
 
-## Límites de lo que puede afirmarse
-- Solo una posible falta de sueño (hipótesis); el sueño se registra como horas, sin fases ni calidad medida.
-- Cómo se traducen "48 horas" a lecturas diarias es un supuesto del proyecto, no de la norma.
-- La fuente no da otras medidas para este caso además de la higiene del sueño y el bloqueo de tareas críticas; no se sugiere nada más.
+## Limits of what can be stated
+- Only a possible sleep deprivation (hypothesis); sleep is logged as hours, with no stages or measured quality.
+- How "48 hours" is translated into daily readings is a project assumption, not a standard.
+- Apart from sleep hygiene and blocking critical tasks, the source gives no other measures for this case; nothing further is suggested.

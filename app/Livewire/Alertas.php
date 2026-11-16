@@ -23,17 +23,17 @@ use Livewire\Component;
 class Alertas extends Component
 {
     public const NIVELES = [
-        ['Autocuidado', 'self_improvement', 'El tripulante aplica las acciones sugeridas'],
-        ['Comandante', 'military_tech', 'Valoración a bordo por el comandante'],
-        ['Flight surgeon', 'stethoscope', 'Valoración médica desde tierra'],
+        ['Self-care', 'self_improvement', 'The crew member applies the suggested actions'],
+        ['Commander', 'military_tech', 'On-board assessment by the commander'],
+        ['Flight Surgeon', 'stethoscope', 'Medical assessment from the ground'],
     ];
 
     public const ESTADOS = [
-        'nueva' => ['Nueva', 'fiber_new'], 'vista' => ['Reconocida', 'visibility'],
-        'escalada' => ['Escalada', 'trending_up'], 'resuelta' => ['Resuelta', 'check_circle'],
+        'nueva' => ['New', 'fiber_new'], 'vista' => ['Acknowledged', 'visibility'],
+        'escalada' => ['Escalated', 'trending_up'], 'resuelta' => ['Resolved', 'check_circle'],
     ];
 
-    public const SEV = ['crit' => ['GRAVE', 'error'], 'warn' => ['ATENCIÓN', 'warning'], 'ok' => ['RESUELTA', 'check_circle']];
+    public const SEV = ['crit' => ['CRITICAL', 'error'], 'warn' => ['CAUTION', 'warning'], 'ok' => ['RESOLVED', 'check_circle']];
 
     /** a = bandeja y detalle · b = tablero · c = escalera */
     #[Url(as: 'v', except: 'a')]
@@ -99,9 +99,10 @@ class Alertas extends Component
                 'razon' => $alerta['why'], 'estado' => $estado, 'nivel' => $nivel],
         );
 
+        $verbos = ['reconocida' => 'acknowledged', 'resuelta' => 'resolved', 'reabierta' => 'reopened'];
         $msg = $verbo === 'escalada'
-            ? $alerta['ind'].' escalada a '.self::NIVELES[$nivel][0]
-            : $alerta['ind'].': '.$verbo;
+            ? $alerta['ind'].' escalated to '.self::NIVELES[$nivel][0]
+            : $alerta['ind'].': '.($verbos[$verbo] ?? $verbo);
         AlertaEvento::create(['astronauta_id' => $a->id, 'indicador' => $clave, 'mensaje' => $msg, 'icono' => $icono,
             'severidad' => $sev ?? $alerta['s']]);
 
@@ -133,13 +134,13 @@ class Alertas extends Component
 
         $cuenta = fn (callable $f) => count(array_filter($todas, $f));
         $conteos = [
-            ['n' => $cuenta(fn ($x) => $x['s'] === 'crit' && $x['est'] !== 'resuelta'), 'l' => 'graves', 'k' => 'crit', 'ic' => 'error'],
-            ['n' => $cuenta(fn ($x) => $x['s'] === 'warn' && $x['est'] !== 'resuelta'), 'l' => 'en atención', 'k' => 'warn', 'ic' => 'warning'],
-            ['n' => $cuenta(fn ($x) => $x['est'] === 'nueva'), 'l' => 'sin reconocer', 'k' => null, 'ic' => 'fiber_new'],
-            ['n' => $cuenta(fn ($x) => $x['est'] === 'resuelta'), 'l' => 'resueltas', 'k' => 'ok', 'ic' => 'check_circle'],
+            ['n' => $cuenta(fn ($x) => $x['s'] === 'crit' && $x['est'] !== 'resuelta'), 'l' => 'critical', 'k' => 'crit', 'ic' => 'error'],
+            ['n' => $cuenta(fn ($x) => $x['s'] === 'warn' && $x['est'] !== 'resuelta'), 'l' => 'caution', 'k' => 'warn', 'ic' => 'warning'],
+            ['n' => $cuenta(fn ($x) => $x['est'] === 'nueva'), 'l' => 'unacknowledged', 'k' => null, 'ic' => 'fiber_new'],
+            ['n' => $cuenta(fn ($x) => $x['est'] === 'resuelta'), 'l' => 'resolved', 'k' => 'ok', 'ic' => 'check_circle'],
         ];
         $columnas = [];
-        foreach (['nueva' => 'Nuevas', 'vista' => 'Reconocidas', 'escalada' => 'Escaladas', 'resuelta' => 'Resueltas'] as $k => $l) {
+        foreach (['nueva' => 'New', 'vista' => 'Acknowledged', 'escalada' => 'Escalated', 'resuelta' => 'Resolved'] as $k => $l) {
             $columnas[] = ['l' => $l, 'ic' => self::ESTADOS[$k][1], 'items' => array_values(array_filter($todas, fn ($x) => $x['est'] === $k))];
         }
         $escalera = [];
@@ -173,7 +174,7 @@ class Alertas extends Component
                 'clave' => $i['clave'], 'ind' => $i['etiqueta'], 'ic' => $i['icono'],
                 'v' => $i['valor'].' '.$i['unidad'], 's' => $i['estado'], 'medido_en' => $i['medido_en'],
                 'est' => $vigente ? $g->estado : 'nueva', 'lvl' => $vigente ? $g->nivel : 0,
-                'why' => $i['razon'] ?? '', 'act' => $i['acciones'][0] ?? 'Consulta al flight surgeon.',
+                'why' => $i['razon'] ?? '', 'act' => $i['acciones'][0] ?? 'Consult the Flight Surgeon.',
             ]);
         }
         $activas = array_column($out, 'clave');
@@ -196,7 +197,7 @@ class Alertas extends Component
         return $this->tarjeta([
             'clave' => $clave, 'ind' => $cfg['etiqueta'], 'ic' => $cfg['icono'], 'v' => $g->valor.' '.$cfg['unidad'],
             's' => $g->severidad, 'medido_en' => $g->medido_en, 'est' => 'resuelta', 'lvl' => $g->nivel,
-            'why' => (string) $g->razon, 'act' => 'Resuelta. Sigue tu rutina y vuelve a medir según tu plan.',
+            'why' => (string) $g->razon, 'act' => 'Resolved. Follow your routine and measure again according to your plan.',
         ]);
     }
 
@@ -208,11 +209,11 @@ class Alertas extends Component
         return $x + [
             'tono' => $sev, 'sevL' => self::SEV[$sev][0], 'sevIc' => self::SEV[$sev][1],
             'estL' => self::ESTADOS[$x['est']][0], 'estIc' => self::ESTADOS[$x['est']][1],
-            'lvlL' => 'Nivel '.($x['lvl'] + 1).' · '.self::NIVELES[$x['lvl']][0], 'lvlIc' => self::NIVELES[$x['lvl']][1],
+            'lvlL' => 'Level '.($x['lvl'] + 1).' · '.self::NIVELES[$x['lvl']][0], 'lvlIc' => self::NIVELES[$x['lvl']][1],
             'ago' => $this->hace($x['medido_en']),
-            't' => $x['medido_en'] ? $x['medido_en']->copy()->utc()->format('d/m H:i') : '—',
+            't' => $x['medido_en'] ? $x['medido_en']->copy()->utc()->format('d M H:i') : '—',
             'abierta' => ! $res, 'puedeAck' => $x['est'] === 'nueva', 'puedeEsc' => ! $res && $x['lvl'] < 2,
-            'escL' => $x['lvl'] < 2 ? 'Escalar a '.self::NIVELES[$x['lvl'] + 1][0] : '',
+            'escL' => $x['lvl'] < 2 ? 'Escalate to '.self::NIVELES[$x['lvl'] + 1][0] : '',
         ];
     }
 
@@ -224,8 +225,8 @@ class Alertas extends Component
         $min = max(0, (int) $t->diffInMinutes(now('UTC'), false));
 
         return match (true) {
-            $min < 1 => 'ahora', $min < 60 => "hace {$min} min", $min < 1440 => 'hace '.intdiv($min, 60).' h',
-            default => 'hace '.intdiv($min, 1440).' d',
+            $min < 1 => 'now', $min < 60 => "{$min} min ago", $min < 1440 => intdiv($min, 60).' h ago',
+            default => intdiv($min, 1440).' d ago',
         };
     }
 
@@ -236,12 +237,12 @@ class Alertas extends Component
             'at' => $e->created_at->copy()->utc(), 'msg' => $e->mensaje, 'ic' => $e->icono, 'k' => $e->severidad])->all();
         foreach ($act as $x) {
             if ($x['medido_en']) {
-                $filas[] = ['at' => $x['medido_en']->copy()->utc(), 'msg' => $x['ind'].' detectada: '.$x['v'],
+                $filas[] = ['at' => $x['medido_en']->copy()->utc(), 'msg' => $x['ind'].' detected: '.$x['v'],
                     'ic' => 'notifications_active', 'k' => $x['s']];
             }
         }
         usort($filas, fn ($p, $q) => $q['at'] <=> $p['at']);
 
-        return array_map(fn ($f) => ['t' => $f['at']->format('d/m H:i')] + $f, array_slice($filas, 0, 12));
+        return array_map(fn ($f) => ['t' => $f['at']->format('d M H:i')] + $f, array_slice($filas, 0, 12));
     }
 }

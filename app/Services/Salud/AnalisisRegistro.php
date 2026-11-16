@@ -11,7 +11,7 @@ namespace App\Services\Salud;
  */
 class AnalisisRegistro
 {
-    public const IMPOSIBLE = 'Valor fuera de lo posible, revisa la medición';
+    public const IMPOSIBLE = 'Value outside the possible range, check the measurement';
 
     private const ESTADO_UI = ['normal' => 'ok', 'precaucion' => 'warn', 'critico' => 'crit'];
 
@@ -64,14 +64,14 @@ class AnalisisRegistro
         }
         if ($clave === 'presion_arterial') {
             if (! preg_match('/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/', $t, $m)) {
-                return ['formato' => 'Escribe la presión como 128/84'];
+                return ['formato' => 'Enter blood pressure as 128/84'];
             }
 
             return ['valores' => ['sistolica' => (float) $m[1], 'diastolica' => (float) $m[2]]];
         }
         $n = $this->numero($t);
         if ($n === null) {
-            return ['formato' => 'Escribe solo un número'];
+            return ['formato' => 'Enter a number only'];
         }
 
         return ['valores' => $this->valorSimple($clave, $n)];
@@ -95,14 +95,14 @@ class AnalisisRegistro
     public function mensaje(string $clave, array $valores, string $estado): string
     {
         if ($estado === 'ok') {
-            return ($this->panel[$clave]['perdida'] ?? false) ? 'Dentro de tu límite' : 'Dentro de tu rango';
+            return ($this->panel[$clave]['perdida'] ?? false) ? 'Within your limit' : 'Within your range';
         }
         $cfg = $this->panel[$clave];
         $lim = $cfg['limites'];
         if ($cfg['perdida'] ?? false) {
             $n = abs((float) $valores['valor']);
 
-            return 'Pérdida de '.$this->fmt($n)." supera tu límite de {$lim['max']} {$cfg['unidad']}";
+            return 'Loss of '.$this->fmt($n)." exceeds your limit of {$lim['max']} {$cfg['unidad']}";
         }
         $p = (float) ($valores['valor'] ?? $valores['sistolica']);
         $txt = isset($valores['sistolica'])
@@ -114,8 +114,8 @@ class AnalisisRegistro
             : $p > $lim['max'];
 
         return $hi
-            ? "{$txt} supera tu máximo de ".($lim['max_txt'] ?? $lim['max'])
-            : "{$txt} está por debajo de tu mínimo de ".($lim['min_txt'] ?? $lim['min']);
+            ? "{$txt} exceeds your maximum of ".($lim['max_txt'] ?? $lim['max'])
+            : "{$txt} is below your minimum of ".($lim['min_txt'] ?? $lim['min']);
     }
 
     private function fmt(float $n): string

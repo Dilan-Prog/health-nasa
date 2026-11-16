@@ -1,27 +1,27 @@
 ---
 slug: fiebre
 patron: fiebre
-titulo: Posible fiebre
+titulo: Possible fever
 fuentes:
   - "docs/fuentes/variacion_dosis_efectiva.txt, sección Temperatura (rangos y criterio médico de alerta)"
   - "docs/fuentes/salud_astronautas_y_monitoreo.txt, sección 1.5 (Sistema inmunológico)"
 revision_medica: pendiente
 ---
 
-## Señales a vigilar
-- Temperatura en precaución o crítico. El criterio de la referencia no es un umbral terrestre fijo de 38,0 °C: vigila aumentos bruscos por encima de la propia media (la base sube en vuelo) o la presencia de otros síntomas infecciosos.
-- Como apoyo, pulso alterado en la misma ventana.
+## Signs to watch
+- Temperature in caution or critical. The reference's criterion is not a fixed terrestrial threshold of 38.0 °C: watch for abrupt increases above the person's own average (the baseline rises in flight) or the presence of other infectious symptoms.
+- As a supporting sign, altered pulse in the same window.
 
-## Qué chequear
-- Si hubo ejercicio reciente: la referencia indica que superar 40,0 °C durante rutinas físicas es común en microgravedad, por lo que una temperatura alta tras ejercicio no equivale a fiebre.
-- El salto frente a la propia media o la base pre-vuelo del tripulante, no frente a un valor fijo.
-- Otros síntomas infecciosos (la fuente los menciona sin detallarlos): Pendiente de fuente verificable.
+## What to check
+- Whether there was recent exercise: the reference indicates that exceeding 40.0 °C during physical routines is common in microgravity, so a high temperature after exercise is not equivalent to fever.
+- The jump relative to the crew member's own average or pre-flight baseline, not to a fixed value.
+- Other infectious symptoms (the source mentions them without detail): Pending verifiable source.
 
-## Cuándo escalar
-- El sistema envía el caso a tierra cuando su severidad es crítica (regla del proyecto, no de la norma).
-- Criterios clínicos adicionales de escalado: Pendiente de fuente verificable.
+## When to escalate
+- The system sends the case to the ground when its severity is critical (project rule, not a standard).
+- Additional clinical escalation criteria: Pending verifiable source.
 
-## Límites de lo que puede afirmarse
-- Solo una posible fiebre (hipótesis); el sistema no identifica la causa.
-- La referencia describe una respuesta inflamatoria leve y la dificultad de disipar calor sin convección como causas de la "fiebre espacial"; el sistema no distingue entre ellas.
-- Los saltos usados (0,6 y 1,2 °C) son supuestos del proyecto, no de la norma.
+## Limits of what can be stated
+- Only a possible fever (hypothesis); the system does not identify the cause.
+- The reference describes a mild inflammatory response and the difficulty of dissipating heat without convection as causes of "space fever"; the system does not distinguish between them.
+- The jumps used (0.6 and 1.2 °C) are project assumptions, not a standard.

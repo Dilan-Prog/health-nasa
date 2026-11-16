@@ -1,18 +1,18 @@
 @php
     $iniciales = fn ($n) => mb_strtoupper(collect(preg_split('/\s+/', trim((string) $n)))->filter()->take(2)->map(fn ($p) => mb_substr($p, 0, 1))->implode(''));
-    $nombreEstado = ['ok' => 'Bien', 'warn' => 'Revisar', 'crit' => 'Crítico'];
+    $nombreEstado = ['ok' => 'Normal', 'warn' => 'Caution', 'crit' => 'Critical'];
     $vistasDef = [
-        'frontal' => ['Vista frontal', 'accessibility_new', false],
-        'lateral' => ['Vista lateral derecha', 'directions_walk', false],
-        'lateral_izq' => ['Vista lateral izquierda', 'directions_walk', true],
-        'posterior' => ['Vista posterior', 'u_turn_left', false],
+        'frontal' => ['Front view', 'accessibility_new', false],
+        'lateral' => ['Right side view', 'directions_walk', false],
+        'lateral_izq' => ['Left side view', 'directions_walk', true],
+        'posterior' => ['Back view', 'u_turn_left', false],
     ];
     $n = $tripulacion->count();
     $max = \App\Services\Tripulacion\AltaTripulante::maximo();
     $lleno = $n >= $max;
 @endphp
 <div class="trip">
-    <x-encabezado titulo-a="Tripulación" :titulo-b="($mision?->nombre ?? 'Sin misión').' · '.$n.' '.($n === 1 ? 'tripulante' : 'tripulantes')" />
+    <x-encabezado titulo-a="Crew" :titulo-b="($mision?->nombre ?? 'No mission').' · '.$n.' '.($n === 1 ? 'crew member' : 'crew members')" />
 
     @php
         $hayNuevo = \Illuminate\Support\Facades\Route::has('tripulacion.nuevo');
@@ -20,12 +20,12 @@
         $nuevoTrip = $nuevoId ? $tripulacion->firstWhere('id', $nuevoId) : null;
     @endphp
     <div class="trip-barra">
-        <span class="trip-cupo mono" title="Máximo {{ $max }} tripulantes por misión">{{ $n }} / {{ $max }} tripulantes</span>
+        <span class="trip-cupo mono" title="Maximum {{ $max }} crew members per mission">{{ $n }} / {{ $max }} crew</span>
         @if ($hayNuevo)
             @if ($lleno)
-                <span class="trip-nuevo is-off" role="link" aria-disabled="true" title="La misión ya tiene el máximo de {{ $max }} tripulantes"><span class="icono">person_add</span> Tripulación completa</span>
+                <span class="trip-nuevo is-off" role="link" aria-disabled="true" title="The mission already has the maximum of {{ $max }} crew members"><span class="icono">person_add</span> Crew full</span>
             @else
-                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
+                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> New crew member</a>
             @endif
         @endif
     </div>
@@ -33,21 +33,21 @@
     @if ($aviso)
         <div class="trip-aviso-ok" role="status">
             <span class="icono trip-aviso-ic">check_circle</span>
-            <span class="trip-aviso-txt"><strong>Tripulante creado</strong><span>Tripulante «{{ $aviso }}» registrado correctamente.</span></span>
+            <span class="trip-aviso-txt"><strong>Crew member created</strong><span>Crew member “{{ $aviso }}” registered successfully.</span></span>
             @if ($hayFicha && $nuevoTrip)
-                <a class="trip-aviso-btn" href="{{ route('tripulacion.ficha', $nuevoTrip) }}">Ver expediente</a>
+                <a class="trip-aviso-btn" href="{{ route('tripulacion.ficha', $nuevoTrip) }}">View record</a>
             @endif
-            <button type="button" class="trip-aviso-x" aria-label="Cerrar mensaje" wire:click="cerrarAviso"><span class="icono">close</span></button>
+            <button type="button" class="trip-aviso-x" aria-label="Dismiss message" wire:click="cerrarAviso"><span class="icono">close</span></button>
         </div>
     @endif
 
     @if ($n === 0)
         <section class="trip-vacio" role="status" aria-labelledby="trip-vacio-t">
             <span class="icono trip-vacio-ic">groups</span>
-            <h2 id="trip-vacio-t">Esta misión aún no tiene tripulantes</h2>
-            <p>Añade a cada tripulante con su expediente médico para que la app pueda comparar sus indicadores con su propia línea base.</p>
+            <h2 id="trip-vacio-t">This mission has no crew members yet</h2>
+            <p>Add each crew member with a medical record so the app can compare their indicators against their own baseline.</p>
             @if ($hayNuevo)
-                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> Nuevo tripulante</a>
+                <a class="trip-nuevo" href="{{ route('tripulacion.nuevo') }}"><span class="icono">person_add</span> New crew member</a>
             @endif
         </section>
     @else
@@ -57,18 +57,18 @@
                     $r = $resumenes[$a->id];
                     $hora = $r['medido_hoy'] && $r['ultima_medicion'] ? $r['ultima_medicion']->copy()->utc()->format('H:i') : null;
                     $medido = $r['medido_hoy'];
-                    $medLabel = $medido ? 'Medición realizada'.($hora ? ' · '.$hora.' UTC' : '') : 'Medición pendiente de hoy';
+                    $medLabel = $medido ? 'Measurement taken'.($hora ? ' · '.$hora.' UTC' : '') : 'Measurement pending today';
                     $vista = $vistas[$a->id] ?? 'frontal';
-                    $rol = trim(($a->rol ?? '').($a->edad ? ' · '.$a->edad.' años' : ''), ' ·');
+                    $rol = trim(($a->rol ?? '').($a->edad ? ' · '.$a->edad.' yr' : ''), ' ·');
                     $datos = [
-                        ['height', $a->altura_m !== null ? number_format($a->altura_m, 2, '.', '').' m' : '—', 'ALTURA'],
-                        ['scale', $a->peso_kg !== null ? rtrim(rtrim(number_format($a->peso_kg, 1, '.', ''), '0'), '.').' kg' : '—', 'PESO'],
-                        ['bloodtype', $a->grupo_sanguineo ?: '—', 'SANGRE'],
+                        ['height', $a->altura_m !== null ? number_format($a->altura_m, 2, '.', '').' m' : '—', 'HEIGHT'],
+                        ['scale', $a->peso_kg !== null ? rtrim(rtrim(number_format($a->peso_kg, 1, '.', ''), '0'), '.').' kg' : '—', 'WEIGHT'],
+                        ['bloodtype', $a->grupo_sanguineo ?: '—', 'BLOOD'],
                         ['rocket_launch', $a->evas ?? '—', 'EVAs'],
                     ];
                 @endphp
                 <div class="trip-tarjeta @if ($nuevoId === $a->id) is-nueva @endif" role="button" tabindex="0" wire:key="trip-{{ $a->id }}"
-                     aria-label="Abrir panel de {{ $a->nombre }} · {{ $medLabel }}"
+                     aria-label="Open dashboard for {{ $a->nombre }} · {{ $medLabel }}"
                      wire:click="abrir({{ $a->id }})"
                      wire:keydown.enter.self.prevent="abrir({{ $a->id }})"
                      wire:keydown.space.self.prevent="abrir({{ $a->id }})">
@@ -78,16 +78,16 @@
                             <span class="trip-nombre">{{ $a->nombre }}</span>
                             <span class="trip-rol">{{ $rol }}</span>
                         </span>
-                        @if ($nuevoId === $a->id)<span class="trip-nuevo-tag mono">NUEVO</span>@endif
+                        @if ($nuevoId === $a->id)<span class="trip-nuevo-tag mono">NEW</span>@endif
                         @if ($hayFicha)
                             <a class="trip-expediente" href="{{ route('tripulacion.ficha', $a) }}" x-on:click.stop
-                               aria-label="Expediente de {{ $a->nombre }}" title="Expediente"><span class="icono">folder_shared</span></a>
+                               aria-label="Record of {{ $a->nombre }}" title="Record"><span class="icono">folder_shared</span></a>
                         @endif
                         <span class="icono trip-flecha">arrow_forward</span>
                     </span>
                     <span class="trip-chips">
                         <span class="trip-chip trip-chip--med" data-estado="{{ $medido ? 'ok' : 'warn' }}" title="{{ $medLabel }}">
-                            <span class="icono">{{ $medido ? 'task_alt' : 'schedule' }}</span>{{ $medido ? 'MEDIDO'.($hora ? ' '.$hora : '') : 'PENDIENTE' }}
+                            <span class="icono">{{ $medido ? 'task_alt' : 'schedule' }}</span>{{ $medido ? 'MEASURED'.($hora ? ' '.$hora : '') : 'PENDING' }}
                         </span>
                         @foreach (['crit', 'warn', 'ok'] as $k)
                             @if ($r['conteo'][$k] > 0)
@@ -100,7 +100,7 @@
                             <x-silueta-corporal modo="miniatura" :vista="$vista" :activos="$r['musculos_activos']" class="silueta-corporal--ajustar" />
                         </span></span>
                         <span class="trip-lateral">
-                            <span class="trip-vistas" role="tablist" aria-label="Vista de la silueta de {{ $a->nombre }}">
+                            <span class="trip-vistas" role="tablist" aria-label="Silhouette view for {{ $a->nombre }}">
                                 @foreach ($vistasDef as $id => [$etq, $ic, $espejo])
                                     <button type="button" role="tab" class="trip-vista" aria-selected="{{ $vista === $id ? 'true' : 'false' }}"
                                             aria-label="{{ $etq }}" title="{{ $etq }}"
@@ -112,7 +112,7 @@
                             </span>
                             @foreach ($r['indicadores'] as $i)
                                 <span class="trip-ind" @if ($i['estado']) data-estado="{{ $i['estado'] }}" @endif
-                                      title="{{ $i['etiqueta'] }} · {{ $i['estado'] ? $nombreEstado[$i['estado']] : 'Sin datos' }}">
+                                      title="{{ $i['etiqueta'] }} · {{ $i['estado'] ? $nombreEstado[$i['estado']] : 'No data' }}">
                                     <span class="icono trip-ind-ic">{{ $i['icono'] }}</span>
                                     <span class="trip-ind-v">
                                         <span class="trip-ind-num">{{ $i['valor'] ?? '—' }}</span>

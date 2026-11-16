@@ -1,49 +1,49 @@
 @php
-    $etq = ['ok' => 'Bien', 'warn' => 'Revisar', 'crit' => 'Crítico'];
+    $etq = ['ok' => 'Normal', 'warn' => 'Caution', 'crit' => 'Critical'];
     $vistas = [
-        ['frontal', 'Vista frontal', 'accessibility_new', ''],
-        ['lateral', 'Vista lateral derecha', 'directions_walk', ''],
-        ['lateral_izq', 'Vista lateral izquierda', 'directions_walk', 'panel-vista--espejo'],
-        ['posterior', 'Vista posterior', 'u_turn_left', ''],
+        ['frontal', 'Front view', 'accessibility_new', ''],
+        ['lateral', 'Right side view', 'directions_walk', ''],
+        ['lateral_izq', 'Left side view', 'directions_walk', 'panel-vista--espejo'],
+        ['posterior', 'Back view', 'u_turn_left', ''],
     ];
     $hoy = $resumen && $resumen['medido_hoy'];
     $hora = $resumen && $resumen['ultima_medicion'] ? $resumen['ultima_medicion']->copy()->utc()->format('H:i') : null;
     $nCrit = $resumen['conteo']['crit'] ?? 0;
     $nWarn = $resumen['conteo']['warn'] ?? 0;
     $nTotal = count($indicadores);
-    $resumenTxt = $cargando ? 'Calculando…' : ($nCrit + $nWarn > 0
-        ? $nCrit.' '.($nCrit === 1 ? 'crítico' : 'críticos').' · '.$nWarn.' a revisar'
-        : 'Todo en rango');
+    $resumenTxt = $cargando ? 'Calculating…' : ($nCrit + $nWarn > 0
+        ? $nCrit.' critical · '.$nWarn.' caution'
+        : 'All in range');
     $iconoEnvio = fn (bool $enviado) => $enviado ? ($conEnlace ? 'check' : 'schedule') : ($conEnlace ? 'campaign' : 'schedule_send');
 @endphp
 <div class="panel-raiz">
-    <x-encabezado titulo-a="Panel" :titulo-b="'Tripulante '.($astronauta?->nombre ?? '—')" />
+    <x-encabezado titulo-a="Dashboard" :titulo-b="'Crew member '.($astronauta?->nombre ?? '—')" />
 
     @if (! $astronauta)
         <main class="panel-principal">
-            <p class="panel-vacio-total">No hay tripulantes en la misión actual.</p>
+            <p class="panel-vacio-total">There are no crew members in the current mission.</p>
         </main>
     @else
     <main class="panel-principal" x-data="{ vista: 'frontal' }">
 
         {{-- Izquierda: persona y figura --}}
-        <section class="panel-sil" aria-label="Tripulante">
+        <section class="panel-sil" aria-label="Crew member">
             <div class="panel-persona">
                 <div class="panel-nombre">{{ $astronauta->nombre }}</div>
-                <div class="panel-rol">{{ $astronauta->rol }}@if ($astronauta->edad) · {{ $astronauta->edad }} años @endif</div>
+                <div class="panel-rol">{{ $astronauta->rol }}@if ($astronauta->edad) · {{ $astronauta->edad }} years @endif</div>
                 <span role="status" class="panel-medicion" data-estado="{{ $hoy ? 'ok' : 'warn' }}">
                     <span class="icono">{{ $hoy ? 'task_alt' : 'schedule' }}</span>
-                    {{ $hoy ? 'Medición realizada'.($hora ? ' · '.$hora.' UTC' : '') : 'Medición pendiente de hoy' }}
+                    {{ $hoy ? 'Measurement done'.($hora ? ' · '.$hora.' UTC' : '') : 'Measurement pending today' }}
                 </span>
                 @unless ($hoy)
                     <a href="{{ route('registrar') }}" class="panel-btn-registrar">
-                        <span class="icono">edit_note</span>Registrar medición
+                        <span class="icono">edit_note</span>Log measurement
                     </a>
                 @endunless
             </div>
 
             <div class="panel-sil-caja">
-                <div role="tablist" aria-label="Vista de la silueta" class="panel-vistas">
+                <div role="tablist" aria-label="Silhouette view" class="panel-vistas">
                     @foreach ($vistas as [$id, $label, $ic, $extra])
                         <button type="button" role="tab" class="panel-vista {{ $extra }}" aria-label="{{ $label }}" title="{{ $label }}"
                                 aria-selected="{{ $loop->first ? 'true' : 'false' }}"
@@ -58,21 +58,21 @@
                 </div>
             </div>
 
-            <div class="panel-modo" role="group" aria-label="Modo de visualización del cuerpo">
+            <div class="panel-modo" role="group" aria-label="Body display mode">
                 <button type="button" class="panel-modo-b is-activo" aria-pressed="true">
                     <span class="mono">2D</span>
                 </button>
-                <button type="button" class="panel-modo-b" disabled aria-disabled="true" title="Próximamente">
+                <button type="button" class="panel-modo-b" disabled aria-disabled="true" title="Coming soon">
                     <span class="mono">3D</span>
-                    <span class="panel-modo-pronto">Próximamente</span>
+                    <span class="panel-modo-pronto">Coming soon</span>
                 </button>
             </div>
 
             <div class="panel-datos">
                 @foreach ([
-                    ['height', $astronauta->altura_m ? number_format($astronauta->altura_m, 2, '.', '').' m' : '—', 'ALTURA'],
-                    ['scale', $astronauta->peso_kg ? number_format($astronauta->peso_kg, 1, '.', '').' kg' : '—', 'PESO'],
-                    ['bloodtype', $astronauta->grupo_sanguineo ?: '—', 'SANGRE'],
+                    ['height', $astronauta->altura_m ? number_format($astronauta->altura_m, 2, '.', '').' m' : '—', 'HEIGHT'],
+                    ['scale', $astronauta->peso_kg ? number_format($astronauta->peso_kg, 1, '.', '').' kg' : '—', 'WEIGHT'],
+                    ['bloodtype', $astronauta->grupo_sanguineo ?: '—', 'BLOOD TYPE'],
                     ['rocket_launch', $astronauta->evas ?? '—', 'EVAs'],
                 ] as [$ic, $v, $l])
                     <div class="panel-dato">
@@ -85,7 +85,7 @@
         </section>
 
         {{-- Centro: vistas e indicadores --}}
-        <section class="panel-ind" aria-label="Indicadores">
+        <section class="panel-ind" aria-label="Indicators">
 
             <div class="panel-lista">
                 @foreach ($indicadores as $m)
@@ -96,10 +96,10 @@
                         <span class="icono panel-fila-ic">{{ $m['icono'] }}</span>
                         <span class="panel-fila-cuerpo">
                             <span class="panel-fila-valor"><span class="panel-valor mono">{{ $m['valor'] ?? '—' }}</span><span class="panel-unidad">{{ $m['unidad'] }}</span></span>
-                            <span class="panel-fila-etq">{{ $m['etiqueta'] }}</span>@if (! empty($m['sospechoso']))<span class="panel-fila-etq" title="{{ $m['sospechoso'] }}"> · dato sospechoso</span>@endif
+                            <span class="panel-fila-etq">{{ $m['etiqueta'] }}</span>@if (! empty($m['sospechoso']))<span class="panel-fila-etq" title="{{ $m['sospechoso'] }}"> · suspect data</span>@endif
                         </span>
                         <span class="panel-fila-der">
-                            <span class="panel-badge mono"><span class="panel-punto"></span>{{ $e ? $etq[$e] : 'Sin dato' }}</span>
+                            <span class="panel-badge mono"><span class="panel-punto"></span>{{ $e ? $etq[$e] : 'No data' }}</span>
                             <span class="panel-rango mono">{{ $m['rango'] }}</span>
                         </span>
                     </button>
@@ -108,16 +108,16 @@
         </section>
 
         {{-- Derecha: qué hacer ahora --}}
-        <aside class="panel-q" aria-label="Qué hacer ahora">
+        <aside class="panel-q" aria-label="What to do now">
             <div class="panel-q-cab">
-                <h2 class="panel-q-titulo">Qué hacer ahora</h2>
+                <h2 class="panel-q-titulo">What to do now</h2>
                 <div role="status" class="panel-q-estado mono">
                     <span class="panel-q-resumen">{{ $resumenTxt }}</span>
                     <span class="panel-enlace" data-estado="{{ $conEnlace ? 'ok' : 'crit' }}">
-                        <span class="icono">{{ $conEnlace ? 'satellite_alt' : 'link_off' }}</span>{{ $conEnlace ? 'ENLACE ACTIVO' : 'SIN ENLACE' }}
+                        <span class="icono">{{ $conEnlace ? 'satellite_alt' : 'link_off' }}</span>{{ $conEnlace ? 'LINK ACTIVE' : 'NO LINK' }}
                     </span>
-                    <span class="panel-q-retardo">{{ $conEnlace ? 'Respuesta de tierra en ~'.$retardo.' min' : 'Los avisos quedan en cola hasta recuperar el enlace' }}</span>
-                    <button type="button" class="panel-enlace-demo" wire:click="alternarEnlace" title="Alternar enlace con tierra (demo)" aria-label="Alternar enlace con tierra (demo)">
+                    <span class="panel-q-retardo">{{ $conEnlace ? 'Ground response in ~'.$retardo.' min' : 'Alerts are queued until the link is restored' }}</span>
+                    <button type="button" class="panel-enlace-demo" wire:click="alternarEnlace" title="Toggle ground link (demo)" aria-label="Toggle ground link (demo)">
                         <span class="icono">swap_horiz</span>
                     </button>
                 </div>
@@ -125,11 +125,11 @@
 
             @if ($caso && $orientacionCaso)
                 @php($oc = $orientacionCaso)
-                <article class="panel-caso" data-sev="{{ $caso->severidad }}" aria-label="Caso del Médico de vuelo: {{ $oc->titulo }}" wire:key="panel-caso-{{ $caso->id }}-{{ $caso->severidad }}">
+                <article class="panel-caso" data-sev="{{ $caso->severidad }}" aria-label="Flight Surgeon case: {{ $oc->titulo }}" wire:key="panel-caso-{{ $caso->id }}-{{ $caso->severidad }}">
                     <div class="panel-caso-cab">
                         <span class="icono panel-caso-ic" aria-hidden="true">stethoscope</span>
                         <span class="panel-caso-t">{{ $oc->titulo }}</span>
-                        <span class="panel-badge mono"><span class="icono" aria-hidden="true">{{ $caso->severidad === 'critico' ? 'error' : 'warning' }}</span>{{ $caso->severidad === 'critico' ? 'Crítico' : 'Precaución' }}</span>
+                        <span class="panel-badge mono"><span class="icono" aria-hidden="true">{{ $caso->severidad === 'critico' ? 'error' : 'warning' }}</span>{{ $caso->severidad === 'critico' ? 'Critical' : 'Caution' }}</span>
                     </div>
                     <p class="panel-caso-txt">{{ $oc->hallazgo }}</p>
                     @if ($oc->acciones)
@@ -140,16 +140,16 @@
                     @if ($oc->historial7d)
                         <x-caso-historial :o="$oc" />
                     @endif
-                    <p class="panel-caso-sim mono">Orientación simulada · {{ $oc->confianza }} % de confianza simulada</p>
+                    <p class="panel-caso-sim mono">Simulated guidance · {{ $oc->confianza }} % simulated confidence</p>
                     <div class="panel-botones">
-                        <button type="button" class="panel-btn" onclick="window.Livewire && Livewire.dispatch('abrir-medico-flotante', { casoId: {{ $caso->id }} })"><span class="icono" aria-hidden="true">open_in_full</span>Abrir en Médico de vuelo</button>
+                        <button type="button" class="panel-btn" onclick="window.Livewire && Livewire.dispatch('abrir-medico-flotante', { casoId: {{ $caso->id }} })"><span class="icono" aria-hidden="true">open_in_full</span>Open in Flight Surgeon</button>
                     </div>
                 </article>
             @endif
 
             @if ($cargando)
                 <div role="status" aria-live="polite" class="panel-cargando">
-                    <span class="panel-cargando-t mono"><span class="icono">hourglass_top</span>CARGANDO SUGERENCIAS…</span>
+                    <span class="panel-cargando-t mono"><span class="icono">hourglass_top</span>LOADING SUGGESTIONS…</span>
                     @foreach ([1, 2, 3] as $k)
                         <div class="panel-esqueleto">
                             <div class="panel-esq-fila"><span class="panel-esq panel-esq--ic"></span><span class="panel-esq panel-esq--t"></span><span class="panel-esq panel-esq--b"></span></div>
@@ -163,16 +163,16 @@
                 <div class="panel-vacio">
                     <span class="icono panel-vacio-ic">check_circle</span>
                     <div class="panel-vacio-txt">
-                        <span class="panel-vacio-t">Todo en rango, sin acciones pendientes</span>
-                        <span class="panel-vacio-s">Los {{ $nTotal }} indicadores están dentro de tu rango personal.</span>
+                        <span class="panel-vacio-t">All in range, no pending actions</span>
+                        <span class="panel-vacio-s">All {{ $nTotal }} indicators are within your personal range.</span>
                     </div>
                 </div>
             @else
                 <div class="panel-pista {{ $seleccionado ? 'is-sel' : '' }}">
                     <span class="icono">{{ $seleccionado ? 'accessibility_new' : 'touch_app' }}</span>
-                    <span class="panel-pista-t">{{ $seleccionado ? 'En la figura: '.$seleccionado['etiqueta'].' · '.$seleccionado['zona'] : 'Selecciona una tarjeta o un indicador para ver en la figura la zona relacionada.' }}</span>
+                    <span class="panel-pista-t">{{ $seleccionado ? 'On the figure: '.$seleccionado['etiqueta'].' · '.$seleccionado['zona'] : 'Select a card or an indicator to see the related area on the figure.' }}</span>
                     @if ($seleccionado)
-                        <button type="button" class="panel-btn-quitar" wire:click="quitarSeleccion">Quitar</button>
+                        <button type="button" class="panel-btn-quitar" wire:click="quitarSeleccion">Clear</button>
                     @endif
                 </div>
 
@@ -184,17 +184,17 @@
                             <span class="panel-tarjeta-t">{{ $c['etiqueta'] }}</span>
                             <span class="panel-badge mono"><span class="icono">{{ $crit ? 'error' : 'warning' }}</span>{{ $etq[$c['estado']] }}</span>
                             <span class="panel-tarjeta-razon">{{ $c['razon'] }}</span>
-                            @if (! empty($c['sospechoso']))<span class="panel-tarjeta-razon">Dato sospechoso: {{ $c['sospechoso'] }}</span>@endif
+                            @if (! empty($c['sospechoso']))<span class="panel-tarjeta-razon">Suspect data: {{ $c['sospechoso'] }}</span>@endif
                         </button>
 
                         <div class="panel-tend">
-                            <div class="panel-tend-cab mono"><span>TENDENCIA 7 DÍAS</span><span class="panel-tend-base"><span class="panel-tend-linea"></span>TU BASE {{ $c['base'] }}</span></div>
+                            <div class="panel-tend-cab mono"><span>7-DAY TREND</span><span class="panel-tend-base"><span class="panel-tend-linea"></span>YOUR BASELINE {{ $c['base'] }}</span></div>
                             <svg role="img" class="panel-tend-svg" viewBox="0 0 280 56" preserveAspectRatio="none"
-                                 aria-label="Tendencia de 7 días de {{ $c['etiqueta'] }}, del valor base al actual {{ $c['valor'] }} {{ $c['unidad'] }}">
+                                 aria-label="7-day trend of {{ $c['etiqueta'] }}, from baseline to current {{ $c['valor'] }} {{ $c['unidad'] }}">
                                 <line x1="0" x2="280" y1="{{ $c['svg']['baseY'] }}" y2="{{ $c['svg']['baseY'] }}" class="panel-tend-base-l" stroke-width="1.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"></line>
                                 <polyline points="{{ $c['svg']['pts'] }}" fill="none" class="panel-tend-pol" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
                             </svg>
-                            <div class="panel-tend-pie mono"><span>HACE 6 D</span><span>HOY</span></div>
+                            <div class="panel-tend-pie mono"><span>6 D AGO</span><span>TODAY</span></div>
                         </div>
 
                         <ul class="panel-acciones">
@@ -208,10 +208,10 @@
                         </ul>
 
                         <div class="panel-botones">
-                            <button type="button" class="panel-btn" wire:click="repetirMedicion('{{ $c['clave'] }}')"><span class="icono">replay</span>Repetir medición</button>
-                            <button type="button" class="panel-btn" disabled title="Próximamente"><span class="icono">menu_book</span>Ver guía</button>
+                            <button type="button" class="panel-btn" wire:click="repetirMedicion('{{ $c['clave'] }}')"><span class="icono">replay</span>Repeat measurement</button>
+                            <a class="panel-btn" href="{{ route('guia') }}"><span class="icono">menu_book</span>View guide</a>
                             <button type="button" class="panel-btn panel-btn--aviso {{ $crit ? 'is-crit' : '' }}" wire:click="avisarATierra('{{ $c['clave'] }}')" @disabled($c['avisado'])>
-                                <span class="icono">{{ $iconoEnvio($c['avisado']) }}</span>{{ $c['avisado'] ? ($conEnlace ? 'Aviso enviado a tierra' : 'En cola · se enviará al recuperar enlace') : ($conEnlace ? 'Avisar a tierra' : 'Encolar aviso a tierra') }}
+                                <span class="icono">{{ $iconoEnvio($c['avisado']) }}</span>{{ $c['avisado'] ? ($conEnlace ? 'Alert sent to ground' : 'Queued · will send when link is restored') : ($conEnlace ? 'Alert ground' : 'Queue alert to ground') }}
                             </button>
                         </div>
                     </article>
@@ -219,13 +219,13 @@
             @endif
 
             @unless ($cargando)
-                <section class="panel-chequeo" aria-label="Autochequeo guiado">
+                <section class="panel-chequeo" aria-label="Guided self-check">
                     <div class="panel-chequeo-cab">
                         <span class="icono panel-chequeo-ic">fact_check</span>
-                        <span class="panel-chequeo-t">Autochequeo guiado</span>
-                        <span class="panel-chequeo-paso mono">{{ $chequeo['hecho'] ? 'COMPLETADO' : 'PREGUNTA '.($chequeo['n'] + 1).' DE '.count($preguntas) }}</span>
+                        <span class="panel-chequeo-t">Guided self-check</span>
+                        <span class="panel-chequeo-paso mono">{{ $chequeo['hecho'] ? 'COMPLETED' : 'QUESTION '.($chequeo['n'] + 1).' OF '.count($preguntas) }}</span>
                     </div>
-                    <div role="progressbar" class="panel-progreso" aria-valuemin="0" aria-valuemax="{{ count($preguntas) }}" aria-valuenow="{{ $chequeo['n'] }}" aria-label="Progreso del autochequeo">
+                    <div role="progressbar" class="panel-progreso" aria-valuemin="0" aria-valuemax="{{ count($preguntas) }}" aria-valuenow="{{ $chequeo['n'] }}" aria-label="Self-check progress">
                         <div class="panel-progreso-barra" style="width: {{ round($chequeo['n'] / count($preguntas) * 100) }}%"></div>
                     </div>
 
@@ -233,11 +233,11 @@
                         <div class="panel-pregunta">
                             <span class="panel-pregunta-t">{{ $preguntas[min($chequeo['n'], count($preguntas) - 1)] }}</span>
                             <div class="panel-si-no">
-                                <button type="button" class="panel-btn panel-btn--sn" wire:click="responder('y')">Sí</button>
+                                <button type="button" class="panel-btn panel-btn--sn" wire:click="responder('y')">Yes</button>
                                 <button type="button" class="panel-btn panel-btn--sn" wire:click="responder('n')">No</button>
                             </div>
                             @if ($chequeo['n'] > 0)
-                                <button type="button" class="panel-btn-atras" wire:click="preguntaAnterior"><span class="icono">arrow_back</span>Pregunta anterior</button>
+                                <button type="button" class="panel-btn-atras" wire:click="preguntaAnterior"><span class="icono">arrow_back</span>Previous question</button>
                             @endif
                         </div>
                     @else
@@ -245,23 +245,23 @@
                         <div role="status" class="panel-resultado" data-estado="{{ $r['k'] }}">
                             <div class="panel-resultado-cab">
                                 <span class="icono panel-resultado-ic">{{ $r['ic'] }}</span>
-                                <div class="panel-resultado-tt"><span class="panel-resultado-et mono">RESULTADO</span><span class="panel-resultado-t">{{ $r['titulo'] }}</span></div>
+                                <div class="panel-resultado-tt"><span class="panel-resultado-et mono">RESULT</span><span class="panel-resultado-t">{{ $r['titulo'] }}</span></div>
                             </div>
                             <span class="panel-resultado-txt">{{ $r['texto'] }}</span>
                             <div class="panel-botones">
                                 @if ($chequeo['rk'] === 'red')
                                     <button type="button" class="panel-btn panel-btn--aviso is-crit" wire:click="avisarATierra('chk')" @disabled($chequeo['avisado'])>
-                                        <span class="icono">{{ $iconoEnvio($chequeo['avisado']) }}</span>{{ $chequeo['avisado'] ? ($conEnlace ? 'Aviso enviado a tierra' : 'En cola · se enviará al recuperar enlace') : ($conEnlace ? 'Avisar a tierra ahora' : 'Encolar aviso a tierra') }}
+                                        <span class="icono">{{ $iconoEnvio($chequeo['avisado']) }}</span>{{ $chequeo['avisado'] ? ($conEnlace ? 'Alert sent to ground' : 'Queued · will send when link is restored') : ($conEnlace ? 'Alert ground now' : 'Queue alert to ground') }}
                                     </button>
                                 @endif
-                                <button type="button" class="panel-btn" wire:click="reiniciarChequeo"><span class="icono">restart_alt</span>Repetir autochequeo</button>
+                                <button type="button" class="panel-btn" wire:click="reiniciarChequeo"><span class="icono">restart_alt</span>Repeat self-check</button>
                             </div>
                         </div>
                     @endunless
                 </section>
             @endunless
 
-            <p role="note" class="panel-nota"><span class="icono">info</span>Esta herramienta orienta, no diagnostica. Ante cualquier duda, contacta a tierra.</p>
+            <p role="note" class="panel-nota"><span class="icono">info</span>This tool provides guidance only; it does not diagnose. If in doubt, contact the ground.</p>
         </aside>
     </main>
     @endif

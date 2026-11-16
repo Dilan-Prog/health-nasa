@@ -50,14 +50,14 @@ class ContextoMision extends Component
         $this->validate([
             'careLevel' => ['required', 'integer', Rule::in(array_keys(Mision::CARE_LEVELS))],
             'missionPhase' => ['required', Rule::in(array_keys(Mision::FASES))],
-        ], [], ['careLevel' => 'nivel de atención', 'missionPhase' => 'fase de la misión']);
+        ], [], ['careLevel' => 'care level', 'missionPhase' => 'mission phase']);
 
         $mision = TripulanteActual::mision();
         if (! $mision) {
             return;
         }
         $mision->update(['care_level' => $this->careLevel, 'mission_phase' => $this->missionPhase]);
-        $this->guardado = 'Guardado: '.$mision->etiquetaCareLevel().' · '.Mision::FASES[$this->missionPhase].'.';
+        $this->guardado = 'Saved: '.$mision->etiquetaCareLevel().' · '.Mision::FASES[$this->missionPhase].'.';
     }
 
     public function render()

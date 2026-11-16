@@ -17,7 +17,7 @@ use Livewire\Component;
 class Sistemas extends Component
 {
     /** Estado => [texto, icono, gravedad (menor = peor)]. */
-    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle', 2], 'warn' => ['PRECAUCIÓN', 'warning', 1], 'crit' => ['CRÍTICO', 'error', 0]];
+    public const ESTADOS = ['ok' => ['NORMAL', 'check_circle', 2], 'warn' => ['CAUTION', 'warning', 1], 'crit' => ['CRITICAL', 'error', 0]];
 
     #[On('tripulante-cambiado')]
     public function refrescar(): void
@@ -79,7 +79,7 @@ class Sistemas extends Component
                 'proximamente' => $prox[$g['clave']] ?? [],
                 'sin_cobertura' => $sinCobertura, 'pendiente' => $g['pendiente'] ?? null,
                 'estado' => $sinCobertura ? 'sin' : ($peor ?? 'ok'),
-                'estado_txt' => $sinCobertura ? 'SIN COBERTURA' : self::ESTADOS[$peor ?? 'ok'][0],
+                'estado_txt' => $sinCobertura ? 'NO COVERAGE YET' : self::ESTADOS[$peor ?? 'ok'][0],
                 'estado_ic' => $sinCobertura ? 'block' : self::ESTADOS[$peor ?? 'ok'][1],
             ];
         }

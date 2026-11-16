@@ -1,47 +1,47 @@
 @php
     $mision = \App\Support\TripulanteActual::mision();
-    $nombreMision = $mision?->nombre ?? 'Misión';
+    $nombreMision = $mision?->nombre ?? 'Mission';
     $etiquetaMision = mb_strtoupper($nombreMision);
     $nombreEstacion = match ($mision?->entorno) {
-        'estacion' => 'Estación Orbital',
-        'nave' => 'Nave de tránsito',
-        'base_lunar' => 'Base lunar',
-        'base_marciana' => 'Base marciana',
-        default => 'Estación Orbital',
+        'estacion' => 'Space station (LEO)',
+        'nave' => 'Spacecraft (transit)',
+        'base_lunar' => 'Lunar base',
+        'base_marciana' => 'Mars base',
+        default => 'Space station (LEO)',
     };
     $grupos = [
-        ['t' => 'Astronauta', 'links' => [
-            ['t' => 'Panel', 'ic' => 'dashboard', 'ruta' => 'panel', 'href' => '/'],
-            ['t' => 'Registrar', 'ic' => 'add_circle', 'ruta' => 'registrar', 'href' => '/registrar'],
-            ['t' => 'Indicador', 'ic' => 'monitoring', 'ruta' => 'indicador', 'href' => '/indicador'],
-            ['t' => 'Sistemas', 'ic' => 'accessibility_new', 'ruta' => 'sistemas', 'href' => '/sistemas'],
-            ['t' => 'Historial', 'ic' => 'history', 'ruta' => 'historial', 'href' => '/historial'],
-            ['t' => 'Alertas', 'ic' => 'notifications_active', 'ruta' => 'alertas', 'href' => '/alertas'],
-            ['t' => 'Guía', 'ic' => 'menu_book', 'ruta' => 'guia', 'href' => '/guia'],
-            ['t' => 'Rutinas', 'ic' => 'event_note', 'ruta' => 'rutinas', 'href' => '/rutinas'],
-            ['t' => 'Misión', 'ic' => 'rocket_launch', 'ruta' => 'mision', 'href' => '/mision'],
+        ['t' => 'Astronaut', 'links' => [
+            ['t' => 'Dashboard', 'ic' => 'dashboard', 'ruta' => 'panel', 'href' => '/'],
+            ['t' => 'Log', 'ic' => 'add_circle', 'ruta' => 'registrar', 'href' => '/registrar'],
+            ['t' => 'Indicators', 'ic' => 'monitoring', 'ruta' => 'indicador', 'href' => '/indicador'],
+            ['t' => 'Body systems', 'ic' => 'accessibility_new', 'ruta' => 'sistemas', 'href' => '/sistemas'],
+            ['t' => 'History', 'ic' => 'history', 'ruta' => 'historial', 'href' => '/historial'],
+            ['t' => 'Alerts', 'ic' => 'notifications_active', 'ruta' => 'alertas', 'href' => '/alertas'],
+            ['t' => 'Guide', 'ic' => 'menu_book', 'ruta' => 'guia', 'href' => '/guia'],
+            ['t' => 'Routines', 'ic' => 'event_note', 'ruta' => 'rutinas', 'href' => '/rutinas'],
+            ['t' => 'Mission', 'ic' => 'rocket_launch', 'ruta' => 'mision', 'href' => '/mision'],
         ]],
-        ['t' => 'Estación y Tierra', 'links' => [
-            ['t' => 'Tripulación', 'ic' => 'groups', 'ruta' => 'tripulacion', 'href' => '/tripulacion'],
-            ...(app()->environment('production') ? [] : [['t' => 'Simulación', 'ic' => 'model_training', 'ruta' => 'simulacion', 'href' => '/simulacion']]),
-            ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt', 'ruta' => 'cola-tierra', 'href' => '/cola-a-tierra'],
-            ['t' => 'Botiquín', 'ic' => 'medication', 'ruta' => 'botiquin', 'href' => '/botiquin'],
-            ['t' => 'Flight surgeon', 'ic' => 'stethoscope', 'ruta' => 'medico', 'href' => '/medico-de-vuelo'],
-            ['t' => 'Auditoría', 'ic' => 'fact_check', 'ruta' => 'auditoria', 'href' => '/auditoria'],
+        ['t' => 'Station & ground', 'links' => [
+            ['t' => 'Crew', 'ic' => 'groups', 'ruta' => 'tripulacion', 'href' => '/tripulacion'],
+            ...(app()->environment('production') ? [] : [['t' => 'Simulation', 'ic' => 'model_training', 'ruta' => 'simulacion', 'href' => '/simulacion']]),
+            ['t' => 'Ground queue', 'ic' => 'satellite_alt', 'ruta' => 'cola-tierra', 'href' => '/cola-a-tierra'],
+            ['t' => 'Medical kit', 'ic' => 'medication', 'ruta' => 'botiquin', 'href' => '/botiquin'],
+            ['t' => 'Flight Surgeon', 'ic' => 'stethoscope', 'ruta' => 'medico', 'href' => '/medico-de-vuelo'],
+            ['t' => 'Audit log', 'ic' => 'fact_check', 'ruta' => 'auditoria', 'href' => '/auditoria'],
         ]],
-        ['t' => 'Apoyo', 'links' => [
-            ['t' => 'Aviso legal', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],
-            ['t' => 'Acceso', 'ic' => 'login', 'ruta' => 'login', 'href' => '/acceso'],
-            ['t' => 'Roles', 'ic' => 'admin_panel_settings'], // Próximamente: sin href, se muestra deshabilitado
+        ['t' => 'Support', 'links' => [
+            ['t' => 'Legal notice', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],
+            ['t' => 'Sign in', 'ic' => 'login', 'ruta' => 'login', 'href' => '/acceso'],
+            ['t' => 'Roles', 'ic' => 'admin_panel_settings'], // Coming soon: sin href, se muestra deshabilitado
         ]],
     ];
 @endphp
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Monitor de salud · Astronautas</title>
+    <title>Health monitor · Astronauts</title>
     <meta name="theme-color" content="#0B3D91">
     <meta name="color-scheme" content="dark light">
     {{-- Tema antes del primer pintado: elección guardada (oscuro | claro | hc); sin ella, prefers-contrast / prefers-color-scheme; por defecto oscuro. --}}
@@ -67,7 +67,7 @@
 </head>
 <body>
 <div class="shell">
-    <aside class="shell-lateral" aria-label="Navegación principal">
+    <aside class="shell-lateral" aria-label="Main navigation">
         <div class="shell-marca">
             <span class="mono shell-marca-et">{{ $etiquetaMision }}</span>
             <span class="shell-marca-nombre">{{ $nombreEstacion }}</span>
@@ -88,7 +88,7 @@
                                 <span class="icono">{{ $l['ic'] }}</span>{{ $l['t'] }}
                             </button>
                         @else
-                            <a role="link" aria-disabled="true" title="Próximamente" class="nav-link is-off">
+                            <a role="link" aria-disabled="true" title="Coming soon" class="nav-link is-off">
                                 <span class="icono">{{ $l['ic'] }}</span>{{ $l['t'] }}
                             </a>
                         @endif
@@ -102,16 +102,16 @@
                 <span class="mono shell-sesion-rol">{{ mb_strtoupper(auth()->user()->etiquetaRol()) }}</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="shell-sesion-btn"><span class="icono" aria-hidden="true">logout</span>Cerrar sesión</button>
+                    <button type="submit" class="shell-sesion-btn"><span class="icono" aria-hidden="true">logout</span>Sign out</button>
                 </form>
             </div>
         @endauth
         <div class="tema-grupo">
-            <span class="tema-et">Tema</span>
-            <div class="tema" role="group" aria-label="Tema de color">
-                <button type="button" class="tema-op" data-tema="dark" aria-pressed="false" title="Oscuro"><span class="icono" aria-hidden="true">dark_mode</span><span class="tema-txt">Oscuro</span></button>
-                <button type="button" class="tema-op" data-tema="light" aria-pressed="false" title="Claro"><span class="icono" aria-hidden="true">light_mode</span><span class="tema-txt">Claro</span></button>
-                <button type="button" class="tema-op" data-tema="hc" aria-pressed="false" title="Alto contraste"><span class="icono" aria-hidden="true">contrast</span><span class="tema-txt">Alto</span></button>
+            <span class="tema-et">Theme</span>
+            <div class="tema" role="group" aria-label="Color theme">
+                <button type="button" class="tema-op" data-tema="dark" aria-pressed="false" title="Dark"><span class="icono" aria-hidden="true">dark_mode</span><span class="tema-txt">Dark</span></button>
+                <button type="button" class="tema-op" data-tema="light" aria-pressed="false" title="Light"><span class="icono" aria-hidden="true">light_mode</span><span class="tema-txt">Light</span></button>
+                <button type="button" class="tema-op" data-tema="hc" aria-pressed="false" title="High contrast"><span class="icono" aria-hidden="true">contrast</span><span class="tema-txt">High contrast</span></button>
             </div>
         </div>
     </aside>
@@ -123,7 +123,7 @@
                 <span class="shell-marca-nombre shell-marca-nombre--sm">{{ $nombreEstacion }}</span>
             </div>
             <livewire:selector-tripulante variante="compacta" />
-            <button type="button" class="tema-ciclo" data-tema-ciclo title="Cambiar tema (oscuro, claro, alto contraste)" aria-label="Cambiar tema de color">
+            <button type="button" class="tema-ciclo" data-tema-ciclo title="Change theme (dark, light, high contrast)" aria-label="Change color theme">
                 <span class="icono" aria-hidden="true">contrast</span>
             </button>
         </div>

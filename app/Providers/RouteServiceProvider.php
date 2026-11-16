@@ -34,7 +34,7 @@ class RouteServiceProvider extends ServiceProvider
 
             return Limit::perMinute((int) config('mision.reloj_limite_por_minuto', 120))
                 ->by($token ? 'reloj:'.hash('sha256', $token) : 'reloj-ip:'.$request->ip())
-                ->response(fn () => response()->json(['mensaje' => 'Demasiadas peticiones. Reintenta más tarde.'], 429));
+                ->response(fn () => response()->json(['mensaje' => 'Too many requests. Try again later.'], 429));
         });
 
         $this->routes(function () {

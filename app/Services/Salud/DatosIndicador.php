@@ -96,7 +96,7 @@ class DatosIndicador
             if ($mediciones->isNotEmpty()) {
                 $ultima = $mediciones->last();
                 if (($ultima->calidad ?? 'ok') === 'sospechosa') {
-                    $sospechoso = $ultima->calidad_motivo ?: 'Lectura dudosa del sensor.';
+                    $sospechoso = $ultima->calidad_motivo ?: 'Questionable sensor reading.';
                 }
                 $e = $estados[$ultima->id] ?? $this->evaluador->evaluar($clave, json_decode($ultima->valores, true))->value;
                 $estado = self::ESTADO_UI[$e];

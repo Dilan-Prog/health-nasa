@@ -16,15 +16,15 @@ class Mision extends Model
 
     /** Nivel de atención (NASA-STD-3001 Vol. 1): etiqueta mostrada. Los niveles 4 y 5 comparten triaje autónomo local. */
     public const CARE_LEVELS = [
-        3 => 'Nivel 3 · Telemedicina síncrona',
-        4 => 'Nivel 4 · Triaje autónomo local',
-        5 => 'Nivel 5 · Triaje autónomo local',
+        3 => 'Care Level 3 · Synchronous telemedicine',
+        4 => 'Care Level 4 · Local autonomous triage',
+        5 => 'Care Level 5 · Local autonomous triage',
     ];
 
     public const FASES = [
-        'prevuelo' => 'Prevuelo',
-        'vuelo' => 'Vuelo',
-        'posvuelo' => 'Posvuelo',
+        'prevuelo' => 'Pre-flight',
+        'vuelo' => 'In-flight',
+        'posvuelo' => 'Post-flight',
     ];
 
     public function nivelAtencion(): int
@@ -40,7 +40,7 @@ class Mision extends Model
 
     public function etiquetaCareLevel(): string
     {
-        return self::CARE_LEVELS[$this->nivelAtencion()] ?? 'Nivel '.$this->nivelAtencion();
+        return self::CARE_LEVELS[$this->nivelAtencion()] ?? 'Care Level '.$this->nivelAtencion();
     }
 
     /** Tripulación de la misión (N astronautas). */

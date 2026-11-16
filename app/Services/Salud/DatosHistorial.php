@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\DB;
  */
 class DatosHistorial
 {
-    public const PRESETS = [['7', 'Últimos 7 días'], ['14', '14 días'], ['30', '30 días'], ['90', '90 días'], ['all', 'Toda la misión'], ['custom', 'Personalizado']];
+    public const PRESETS = [['7', 'Last 7 days'], ['14', '14 days'], ['30', '30 days'], ['90', '90 days'], ['all', 'Entire mission'], ['custom', 'Custom']];
 
-    public const TIPOS = [['line', 'show_chart', 'Línea'], ['bar', 'bar_chart', 'Barras'], ['area', 'area_chart', 'Área'], ['dots', 'scatter_plot', 'Puntos']];
+    public const TIPOS = [['line', 'show_chart', 'Line'], ['bar', 'bar_chart', 'Bars'], ['area', 'area_chart', 'Area'], ['dots', 'scatter_plot', 'Points']];
 
     private const MENOS = "\u{2212}";
     private const ESTADO_UI = ['normal' => 'ok', 'precaucion' => 'warn', 'critico' => 'crit'];
@@ -62,8 +62,8 @@ class DatosHistorial
             'hasta' => $h,
             'invalido' => $invalido,
             'mensaje' => $invalido
-                ? "Rango no válido: el día inicial debe ser menor que el final (1–{$n})"
-                : "Mostrando días {$d}–{$h} de la misión · ".($h - $d + 1).' días',
+                ? "Invalid range: the start day must be less than the end day (1–{$n})"
+                : "Showing days {$d}–{$h} of the mission · ".($h - $d + 1).' days',
             'icono' => $invalido ? 'error' : 'date_range',
         ];
     }
@@ -81,7 +81,7 @@ class DatosHistorial
 
     public static function grafica(Astronauta $a, string $indicadorId, string $tipo, int $desde, int $hasta): array
     {
-        $cfg = config('indicadores.marcadores')[$indicadorId] ?? throw new \InvalidArgumentException("Indicador desconocido: {$indicadorId}");
+        $cfg = config('indicadores.marcadores')[$indicadorId] ?? throw new \InvalidArgumentException("Unknown indicator: {$indicadorId}");
         $tipoDef = collect(self::TIPOS)->first(fn ($t) => $t[0] === $tipo) ?? self::TIPOS[0];
         $tipo = $tipoDef[0];
         $loss = (bool) ($cfg['loss'] ?? false);
@@ -95,7 +95,7 @@ class DatosHistorial
 
         $base = [
             'id' => $indicadorId, 'ic' => $cfg['ic'], 'label' => $cfg['label'], 'unit' => $cfg['unit'],
-            'aria' => "{$cfg['label']}, días {$desde} a {$hasta}, gráfica de ".mb_strtolower($tipoDef[2]),
+            'aria' => "{$cfg['label']}, days {$desde} to {$hasta}, ".mb_strtolower($tipoDef[2])." chart",
             'rangeTxt' => self::rangoNormalTxt($cfg),
             'n' => $n, 'vacio' => $n === 0,
             // Dato sospechoso: si algún punto del periodo lo es, se avisa (con el motivo del más reciente). El estado no se oculta.
@@ -154,10 +154,10 @@ class DatosHistorial
         return $base + [
             'estado' => $estado,
             'stats' => [
-                ['k' => 'ÚLTIMO', 'v' => $fmt($ultimo).' '.$unit, 'estado' => $estado],
-                ['k' => 'PROMEDIO', 'v' => $fmt($avg).' '.$unit, 'estado' => null],
-                ['k' => 'MÍN', 'v' => $fmt($loss ? max($v) : min($v)).' '.$unit, 'estado' => null],
-                ['k' => 'MÁX', 'v' => $fmt($loss ? min($v) : max($v)).' '.$unit, 'estado' => null],
+                ['k' => 'LATEST', 'v' => $fmt($ultimo).' '.$unit, 'estado' => $estado],
+                ['k' => 'AVERAGE', 'v' => $fmt($avg).' '.$unit, 'estado' => null],
+                ['k' => 'MIN', 'v' => $fmt($loss ? max($v) : min($v)).' '.$unit, 'estado' => null],
+                ['k' => 'MAX', 'v' => $fmt($loss ? min($v) : max($v)).' '.$unit, 'estado' => null],
             ],
             'yMax' => ($loss ? self::MENOS : '').number_format($mx, $dec, '.', ''),
             'yMin' => ($loss && $mn > 0 ? self::MENOS : '').number_format(max(0, $mn), $dec, '.', ''),
@@ -169,7 +169,7 @@ class DatosHistorial
             'bars' => $bars,
             'dotsD' => implode(' ', $dots),
             'trendIc' => abs($diff) < ($hiv - $lo) * 0.02 ? 'trending_flat' : ($diff > 0 ? 'trending_up' : 'trending_down'),
-            'trendTxt' => ($diff >= 0 ? '+' : self::MENOS).number_format(abs($diff), $dec, '.', '')." {$unit} en el periodo",
+            'trendTxt' => ($diff >= 0 ? '+' : self::MENOS).number_format(abs($diff), $dec, '.', '')." {$unit} over the period",
             'trendEstado' => $estado,
         ];
     }
@@ -219,7 +219,7 @@ class DatosHistorial
             $v = (float) ($valores['valor'] ?? $valores['sistolica']);
             $e = $evaluaciones[$f->id] ?? $evaluador->evaluar($id, $valores)->value;
             $out[] = ['v' => $loss ? abs($v) : $v, 'estado' => self::ESTADO_UI[$e] ?? 'ok',
-                'sospechoso' => ($f->calidad ?? 'ok') === 'sospechosa' ? ($f->calidad_motivo ?: 'Lectura dudosa del sensor.') : null];
+                'sospechoso' => ($f->calidad ?? 'ok') === 'sospechosa' ? ($f->calidad_motivo ?: 'Questionable sensor reading.') : null];
         }
 
         return $out;

@@ -12,10 +12,10 @@
  */
 return [
     'entornos' => [
-        'estacion' => 'Estación Orbital',
-        'nave' => 'Nave en tránsito',
-        'base_lunar' => 'Base lunar',
-        'base_marciana' => 'Base marciana',
+        'estacion' => 'Space station (LEO)',
+        'nave' => 'Spacecraft (transit)',
+        'base_lunar' => 'Lunar base',
+        'base_marciana' => 'Mars base',
     ],
 
     'orbita' => [
@@ -24,19 +24,19 @@ return [
     ],
 
     'fases' => [
-        ['nombre' => 'Lanzamiento', 'dia' => 1],
-        ['nombre' => 'Adaptación', 'dia' => 14],
-        ['nombre' => 'Operaciones', 'dia' => 30],
-        ['nombre' => 'Pre-regreso', 'dia' => 165],
-        ['nombre' => 'Regreso', 'dia' => null],
+        ['nombre' => 'Launch', 'dia' => 1],
+        ['nombre' => 'Adaptation', 'dia' => 14],
+        ['nombre' => 'Operations', 'dia' => 30],
+        ['nombre' => 'Pre-return', 'dia' => 165],
+        ['nombre' => 'Return', 'dia' => null],
     ],
 
     'eventos' => [
-        ['dia' => 143, 'titulo' => 'OCT ocular programada', 'icono' => 'visibility'],
-        ['dia' => 145, 'titulo' => 'Videoconsulta con médico de vuelo', 'icono' => 'stethoscope'],
-        ['dia' => 149, 'titulo' => 'EVA 5 (sujeta a dosis)', 'icono' => 'rocket'],
-        ['dia' => 152, 'titulo' => 'Llegada de carga · suplementos', 'icono' => 'inventory_2'],
-        ['dia' => 165, 'titulo' => 'Inicio protocolo pre-regreso', 'icono' => 'flight_land'],
+        ['dia' => 143, 'titulo' => 'Scheduled ocular OCT', 'icono' => 'visibility'],
+        ['dia' => 145, 'titulo' => 'Video consult with Flight Surgeon', 'icono' => 'stethoscope'],
+        ['dia' => 149, 'titulo' => 'EVA 5 (subject to dose)', 'icono' => 'rocket'],
+        ['dia' => 152, 'titulo' => 'Cargo arrival · supplements', 'icono' => 'inventory_2'],
+        ['dia' => 165, 'titulo' => 'Start of pre-return protocol', 'icono' => 'flight_land'],
     ],
 
     // Si es true se exige inicio de sesión y se aplican los roles (tripulante / cmo / flight_surgeon). Por defecto false: demo sin login.

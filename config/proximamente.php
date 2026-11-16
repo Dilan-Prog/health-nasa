@@ -15,34 +15,34 @@ $dm = 'docs/fuentes/datos_medicos.txt';
 return [
     'items' => [
         // Aparece junto a DMO y fuerza en la fila "Musculoesquelético" del documento.
-        ['nombre' => 'VO₂máx y capacidad aeróbica', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
-        ['nombre' => 'Fuerza muscular (isométrica y dinámica)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
-        ['nombre' => 'Densidad mineral ósea (cadera, columna, cuello femoral)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'VO₂max and aerobic capacity', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Muscle strength (isometric and dynamic)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Bone mineral density (hip, spine, femoral neck)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
         // Fila "Neuro-ocular (SANS)" del documento: PIO y capa de fibras nerviosas de la retina.
-        ['nombre' => 'Grosor de retina y presión intraocular', 'sistema' => 'ocular', 'fuente' => $dm],
+        ['nombre' => 'Retinal thickness and intraocular pressure', 'sistema' => 'ocular', 'fuente' => $dm],
         // Sin sistema propio: se asocia al hueso (metabolismo del calcio); es decisión del proyecto.
-        ['nombre' => 'Vitamina D', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
-        ['nombre' => 'Calcio urinario y electrolitos', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Vitamin D', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Urinary calcium and electrolytes', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
         // Hormona de estrés: grupo de salud mental (el documento no la asigna a un sistema concreto).
-        ['nombre' => 'Cortisol salival', 'sistema' => 'salud_mental', 'fuente' => $dm],
+        ['nombre' => 'Salivary cortisol', 'sistema' => 'salud_mental', 'fuente' => $dm],
         // Test de vigilancia (lapsos de reacción): relacionado con sueño y fatiga.
-        ['nombre' => 'PVT (lapsos de reacción)', 'sistema' => 'sueno', 'fuente' => $dm],
-        ['nombre' => 'Ingesta calórica', 'sistema' => 'metabolico', 'fuente' => $dm],
+        ['nombre' => 'PVT (reaction lapses)', 'sistema' => 'sueno', 'fuente' => $dm],
+        ['nombre' => 'Caloric intake', 'sistema' => 'metabolico', 'fuente' => $dm],
         // Atmósfera de cabina: el sistema afectado es el respiratorio (el documento los agrupa con radiación y cabina).
-        ['nombre' => 'pCO₂, pO₂ y humedad de cabina', 'sistema' => 'respiratorio', 'fuente' => $dm],
-        ['nombre' => 'ECG y flujo yugular', 'sistema' => 'cardiovascular', 'fuente' => $dm],
+        ['nombre' => 'Cabin pCO₂, pO₂ and humidity', 'sistema' => 'respiratorio', 'fuente' => $dm],
+        ['nombre' => 'ECG and jugular flow', 'sistema' => 'cardiovascular', 'fuente' => $dm],
         // Telemetría de máquinas de ejercicio: fila musculoesquelética del documento.
-        ['nombre' => 'Telemetría de ARED, T2 y CEVIS', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
-        ['nombre' => 'Radiación por órgano y proyección de evento solar', 'sistema' => 'radiacion', 'fuente' => 'docs/fuentes/variacion_dosis_efectiva.txt'],
+        ['nombre' => 'ARED, T2 and CEVIS telemetry', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Per-organ radiation and solar event projection', 'sistema' => 'radiacion', 'fuente' => 'docs/fuentes/variacion_dosis_efectiva.txt'],
         // Módulo de Intervención y Contramedidas (ejercicio): se asocia al sistema que protege.
-        ['nombre' => 'Prescripción dinámica de ejercicio', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
-        ['nombre' => 'Posvuelo de 45 días (rehabilitación)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => 'Dynamic exercise prescription', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
+        ['nombre' => '45-day post-flight (rehabilitation)', 'sistema' => 'musculoesqueletico', 'fuente' => $dm],
     ],
 
     // Plataforma: piezas de infraestructura (no son biomarcadores, por eso no llevan `sistema` ni `fuente`).
     // Solo se muestran en la Guía como "Próximamente"; sin fechas comprometidas.
     'plataforma' => [
-        ['nombre' => 'IA local con Ollama', 'descripcion' => 'Próximamente: un modelo de lenguaje que se ejecute en el propio equipo, sin enviar datos fuera. Hoy el médico de vuelo usa respuestas simuladas.', 'estado' => 'proximamente'],
-        ['nombre' => 'Orquestación con n8n', 'descripcion' => 'Próximamente: flujos automáticos que coordinen alertas y tareas entre servicios. Hoy no hay ninguna automatización conectada.', 'estado' => 'proximamente'],
+        ['nombre' => 'Local AI with Ollama', 'descripcion' => 'Coming soon: a language model that runs on the device itself, without sending data out. Today the Flight Surgeon uses simulated responses.', 'estado' => 'proximamente'],
+        ['nombre' => 'Orchestration with n8n', 'descripcion' => 'Coming soon: automated workflows that coordinate alerts and tasks across services. Today no automation is connected.', 'estado' => 'proximamente'],
     ],
 ];

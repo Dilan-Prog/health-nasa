@@ -12,5 +12,5 @@ class ConsultaTierra extends Model
 
     protected $casts = ['indicadores' => 'array', 'adjuntos' => 'array', 'tiempos' => 'array', 'etapa' => 'integer', 'fallida' => 'boolean'];
 
-    public const ETAPAS = ['En cola', 'Enviado', 'Recibido', 'Respondido'];
+    public const ETAPAS = ['Queued', 'Sent', 'Received', 'Answered'];
 }

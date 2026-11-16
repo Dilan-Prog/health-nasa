@@ -65,6 +65,26 @@ class Botiquin extends Component
             $grupos[$item->grupo][] = $item;
         }
 
-        return view('livewire.botiquin', ['grupos' => $grupos]);
+        // Display labels only; the stored Spanish values (grupo, nombre, unidad) stay as they are.
+        $etqGrupo = [
+            'Mareo por adaptación' => 'Space adaptation (motion sickness)',
+            'Sueño y fatiga' => 'Sleep & fatigue',
+            'Analgesia e inflamación' => 'Pain & inflammation',
+            'Antimicrobianos y antivirales' => 'Antimicrobials & antivirals',
+            'Emergencias' => 'Emergency',
+        ];
+        $etqNombre = [
+            'prometazina' => 'promethazine', 'meclizina' => 'meclizine', 'ondansetrón' => 'ondansetron',
+            'melatonina' => 'melatonin', 'zolpidem' => 'zolpidem', 'zaleplon' => 'zaleplon',
+            'modafinilo' => 'modafinil', 'cafeína' => 'caffeine', 'ibuprofeno' => 'ibuprofen',
+            'acetaminofén' => 'acetaminophen', 'aspirina' => 'aspirin', 'ketorolaco' => 'ketorolac',
+            'amoxicilina/clavulanato' => 'amoxicillin/clavulanate', 'azitromicina' => 'azithromycin',
+            'ciprofloxacino' => 'ciprofloxacin', 'valaciclovir' => 'valacyclovir', 'epinefrina' => 'epinephrine',
+            'oxígeno al 100 %' => '100 % oxygen', 'enoxaparina' => 'enoxaparin',
+        ];
+        $etqUnidad = ['unidades' => 'units', 'cilindros' => 'cylinders'];
+        $etqCad = ['sin' => 'NO DATE', 'vencido' => 'EXPIRED', 'pronto' => 'EXPIRES SOON', 'vigente' => 'VALID'];
+
+        return view('livewire.botiquin', compact('grupos', 'etqGrupo', 'etqNombre', 'etqUnidad', 'etqCad'));
     }
 }

@@ -3,23 +3,23 @@
     $extra = ['consulta' => $consulta, 'urls' => $urls];
 @endphp
 <div class="ind">
-    <x-encabezado titulo-a="Indicador" :titulo-b="$nombreTripulante ? 'Tripulante '.$nombreTripulante : 'Sin tripulante'" />
+    <x-encabezado titulo-a="Indicators" :titulo-b="$nombreTripulante ? 'Crew member '.$nombreTripulante : 'No crew member'" />
 
     @if (! $astronauta)
         <main class="ind-main" id="indicador-contenido">
             <div class="ind-aviso" role="status">
                 <span class="icono" aria-hidden="true">groups</span>
-                <strong>No hay un tripulante seleccionado</strong>
-                <span>Elige un tripulante en el selector para ver sus indicadores.</span>
+                <strong>No crew member selected</strong>
+                <span>Select a crew member in the selector to see their indicators.</span>
             </div>
         </main>
     @elseif ($error || ! $payload)
         <main class="ind-main" id="indicador-contenido">
             <div class="ind-aviso ind-aviso--error" role="alert">
                 <span class="icono" aria-hidden="true">error</span>
-                <strong>No se pudieron leer las mediciones</strong>
-                <span>Ha fallado la lectura de los indicadores. Tus datos no se han perdido.</span>
-                <button type="button" class="ind-btn" wire:click="reintentar"><span class="icono" aria-hidden="true">refresh</span>Reintentar</button>
+                <strong>Could not read the measurements</strong>
+                <span>Reading the indicators failed. Your data has not been lost.</span>
+                <button type="button" class="ind-btn" wire:click="reintentar"><span class="icono" aria-hidden="true">refresh</span>Retry</button>
             </div>
         </main>
     @else
@@ -30,7 +30,7 @@
 
             <template x-if="vals.narrow">
                 <button type="button" class="ind-abrir" data-ind-abrir aria-haspopup="dialog" x-on:click="vals.openDrawer()">
-                    <span class="icono" aria-hidden="true">tune</span>Marcadores · <span x-text="vals.pm.count"></span>
+                    <span class="icono" aria-hidden="true">tune</span>Indicators · <span x-text="vals.pm.count"></span>
                 </button>
             </template>
 
@@ -38,17 +38,17 @@
                 {{-- Panel de marcadores (cajón con rol dialog en móvil) --}}
                 <template x-if="vals.showSidePanel">
                     <aside class="ind-panel" :class="{ 'ind-panel--cajon': vals.narrow }" data-component="PanelMarcadores"
-                           aria-label="Marcadores" :role="vals.pm.role" :aria-modal="vals.pm.modal">
+                           aria-label="Indicators" :role="vals.pm.role" :aria-modal="vals.pm.modal">
                         <div class="ind-panel-cab">
-                            <h2 class="ind-h2">Marcadores</h2>
+                            <h2 class="ind-h2">Indicators</h2>
                             <template x-if="vals.narrow">
-                                <button type="button" class="ind-cerrar" data-ind-cerrar aria-label="Cerrar marcadores" x-on:click="vals.closeDrawer()">
+                                <button type="button" class="ind-cerrar" data-ind-cerrar aria-label="Close indicators" x-on:click="vals.closeDrawer()">
                                     <span class="icono" aria-hidden="true">close</span>
                                 </button>
                             </template>
                         </div>
 
-                        <div class="ind-modos" role="radiogroup" aria-label="Modo">
+                        <div class="ind-modos" role="radiogroup" aria-label="Mode">
                             <template x-for="m in vals.pm.modes" :key="m.label">
                                 <button type="button" role="radio" class="ind-seg ind-seg--modo" :aria-checked="m.checked" x-on:click="m.onClick()">
                                     <span class="icono" aria-hidden="true" x-text="m.ic"></span><span x-text="m.label"></span>
@@ -58,11 +58,11 @@
 
                         <label class="ind-buscar">
                             <span class="icono" aria-hidden="true">search</span>
-                            <span class="ind-sr">Buscar marcador</span>
-                            <input type="search" placeholder="Buscar marcador" autocomplete="off" :value="vals.pm.query" x-on:input="vals.pm.onQuery($event)">
+                            <span class="ind-sr">Search indicator</span>
+                            <input type="search" placeholder="Search indicator" autocomplete="off" :value="vals.pm.query" x-on:input="vals.pm.onQuery($event)">
                         </label>
 
-                        <div class="ind-filtros" role="radiogroup" aria-label="Filtrar por estado">
+                        <div class="ind-filtros" role="radiogroup" aria-label="Filter by status">
                             <template x-for="f in vals.pm.filters" :key="f.label">
                                 <button type="button" role="radio" class="ind-chip" :aria-checked="f.checked" x-on:click="f.onClick()">
                                     <span class="ind-punto" :style="{ background: f.dot }"></span><span x-text="f.label"></span>
@@ -96,7 +96,7 @@
                                 </div>
                             </template>
                             <template x-if="vals.pm.none">
-                                <span class="ind-nada">Ningún marcador coincide con la búsqueda.</span>
+                                <span class="ind-nada">No indicator matches the search.</span>
                             </template>
                         </div>
                     </aside>
@@ -104,9 +104,9 @@
 
                 <div class="ind-col">
                     {{-- Filtro de fechas --}}
-                    <section class="ind-tarjeta ind-fechas" data-component="FiltroFechas" aria-label="Filtro de fechas">
+                    <section class="ind-tarjeta ind-fechas" data-component="FiltroFechas" aria-label="Date filter">
                         <div class="ind-fila">
-                            <div class="ind-presets" role="radiogroup" aria-label="Periodo">
+                            <div class="ind-presets" role="radiogroup" aria-label="Period">
                                 <template x-for="p in vals.ff.presets" :key="p.label">
                                     <button type="button" role="radio" class="ind-chip ind-chip--grande" :aria-checked="p.checked" x-on:click="p.onClick()" x-text="p.label"></button>
                                 </template>
@@ -118,11 +118,11 @@
 
                         <template x-if="vals.ff.isCustom">
                             <div class="ind-fila ind-fechas-custom">
-                                <label for="ind-from" class="ind-campo">Desde
+                                <label for="ind-from" class="ind-campo">From
                                     <input id="ind-from" type="date" class="mono" :min="vals.ff.min" :max="vals.ff.max" :value="vals.ff.from"
                                            :aria-invalid="vals.ff.invalid" :class="{ 'is-mal': vals.ff.invalid === 'true' }" x-on:change="vals.ff.onFrom($event)">
                                 </label>
-                                <label for="ind-to" class="ind-campo">Hasta
+                                <label for="ind-to" class="ind-campo">To
                                     <input id="ind-to" type="date" class="mono" :min="vals.ff.min" :max="vals.ff.max" :value="vals.ff.to"
                                            :aria-invalid="vals.ff.invalid" :class="{ 'is-mal': vals.ff.invalid === 'true' }" x-on:change="vals.ff.onTo($event)">
                                 </label>
@@ -132,17 +132,17 @@
                         <div class="ind-fila ind-fila--opciones">
                             <label class="ind-check">
                                 <input type="checkbox" :checked="vals.ff.compare" :disabled="vals.ff.compareDisabled" x-on:change="vals.ff.onCompare($event)">
-                                Comparar con el periodo anterior
+                                Compare with previous period
                             </label>
-                            <div class="ind-grupo-chips" role="radiogroup" aria-label="Agrupar por">
-                                <span>Agrupar por</span>
+                            <div class="ind-grupo-chips" role="radiogroup" aria-label="Group by">
+                                <span>Group by</span>
                                 <template x-for="g in vals.ff.groups" :key="g.label">
                                     <button type="button" role="radio" class="ind-chip" :aria-checked="g.checked" :disabled="g.disabled" x-on:click="g.onClick()" x-text="g.label"></button>
                                 </template>
                             </div>
                             <template x-if="vals.ff.showHorizon">
-                                <div class="ind-grupo-chips" role="radiogroup" aria-label="Horizonte del pronóstico">
-                                    <span>Proyectar</span>
+                                <div class="ind-grupo-chips" role="radiogroup" aria-label="Forecast horizon">
+                                    <span>Project</span>
                                     <template x-for="g in vals.ff.horizons" :key="g.label">
                                         <button type="button" role="radio" class="ind-chip" :aria-checked="g.checked" x-on:click="g.onClick()" x-text="g.label"></button>
                                     </template>
@@ -152,11 +152,11 @@
                     </section>
 
                     {{-- Gráfico --}}
-                    <section class="ind-tarjeta ind-grafico" aria-label="Gráfico">
+                    <section class="ind-tarjeta ind-grafico" aria-label="Chart">
                         <div class="ind-fila ind-grafico-cab">
                             <h2 class="ind-h2 ind-grafico-t" x-text="vals.ch.title"></h2>
                             <template x-if="vals.ch.showSelector">
-                                <div class="ind-modos ind-modos--vista" data-component="SelectorVistaGrafico" role="radiogroup" aria-label="Tipo de gráfico (teclas 1 a 4)">
+                                <div class="ind-modos ind-modos--vista" data-component="SelectorVistaGrafico" role="radiogroup" aria-label="Chart type (keys 1 to 4)">
                                     <template x-for="v in vals.sel.views" :key="v.key">
                                         <button type="button" role="radio" class="ind-seg ind-seg--vista" :aria-checked="v.checked" :aria-label="v.aria" :title="v.aria"
                                                 :aria-keyshortcuts="v.key" x-on:click="v.onClick()">
@@ -182,31 +182,31 @@
                                 </template>
                                 <label class="ind-check ind-norm">
                                     <input type="checkbox" role="switch" :checked="vals.ch.norm" x-on:change="vals.ch.onNorm($event)">
-                                    Normalizar (0–100 % del rango)
+                                    Normalize (0–100 % of range)
                                 </label>
                             </div>
                         </template>
 
                         <template x-if="vals.ch.forecastNote">
-                            <span class="ind-estimacion mono"><span class="icono" aria-hidden="true">online_prediction</span>ESTIMACIÓN, NO DIAGNÓSTICO</span>
+                            <span class="ind-estimacion mono"><span class="icono" aria-hidden="true">online_prediction</span>ESTIMATE, NOT A DIAGNOSIS</span>
                         </template>
 
                         <template x-if="vals.ch.loading">
-                            <div class="ind-carga mono" role="status" aria-live="polite">CARGANDO MEDICIONES…</div>
+                            <div class="ind-carga mono" role="status" aria-live="polite">LOADING MEASUREMENTS…</div>
                         </template>
                         <template x-if="vals.ch.error">
                             <div class="ind-vacio ind-vacio--error" role="alert">
                                 <span class="icono" aria-hidden="true">error</span>
-                                <strong>No se pudieron leer las mediciones</strong>
-                                <span>El almacenamiento local no respondió. Tus datos no se han perdido.</span>
-                                <button type="button" class="ind-btn" x-on:click="vals.ch.retry()">Reintentar</button>
+                                <strong>Could not read the measurements</strong>
+                                <span>Local storage did not respond. Your data has not been lost.</span>
+                                <button type="button" class="ind-btn" x-on:click="vals.ch.retry()">Retry</button>
                             </div>
                         </template>
                         <template x-if="vals.ch.empty">
                             <div class="ind-vacio ind-vacio--punteado">
                                 <span class="icono" aria-hidden="true">query_stats</span>
-                                <strong>Sin mediciones en este periodo</strong>
-                                <span>Prueba con un rango más amplio o registra una nueva lectura.</span>
+                                <strong>No measurements in this period</strong>
+                                <span>Try a wider range or log a new reading.</span>
                             </div>
                         </template>
 
@@ -253,7 +253,7 @@
                                     </div>
                                 </div>
                                 <template x-if="vals.ch.lossNote">
-                                    <span class="ind-nota-eje"><span class="icono" aria-hidden="true">south</span>Eje de pérdida: más abajo = peor</span>
+                                    <span class="ind-nota-eje"><span class="icono" aria-hidden="true">south</span>Loss axis: lower = worse</span>
                                 </template>
                                 <div class="ind-claves">
                                     <template x-for="(k, i) in vals.ch.keys" :key="i">
@@ -266,7 +266,7 @@
                         {{-- Carriles por unidad (comparar sin normalizar) --}}
                         <template x-if="vals.ch.showLanes">
                             <div class="ind-carriles">
-                                <span class="ind-carriles-n">Unidades distintas: cada marcador con su propia escala. Activa "Normalizar" para superponerlos.</span>
+                                <span class="ind-carriles-n">Different units: each indicator has its own scale. Turn on "Normalize" to overlay them.</span>
                                 <template x-for="(l, i) in vals.ch.lanes" :key="i">
                                     <div class="ind-carril">
                                         <span class="ind-carril-t">
@@ -309,7 +309,7 @@
                                     <caption class="ind-sr" x-text="vals.ch.aria"></caption>
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="mono ind-tabla-f">FECHA</th>
+                                            <th scope="col" class="mono ind-tabla-f">DATE</th>
                                             <template x-for="(h, i) in vals.tbl.heads" :key="i">
                                                 <th scope="col" class="mono ind-tabla-n" x-text="h"></th>
                                             </template>
@@ -351,9 +351,9 @@
 
                     {{-- Resumen del indicador --}}
                     <template x-if="vals.sum.show">
-                        <section class="ind-tarjeta ind-resumen" data-component="TarjetaResumenIndicador" aria-label="Resumen del indicador">
+                        <section class="ind-tarjeta ind-resumen" data-component="TarjetaResumenIndicador" aria-label="Indicator summary">
                             <div class="ind-res-val">
-                                <span class="ind-res-et mono">VALOR ACTUAL · <span x-text="vals.sum.label"></span></span>
+                                <span class="ind-res-et mono">CURRENT VALUE · <span x-text="vals.sum.label"></span></span>
                                 <span class="ind-res-num">
                                     <span class="ind-res-v mono" :style="{ color: vals.sum.text }" x-text="vals.sum.value"></span>
                                     <span class="ind-res-u" x-text="vals.sum.unit"></span>
@@ -367,11 +367,11 @@
                                     </span>
                                 </div>
                                 <span class="ind-pildora ind-pildora--g ind-pildora--neutra mono" x-show="vals.sum.sospechoso">
-                                    <span class="icono" aria-hidden="true">sensors_off</span>Dato sospechoso
+                                    <span class="icono" aria-hidden="true">sensors_off</span>Suspect data
                                 </span>
                                 <span class="ind-res-ref" x-show="vals.sum.sospechoso" x-text="vals.sum.sospechoso"></span>
-                                <span class="ind-res-ref mono">REFERENCIA <span x-text="vals.sum.range"></span></span>
-                                <span class="ind-res-ref mono" x-show="vals.sum.desv">DESVIACIÓN <span x-text="vals.sum.desv"></span></span>
+                                <span class="ind-res-ref mono">REFERENCE <span x-text="vals.sum.range"></span></span>
+                                <span class="ind-res-ref mono" x-show="vals.sum.desv">DEVIATION <span x-text="vals.sum.desv"></span></span>
                             </div>
                             <div class="ind-res-stats">
                                 <template x-for="s in vals.sum.stats" :key="s.k">
@@ -385,8 +385,8 @@
                             <div class="ind-res-rec">
                                 <div class="ind-rec" :style="{ borderLeftColor: vals.sum.color }" x-text="vals.sum.rec"></div>
                                 <div class="ind-fila">
-                                    <a class="ind-btn ind-btn--primario" :href="registrarHref()"><span class="icono" aria-hidden="true">add_circle</span>Registrar nueva lectura</a>
-                                    <button type="button" class="ind-btn" disabled aria-disabled="true" title="Próximamente"><span class="icono" aria-hidden="true">menu_book</span>Ver en guía</button>
+                                    <a class="ind-btn ind-btn--primario" :href="registrarHref()"><span class="icono" aria-hidden="true">add_circle</span>Log new reading</a>
+                                    <button type="button" class="ind-btn" disabled aria-disabled="true" title="Coming soon"><span class="icono" aria-hidden="true">menu_book</span>View in guide</button>
                                 </div>
                             </div>
                         </section>
@@ -394,7 +394,7 @@
                 </div>
             </div>
 
-            <p class="ind-seguridad" role="note"><span class="icono" aria-hidden="true">info</span>Orienta, no diagnostica. Consulta al flight surgeon ante cualquier duda.</p>
+            <p class="ind-seguridad" role="note"><span class="icono" aria-hidden="true">info</span>Guidance only, not a diagnosis. Consult the Flight Surgeon if in doubt.</p>
 
             <template x-if="vals.drawerOpen">
                 <div class="ind-velo" aria-hidden="true" x-on:click="vals.closeDrawer()"></div>

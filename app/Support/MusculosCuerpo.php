@@ -11,7 +11,7 @@ namespace App\Support;
  */
 final class MusculosCuerpo
 {
-    public const VISTAS = ['frontal' => 'Frontal', 'lateral' => 'Costado der.', 'lateral_izq' => 'Costado izq.', 'posterior' => 'De atrás'];
+    public const VISTAS = ['frontal' => 'Front', 'lateral' => 'Right side', 'lateral_izq' => 'Left side', 'posterior' => 'Back'];
 
     /** Ids de los músculos de cada vista, en el orden de capas del SVG original. */
     public const POR_VISTA = [
@@ -206,6 +206,27 @@ final class MusculosCuerpo
 
     private const LADO = ['izq' => 'izquierdo', 'der' => 'derecho'];
 
+    /** English base name per BASE key, for display (the Spanish names above are compared by other code and stay as they are). [name, plural?] */
+    private const BASE_EN = [
+        'esternocleidomastoideo' => 'Sternocleidomastoid',
+        'trapecio_sup' => 'Upper trapezius', 'trapecio_medio' => 'Middle trapezius',
+        'deltoides_anterior' => 'Anterior deltoid', 'deltoides_lateral' => 'Lateral deltoid', 'deltoides_posterior' => 'Posterior deltoid',
+        'infraespinoso' => 'Infraspinatus', 'redondo_mayor' => 'Teres major', 'dorsal_ancho' => 'Latissimus dorsi', 'lumbar' => 'Lumbar',
+        'pectoral_mayor' => 'Pectoralis major', 'pectoral_menor' => 'Pectoralis minor', 'pectoral_inferior' => 'Lower pectoralis',
+        'pectoral_clavicular' => 'Clavicular pectoralis', 'coracobraquial' => 'Coracobrachialis',
+        'biceps' => 'Biceps', 'triceps' => 'Triceps', 'triceps_largo' => 'Triceps (long head)',
+        'recto_abdominal' => 'Rectus abdominis', 'serrato_anterior' => 'Serratus anterior', 'serrato' => 'Serratus',
+        'oblicuo_externo' => 'External oblique', 'oblicuo_inferior' => 'Lower oblique', 'tensor_fascia_lata' => 'Tensor fasciae latae',
+        'braquiorradial' => 'Brachioradialis', 'flexores_antebrazo' => 'Forearm flexors', 'extensores_antebrazo' => 'Forearm extensors',
+        'gluteo_mayor' => 'Gluteus maximus', 'gluteo_medio' => 'Gluteus medius',
+        'recto_femoral' => 'Rectus femoris', 'vasto_lateral' => 'Vastus lateralis', 'vasto_medial' => 'Vastus medialis', 'cuadriceps' => 'Quadriceps',
+        'biceps_femoral' => 'Biceps femoris', 'semitendinoso' => 'Semitendinosus', 'isquiotibiales' => 'Hamstrings',
+        'gemelo' => 'Gastrocnemius', 'gemelo_medial' => 'Medial gastrocnemius', 'gemelo_lateral' => 'Lateral gastrocnemius',
+        'soleo' => 'Soleus', 'tibial_anterior' => 'Tibialis anterior',
+    ];
+
+    private const LADO_EN = ['izq' => 'left', 'der' => 'right'];
+
     /** @return list<string> Todos los ids distintos, de cualquier vista. */
     public static function ids(): array
     {
@@ -223,6 +244,16 @@ final class MusculosCuerpo
         $lado = self::LADO[$m[3]].($plural ? 's' : '');
 
         return $base.($m[2] !== '' ? " (porción {$m[2]})" : '').' '.$lado;
+    }
+
+    /** English display name ("Pectoralis major left") or null if the id has no expected format. nombre() (Spanish) is unchanged. */
+    public static function nombreEn(string $id): ?string
+    {
+        if (! preg_match('/^([a-z_]+?)(?:_(\d+))?_(izq|der)$/', $id, $m) || ! isset(self::BASE_EN[$m[1]])) {
+            return null;
+        }
+
+        return self::BASE_EN[$m[1]].($m[2] !== '' ? " (portion {$m[2]})" : '').' '.self::LADO_EN[$m[3]];
     }
 
     /** @return array<string, string> id => nombre legible, para todos los músculos. */

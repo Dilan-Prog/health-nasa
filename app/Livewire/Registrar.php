@@ -187,7 +187,7 @@ class Registrar extends Component
                     $nd = $an->numero($d);
                     $valores = $ns !== null && $nd !== null ? ['sistolica' => $ns, 'diastolica' => $nd] : null;
                 } elseif ($s !== '' || $d !== '') {
-                    $r['pendiente'] = 'Introduce sistólica y diastólica';
+                    $r['pendiente'] = 'Enter systolic and diastolic';
                     $valores = false;
                 } else {
                     $valores = false;
@@ -201,7 +201,7 @@ class Registrar extends Component
             }
 
             if ($valores === null) {
-                $r['error'] = 'Introduce un número';
+                $r['error'] = 'Enter a number';
             } elseif (is_array($valores)) {
                 $e = $an->evaluar($clave, $valores);
                 if ($e['error']) {
@@ -232,7 +232,7 @@ class Registrar extends Component
         }
         $n = $an->numero($t);
         if ($n === null) {
-            $r['error'] = 'Introduce un número';
+            $r['error'] = 'Enter a number';
         } else {
             $valores = ['valor' => $n];
             $e = $an->evaluar('animo', $valores);
@@ -242,9 +242,9 @@ class Registrar extends Component
                 $r['valores'] = $valores;
                 $r['estado'] = $e['estado'];
                 $r['mensaje'] = match ($e['estado']) {
-                    'ok' => 'Dentro de lo habitual',
-                    'warn' => 'Por debajo de lo habitual: habla con un compañero o programa una llamada de apoyo',
-                    default => 'Muy bajo: avisa a tierra o a tu equipo de apoyo',
+                    'ok' => 'Within the usual range',
+                    'warn' => 'Below the usual range: talk to a crew mate or schedule a support call',
+                    default => 'Very low: alert the ground or your support team',
                 };
             }
         }
@@ -316,7 +316,7 @@ class Registrar extends Component
         $filas = [];
         foreach ($r['hechas'] as $clave => $a) {
             $cfg = $clave === 'animo'
-                ? ['icono' => 'mood', 'etiqueta' => 'Estado de ánimo', 'unidad' => '/100 VAS']
+                ? ['icono' => 'mood', 'etiqueta' => 'Mood', 'unidad' => '/100 VAS']
                 : config("panel.indicadores.$clave");
             $filas[] = [
                 'ic' => $cfg['icono'], 'label' => $cfg['etiqueta'], 'estado' => $a['estado'],
@@ -325,7 +325,7 @@ class Registrar extends Component
         }
         foreach ($this->zonas as $id => $z) {
             $filas[] = [
-                'ic' => 'location_on', 'label' => ZonaDolor::nombre($id).' · '.mb_strtolower($z['tipo']),
+                'ic' => 'location_on', 'label' => $this->nombreZona($id).' · '.mb_strtolower(ZonaDolor::etiquetaTipo($z['tipo'])),
                 'estado' => ZonaDolor::estado($z['int']), 'v' => $z['int'].'/10',
             ];
         }
@@ -351,6 +351,18 @@ class Registrar extends Component
         $v = (float) $valores['valor'];
 
         return ($v < 0 ? "\u{2212}" : '').$f($v);
+    }
+
+    /** English display name of a body zone (the id is what is stored and compared). */
+    public function nombreZona(string $id): string
+    {
+        return MusculosCuerpo::nombreEn($id) ?? ZonaDolor::nombre($id);
+    }
+
+    /** English display word for a 1-10 pain intensity (ZonaDolor::palabra() is the Spanish original). */
+    public function palabraDolor(int $n): string
+    {
+        return $n <= 3 ? 'Mild' : ($n <= 6 ? 'Moderate' : ($n <= 8 ? 'Strong' : 'Very strong'));
     }
 
     private function enlaceVisible(): bool

@@ -12,46 +12,46 @@
  */
 
 return [
-    'nota' => 'No actúan de forma aislada: pueden combinarse',
-    'etiqueta_ejemplo' => 'valor de ejemplo / evaluación interna',
+    'nota' => 'They do not act in isolation: they can combine',
+    'etiqueta_ejemplo' => 'example value / internal assessment',
 
     'peligros' => [
-        'radiacion' => ['nombre' => 'Radiación espacial', 'ic' => 'flare'],
-        'aislamiento' => ['nombre' => 'Aislamiento y confinamiento', 'ic' => 'groups'],
-        'distancia' => ['nombre' => 'Distancia de la Tierra', 'ic' => 'public'],
-        'gravedad_alterada' => ['nombre' => 'Campos gravitatorios', 'ic' => 'swap_vert'],
-        'entorno_cerrado' => ['nombre' => 'Ambientes cerrados u hostiles', 'ic' => 'home_work'],
+        'radiacion' => ['nombre' => 'Space Radiation', 'ic' => 'flare'],
+        'aislamiento' => ['nombre' => 'Isolation and Confinement', 'ic' => 'groups'],
+        'distancia' => ['nombre' => 'Distance from Earth', 'ic' => 'public'],
+        'gravedad_alterada' => ['nombre' => 'Gravity Fields', 'ic' => 'swap_vert'],
+        'entorno_cerrado' => ['nombre' => 'Hostile/Closed Environments', 'ic' => 'home_work'],
     ],
 
     'estados' => [
-        'cubierto' => ['txt' => 'Cubierto', 'ic' => 'check_circle'],
-        'parcial' => ['txt' => 'Parcial', 'ic' => 'timelapse'],
-        'sin' => ['txt' => 'Sin cobertura', 'ic' => 'do_not_disturb_on'],
+        'cubierto' => ['txt' => 'Covered', 'ic' => 'check_circle'],
+        'parcial' => ['txt' => 'Partial', 'ic' => 'timelapse'],
+        'sin' => ['txt' => 'No coverage', 'ic' => 'do_not_disturb_on'],
     ],
 
     'grupos' => [
-        'fisiologia' => ['nombre' => 'Fisiología', 'riesgos' => [
-            ['Respuestas inmunitarias alteradas', 'parcial', 'Solo se vigila la temperatura corporal; no hay marcadores inmunitarios.'],
-            ['Función sensoriomotora y vestibular alterada', 'sin', 'No se mide equilibrio ni coordinación.'],
-            ['Adaptaciones cardiovasculares', 'cubierto', 'Presión arterial, frecuencia cardíaca y saturación con umbrales de ejemplo.'],
-            ['Enfermedad por descompresión', 'sin', 'No se registra presión de cabina ni de traje.'],
-            ['Interacciones huésped-microorganismo', 'sin', 'No hay datos de microbioma ni de infecciones.'],
-            ['Hipoxia', 'parcial', 'Se mide la saturación de O₂ del tripulante, no la atmósfera del módulo.'],
-            ['Alimentación y nutrición inadecuadas', 'parcial', 'IMC, glucosa e hidratación; no se registran calorías ni nutrientes.'],
-            ['Lesión y desempeño comprometido en EVA', 'parcial', 'La EVA existe como actividad y evento de misión; sin seguimiento de lesiones.'],
-            ['Menor aptitud cardiorrespiratoria y musculoesquelética', 'parcial', 'Se sigue la masa muscular; no hay VO₂máx ni fuerza medidos.'],
-            ['Síndrome neuro-ocular (SANS)', 'parcial', 'Se registra la refracción en dioptrías; no el grosor retiniano.'],
-            ['Cambios óseos', 'cubierto', 'Pérdida ósea de cadera con umbral de ejemplo y rutina de carga.'],
+        'fisiologia' => ['nombre' => 'Physiology', 'riesgos' => [
+            ['Risk of Altered Immune System Responses', 'parcial', 'Only body temperature is monitored; there are no immune markers.'],
+            ['Risk of Altered Sensorimotor and Vestibular Function', 'sin', 'Balance and coordination are not measured.'],
+            ['Risk of Cardiovascular Adaptations', 'cubierto', 'Blood pressure, heart rate and saturation with example thresholds.'],
+            ['Risk of Decompression Sickness', 'sin', 'Cabin and suit pressure are not recorded.'],
+            ['Risk of Host-Microorganism Interactions', 'sin', 'There are no microbiome or infection data.'],
+            ['Risk of Hypoxia', 'parcial', 'The crew member\'s SpO₂ is measured, not the module atmosphere.'],
+            ['Risk of Inadequate Food and Nutrition', 'parcial', 'BMI, glucose and hydration; calories and nutrients are not recorded.'],
+            ['Risk of Injury and Compromised Performance from Spacewalks (EVA)', 'parcial', 'EVA exists as an activity and mission event; injuries are not tracked.'],
+            ['Risk of Reduced Cardiorespiratory and Musculoskeletal Fitness', 'parcial', 'Muscle mass is tracked; VO₂max and strength are not measured.'],
+            ['Risk of Spaceflight Associated Neuro-ocular Syndrome (SANS)', 'parcial', 'Refraction is recorded in diopters; retinal thickness is not.'],
+            ['Risk of Spaceflight-Induced Bone Changes', 'cubierto', 'Hip bone loss with an example threshold and a loading routine.'],
         ]],
-        'conducta' => ['nombre' => 'Conducta', 'riesgos' => [
-            ['Cambios conductuales y trastornos psiquiátricos', 'parcial', 'Estado de ánimo y estrés/cognitivo; sin evaluación clínica.'],
-            ['Trabajo en equipo inadecuado', 'sin', 'No se mide la dinámica del equipo.'],
-            ['Sueño inadecuado y horarios irregulares', 'cubierto', 'Horas de sueño con umbral de ejemplo; sin prueba PVT ni regularidad de horarios.'],
-            ['Soporte de operaciones de sistemas inadecuado', 'sin', 'Fuera del alcance de un monitor de salud.'],
-            ['Lesión por cargas dinámicas', 'sin', 'No se registran aceleraciones ni cargas de lanzamiento o reentrada.'],
+        'conducta' => ['nombre' => 'Behavior', 'riesgos' => [
+            ['Risk of Behavioral Changes and Psychiatric Disorders', 'parcial', 'Mood and stress/cognitive; no clinical assessment.'],
+            ['Risk of Inadequate Teamwork', 'sin', 'Team dynamics are not measured.'],
+            ['Risk of Inadequate Sleep and Irregular Schedules', 'cubierto', 'Sleep hours with an example threshold; no PVT test or schedule regularity.'],
+            ['Risk of Inadequate Systems Operations Support', 'sin', 'Outside the scope of a health monitor.'],
+            ['Risk of Injury from Dynamic Loads', 'sin', 'Accelerations and launch or reentry loads are not recorded.'],
         ]],
-        'radiacion' => ['nombre' => 'Radiación', 'riesgos' => [
-            ['Cánceres inducidos por radiación', 'parcial', 'Dosis diaria y acumulada frente a un límite de ejemplo; sin dosis por órgano ni riesgo de por vida.'],
+        'radiacion' => ['nombre' => 'Radiation', 'riesgos' => [
+            ['Risk of Radiation-Induced Cancers', 'parcial', 'Daily and cumulative dose against an example limit; no per-organ dose or lifetime risk.'],
         ]],
     ],
 ];

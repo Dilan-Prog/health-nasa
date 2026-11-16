@@ -30,7 +30,7 @@ class Login extends Component
         $this->email = trim($this->email);
 
         if ($this->email === '' || $this->password === '') {
-            $this->error = 'Escribe tu correo y tu contraseña.';
+            $this->error = 'Enter your email and password.';
 
             return null;
         }
@@ -38,7 +38,7 @@ class Login extends Component
         $clave = Str::lower($this->email).'|'.request()->ip();
         if (RateLimiter::tooManyAttempts($clave, 5)) {
             $seg = RateLimiter::availableIn($clave);
-            $this->error = "Demasiados intentos. Vuelve a probar en {$seg} segundos.";
+            $this->error = "Too many attempts. Try again in {$seg} seconds.";
 
             return null;
         }
@@ -46,7 +46,7 @@ class Login extends Component
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->recordar)) {
             RateLimiter::hit($clave, 60);
             $this->password = '';
-            $this->error = 'Correo o contraseña incorrectos.';
+            $this->error = 'Incorrect email or password.';
 
             return null;
         }

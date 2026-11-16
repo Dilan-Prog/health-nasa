@@ -16,14 +16,14 @@ use Illuminate\Validation\ValidationException;
 class SimularMision extends Command
 {
     protected $signature = 'salud:simular-mision
-        {--nombre=Misión Demo : Nombre de la misión}
+        {--nombre=Misión Demo : Mission name}
         {--entorno=estacion : estacion | nave | base_lunar | base_marciana}
-        {--tripulantes=4 : Número de tripulantes (N)}
-        {--dias=30 : Días de historial a generar}
-        {--semilla= : Semilla para resultados repetibles}
-        {--reemplazar : Si la misión ya existe, la borra y la vuelve a crear}';
+        {--tripulantes=4 : Number of crew members (N)}
+        {--dias=30 : Days of history to generate}
+        {--semilla= : Seed for repeatable results}
+        {--reemplazar : If the mission already exists, deletes and recreates it}';
 
-    protected $description = 'Crea una misión con N tripulantes y su historial de mediciones simuladas';
+    protected $description = 'Creates a mission with N crew members and their simulated measurement history';
 
     /** Nombres ficticios. */
     private const NOMBRES = [
@@ -43,19 +43,19 @@ class SimularMision extends Command
         $dias = (int) $this->option('dias');
 
         if (! array_key_exists($entorno, $config['retardo_min'])) {
-            $this->error("Entorno inválido. Usa: ".implode(', ', array_keys($config['retardo_min'])));
+            $this->error("Invalid environment. Use: ".implode(', ', array_keys($config['retardo_min'])));
 
             return self::FAILURE;
         }
         if ($n < 1 || $n > 50 || $dias < 1 || $dias > 730) {
-            $this->error('--tripulantes debe estar entre 1 y 50, y --dias entre 1 y 730.');
+            $this->error('--tripulantes must be between 1 and 50, and --dias between 1 and 730.');
 
             return self::FAILURE;
         }
 
         $existente = Mision::where('nombre', $nombre)->first();
         if ($existente && ! $this->option('reemplazar')) {
-            $this->error("Ya existe la misión «{$nombre}». Usa otro --nombre o añade --reemplazar.");
+            $this->error("Mission \"{$nombre}\" already exists. Use another --nombre or add --reemplazar.");
 
             return self::FAILURE;
         }
@@ -122,9 +122,9 @@ class SimularMision extends Command
             ];
         }
 
-        $this->info("Misión «{$nombre}» ({$entorno}): {$n} tripulantes, {$dias} días de historial.");
-        $this->table(['Tripulante', 'Deriva simulada', 'Mediciones', 'Normal', 'Precaución', 'Crítico'], $resumen);
-        $this->line('Alertas pendientes hacia tierra: '.app(\App\Services\Salud\EnvioATierra::class)->pendientes());
+        $this->info("Mission \"{$nombre}\" ({$entorno}): {$n} crew members, {$dias} days of history.");
+        $this->table(['Crew member', 'Simulated drift', 'Measurements', 'Normal', 'Caution', 'Critical'], $resumen);
+        $this->line('Alerts pending to the ground: '.app(\App\Services\Salud\EnvioATierra::class)->pendientes());
 
         return self::SUCCESS;
     }

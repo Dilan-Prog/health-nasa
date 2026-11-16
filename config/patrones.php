@@ -34,7 +34,7 @@
 
 return [
     'fiebre' => [
-        'nombre' => 'Posible fiebre',
+        'nombre' => 'Possible fever',
         'icono' => 'thermostat',
         'ficha' => 'fiebre',
         'indicadores' => ['temperatura', 'frecuencia_cardiaca'],
@@ -48,7 +48,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'hipoxia' => [
-        'nombre' => 'Posible hipoxia',
+        'nombre' => 'Possible hypoxia',
         'icono' => 'air',
         'ficha' => 'hipoxia',
         'indicadores' => ['saturacion_o2', 'frecuencia_cardiaca', 'estres_cognitivo'],
@@ -63,7 +63,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'deshidratacion' => [
-        'nombre' => 'Posible deshidratación',
+        'nombre' => 'Possible dehydration',
         'icono' => 'water_drop',
         'ficha' => 'deshidratacion',
         'indicadores' => ['hidratacion', 'frecuencia_cardiaca', 'temperatura', 'presion_arterial'],
@@ -79,7 +79,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'estres' => [
-        'nombre' => 'Posible estrés agudo',
+        'nombre' => 'Possible acute stress',
         'icono' => 'psychology',
         'ficha' => 'estres',
         'indicadores' => ['estres_cognitivo', 'frecuencia_cardiaca', 'presion_arterial'],
@@ -94,7 +94,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'arritmia' => [
-        'nombre' => 'Posible irregularidad del pulso (requiere ECG)',
+        'nombre' => 'Possible pulse irregularity (requires ECG)',
         'icono' => 'monitor_heart',
         'ficha' => 'arritmia',
         'indicadores' => ['frecuencia_cardiaca', 'estres_cognitivo'],
@@ -108,7 +108,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'falta_sueno' => [
-        'nombre' => 'Posible falta de sueño',
+        'nombre' => 'Possible sleep deprivation',
         'icono' => 'bedtime',
         'ficha' => 'falta_sueno',
         'indicadores' => ['sueno', 'estres_cognitivo', 'frecuencia_cardiaca'],
@@ -124,7 +124,7 @@ return [
         'minimo' => 1,          // supuesto del proyecto, no de la norma
     ],
     'fallo_sensor' => [
-        'nombre' => 'Posible fallo de sensor',
+        'nombre' => 'Possible sensor failure',
         'icono' => 'sensors',
         'ficha' => 'fallo_sensor',
         'indicadores' => ['frecuencia_cardiaca', 'saturacion_o2', 'temperatura', 'presion_arterial'],

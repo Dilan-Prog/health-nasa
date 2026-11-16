@@ -9,58 +9,58 @@ namespace App\Services\Salud;
 class CatalogoRecomendaciones
 {
     private const GENERALES = [
-        'normal' => 'Valor dentro de lo esperado. Continúa con tu rutina de mediciones.',
-        'precaucion' => 'Repite la medición en unos minutos, descansa, hidrátate y registra cómo te sientes.',
-        'critico' => 'Repite la medición de inmediato. Si se confirma, avisa a un compañero y contacta al flight surgeon.',
+        'normal' => 'Value within the expected range. Continue your routine measurements.',
+        'precaucion' => 'Repeat the measurement in a few minutes, rest, hydrate and log how you feel.',
+        'critico' => 'Repeat the measurement immediately. If confirmed, notify a crew member and contact the Flight Surgeon.',
     ];
 
     private const ESPECIFICAS = [
         'frecuencia_cardiaca' => [
-            'precaucion' => 'Suspende el ejercicio intenso, respira con calma y repite la medición en reposo.',
+            'precaucion' => 'Stop intense exercise, breathe calmly and repeat the measurement at rest.',
         ],
         'glucosa' => [
-            'precaucion' => 'Revisa tu última comida y repite la medición; evita azúcares simples hasta confirmar.',
+            'precaucion' => 'Review your last meal and repeat the measurement; avoid simple sugars until confirmed.',
         ],
         'temperatura' => [
-            'precaucion' => 'Revisa la temperatura del módulo, hidrátate y vigila síntomas de infección.',
+            'precaucion' => 'Check the module temperature, hydrate and watch for signs of infection.',
         ],
         'presion_arterial' => [
-            'precaucion' => 'Reposa 5 min sentado, repite la medición en el mismo brazo y bebe agua.',
+            'precaucion' => 'Rest seated for 5 min, repeat the measurement on the same arm and drink water.',
         ],
         'saturacion_o2' => [
-            'precaucion' => 'Respira profundo y despacio, revisa el sensor y la postura del dedo, y repite la medición.',
+            'precaucion' => 'Breathe deeply and slowly, check the sensor and finger placement, and repeat the measurement.',
         ],
         'imc' => [
-            'precaucion' => 'Revisa tu registro de comidas de la semana y coméntalo en tu próxima consulta de nutrición.',
+            'precaucion' => 'Review your meal log for the week and discuss it at your next nutrition consultation.',
         ],
         'perdida_osea' => [
-            'precaucion' => 'Completa hoy tu sesión de carga en el ARED y registra los minutos de ejercicio resistido.',
+            'precaucion' => 'Complete your ARED loading session today and log the minutes of resistive exercise.',
         ],
         'masa_muscular' => [
-            'precaucion' => 'Completa la rutina de fuerza de piernas, registra series y cargas y revisa tu dieta con nutrición.',
+            'precaucion' => 'Complete the leg strength routine, log sets and loads, and review your diet with nutrition.',
         ],
         'radiacion_diaria' => [
-            'precaucion' => 'Reduce hoy el tiempo en módulos poco blindados y duerme en la zona blindada.',
+            'precaucion' => 'Reduce your time in poorly shielded modules today and sleep in the shielded area.',
         ],
         'dosis_acumulada' => [
-            'precaucion' => 'Revisa con tierra el plan de EVAs restantes y prioriza las zonas blindadas en tu horario.',
+            'precaucion' => 'Review the remaining EVA plan with the ground and prioritize shielded areas in your schedule.',
         ],
         'sueno' => [
-            'precaucion' => 'Ajusta tu horario de descanso y reduce la luz y el ruido antes de dormir.',
+            'precaucion' => 'Adjust your rest schedule and reduce light and noise before sleeping.',
         ],
         'animo' => [
-            'precaucion' => 'Habla con un compañero o programa una llamada de apoyo; cuida tu rutina social.',
+            'precaucion' => 'Talk with a crew member or schedule a support call; maintain your social routine.',
         ],
     ];
 
     /** Texto de la alarma por proyección de evento solar (solo texto; la entrada del evento es del Nivel 3). */
-    public const EVENTO_SOLAR = 'Alarma: evento solar proyectado por encima del límite. Ve de inmediato al refugio blindado y avisa a tierra.';
+    public const EVENTO_SOLAR = 'Alarm: projected solar event above the limit. Go immediately to the shielded shelter and alert the ground.';
 
-    private const CRISIS_HIPERTENSIVA = 'Crisis hipertensiva: reposa sentado, repite la medición y contacta de inmediato al flight surgeon. Si hay dolor de pecho, falta de aire o confusión, pide ayuda a un compañero ya.';
+    private const CRISIS_HIPERTENSIVA = 'Hypertensive crisis: rest seated, repeat the measurement and contact the Flight Surgeon immediately. If there is chest pain, shortness of breath or confusion, ask a crew member for help now.';
 
     public function para(string $clave, Estado $estado, ?string $banda = null): string
     {
-        if ($clave === 'presion_arterial' && $banda === 'Crisis hipertensiva') {
+        if ($clave === 'presion_arterial' && ($banda === 'crisis' || $banda === EvaluadorEstado::BANDAS['crisis'])) {
             return self::CRISIS_HIPERTENSIVA;
         }
 

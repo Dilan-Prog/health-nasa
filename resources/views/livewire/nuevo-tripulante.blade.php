@@ -13,89 +13,89 @@
 
     // Campos de texto/número simples: [propiedad, etiqueta, tipo, atributos, ayuda]
     $campos1 = [
-        ['nombre', 'Nombre completo', 'text', 'autocomplete="off" maxlength="120" required', null],
-        ['fecha_nacimiento', 'Fecha de nacimiento', 'date', 'required', null],
+        ['nombre', 'Full name', 'text', 'autocomplete="off" maxlength="120" required', null],
+        ['fecha_nacimiento', 'Date of birth', 'date', 'required', null],
     ];
     $campos1b = [
-        ['nacionalidad', 'Nacionalidad', 'text', 'maxlength="80"', null],
-        ['agencia', 'Agencia', 'text', 'maxlength="80"', null],
+        ['nacionalidad', 'Nationality', 'text', 'maxlength="80"', null],
+        ['agencia', 'Agency', 'text', 'maxlength="80"', null],
     ];
     $num = function (string $c, string $et, string $unidad, string $paso = '1') use ($lim) {
         [$mn, $mx] = $lim($c);
-        return [$c, $et, 'number', 'inputmode="decimal" step="'.$paso.'" min="'.$mn.'" max="'.$mx.'"', $unidad.' · entre '.$mn.' y '.$mx];
+        return [$c, $et, 'number', 'inputmode="decimal" step="'.$paso.'" min="'.$mn.'" max="'.$mx.'"', $unidad.' · between '.$mn.' and '.$mx];
     };
     $bio = [
-        $num('altura_m', 'Altura', 'm', '0.01'), $num('peso_kg', 'Peso', 'kg', '0.1'), $num('evas', 'EVAs realizadas', 'n.º'),
+        $num('altura_m', 'Altura', 'm', '0.01'), $num('peso_kg', 'Peso', 'kg', '0.1'), $num('evas', 'EVAs completed', 'no.'),
     ];
     $basales = [
-        $num('fc_reposo', 'Frecuencia cardíaca en reposo', 'lpm'), $num('fc_maxima', 'Frecuencia cardíaca máxima', 'lpm'),
-        $num('presion_basal_sis', 'Presión sistólica basal', 'mmHg'), $num('presion_basal_dia', 'Presión diastólica basal', 'mmHg'),
-        $num('spo2_basal', 'Saturación de O₂ basal', '%'), $num('temperatura_basal', 'Temperatura basal', '°C', '0.1'),
-        $num('glucosa_basal', 'Glucosa basal', 'mg/dL'), $num('vo2max', 'VO₂máx', 'ml/kg/min', '0.1'),
-        $num('grasa_corporal_pct', 'Grasa corporal', '%', '0.1'), $num('densidad_osea_tscore', 'T-score de densidad ósea', 'T-score', '0.1'),
+        $num('fc_reposo', 'Resting heart rate', 'bpm'), $num('fc_maxima', 'Maximum heart rate', 'bpm'),
+        $num('presion_basal_sis', 'Baseline systolic pressure', 'mmHg'), $num('presion_basal_dia', 'Baseline diastolic pressure', 'mmHg'),
+        $num('spo2_basal', 'Baseline SpO₂', '%'), $num('temperatura_basal', 'Baseline temperature', '°C', '0.1'),
+        $num('glucosa_basal', 'Baseline glucose', 'mg/dL'), $num('vo2max', 'VO₂max', 'ml/kg/min', '0.1'),
+        $num('grasa_corporal_pct', 'Body fat', '%', '0.1'), $num('densidad_osea_tscore', 'Bone density T-score', 'T-score', '0.1'),
     ];
     $habitos = [
-        $num('horas_sueno_habituales', 'Horas de sueño habituales', 'h', '0.1'),
-        $num('actividad_fisica_semana_min', 'Actividad física semanal', 'min', '1'),
-        $num('dosis_radiacion_previa_msv', 'Dosis de radiación previa acumulada', 'mSv', '0.1'),
+        $num('horas_sueno_habituales', 'Usual sleep hours', 'h', '0.1'),
+        $num('actividad_fisica_semana_min', 'Weekly physical activity', 'min', '1'),
+        $num('dosis_radiacion_previa_msv', 'Prior cumulative radiation dose', 'mSv', '0.1'),
     ];
 
     /** Mensaje de error + ayuda enlazados al campo por aria-describedby. */
     $describe = fn (string $k, bool $ayuda = false) => trim(($ayuda ? $id($k).'-ayuda ' : '').($errors->has($k) ? $id($k).'-error' : ''));
 
-    $siNo = ['1' => 'Sí', '0' => 'No'];
-    $placeholderSel = '— Selecciona —';
+    $siNo = ['1' => 'Yes', '0' => 'No'];
+    $placeholderSel = '— Select —';
 @endphp
 
 <div class="nt">
-    <x-encabezado titulo-a="Nuevo tripulante" :titulo-b="$this->mision?->nombre ?? 'Sin misión'" />
+    <x-encabezado titulo-a="New crew member" :titulo-b="$this->mision?->nombre ?? 'No mission'" />
 
     @if (! $this->mision || $this->cupoLleno)
         {{-- ===== Bloqueos: sin misión activa / tripulación completa ===== --}}
         @php $sinMision = ! $this->mision; @endphp
         <section class="nt-bloqueo" role="alert" aria-labelledby="nt-bloqueo-titulo">
             <span class="nt-bloqueo-ic icono" aria-hidden="true">{{ $sinMision ? 'warning' : 'groups' }}</span>
-            <span class="nt-pastilla">{{ $sinMision ? 'Sin misión activa' : 'Tripulación completa' }}</span>
+            <span class="nt-pastilla">{{ $sinMision ? 'No active mission' : 'Crew full' }}</span>
             @if ($sinMision)
-                <h2 id="nt-bloqueo-titulo">No hay una misión activa</h2>
-                <p>Cada expediente se guarda dentro de una misión. Crea o selecciona una misión con tripulación y, cuando haya una activa, podrás continuar aquí.</p>
+                <h2 id="nt-bloqueo-titulo">There is no active mission</h2>
+                <p>Each record is saved within a mission. Create or select a mission with a crew; once one is active, you can continue here.</p>
             @else
-                <h2 id="nt-bloqueo-titulo">Tripulación completa</h2>
-                <p>La misión ya tiene el máximo de {{ \App\Services\Tripulacion\AltaTripulante::maximo() }} tripulantes. No se pueden añadir más.</p>
+                <h2 id="nt-bloqueo-titulo">Crew full</h2>
+                <p>The mission already has the maximum of {{ \App\Services\Tripulacion\AltaTripulante::maximo() }} crew members. No more can be added.</p>
             @endif
             <div class="nt-bloqueo-acc">
-                <button type="button" class="nt-btn" wire:click="cancelar"><span class="icono" aria-hidden="true">arrow_back</span> Volver a Tripulación</button>
+                <button type="button" class="nt-btn" wire:click="cancelar"><span class="icono" aria-hidden="true">arrow_back</span> Back to Crew</button>
                 @if ($sinMision)
-                    <a class="nt-btn nt-btn--primario" href="{{ route('mision') }}"><span class="icono" aria-hidden="true">rocket_launch</span> Ir a Misión</a>
+                    <a class="nt-btn nt-btn--primario" href="{{ route('mision') }}"><span class="icono" aria-hidden="true">rocket_launch</span> Go to Mission</a>
                 @endif
             </div>
         </section>
     @else
     @php
         $estados = $this->estadosPasos;
-        $etiquetaEstado = ['actual' => 'Actual', 'actual-error' => 'Actual · error', 'completo' => 'Completado', 'pendiente' => 'Pendiente'];
+        $etiquetaEstado = ['actual' => 'Current', 'actual-error' => 'Current · error', 'completo' => 'Completed', 'pendiente' => 'Pending'];
         $conError = $this->pasosConError;
         $errores = $this->erroresResumen;
         $rev = $this->revision['completitud'] ?? null;
         $pct = (int) ($rev['porcentaje'] ?? 0);
         $faltan = count($rev['faltantes'] ?? []);
-        $textoFaltan = $faltan ? 'Faltan '.$faltan.' datos recomendados.' : 'Expediente completo.';
+        $textoFaltan = $faltan ? $faltan.' recommended '.($faltan === 1 ? 'item' : 'items').' missing.' : 'Record complete.';
         $tono = $this->tonoImc;
-        $nombreVisible = trim($nombre) !== '' ? $nombre : 'Sin nombre';
+        $nombreVisible = trim($nombre) !== '' ? $nombre : 'No name';
         $imcTxt = $this->imc !== null ? number_format($this->imc, 1) : '—';
-        $edadTxt = $this->edad !== null ? $this->edad.' años' : '—';
+        $edadTxt = $this->edad !== null ? $this->edad.' yr' : '—';
         $alcanzable = fn (int $n) => $n === 1 || collect(range(1, $n - 1))->every(fn ($p) => in_array($p, $pasosValidos, true));
     @endphp
     <form class="nt-form" wire:submit.prevent="{{ $paso === 5 ? 'guardar' : 'siguiente' }}" novalidate aria-labelledby="paso-titulo">
 
         {{-- ===== Indicador de pasos: completo (escritorio) ===== --}}
-        <nav class="nt-pasos nt-pasos--completo" aria-label="Pasos del alta de tripulante">
+        <nav class="nt-pasos nt-pasos--completo" aria-label="New crew member steps">
             <ol>
                 @foreach ($this->pasos as $n => [$titulo, $icono])
                     @php $e = $estados[$n]; @endphp
                     <li class="nt-paso" data-estado="{{ $e }}" wire:key="nt-paso-{{ $n }}">
                         <button type="button" class="nt-paso-btn" wire:click="irAPaso({{ $n }})" title="{{ $titulo }} · {{ $etiquetaEstado[$e] }}"
-                                aria-label="Paso {{ $n }} de 5: {{ $titulo }}. {{ $etiquetaEstado[$e] }}"
+                                aria-label="Step {{ $n }} of 5: {{ $titulo }}. {{ $etiquetaEstado[$e] }}"
                                 @if ($n === $paso) aria-current="step" @endif
                                 @if (! $alcanzable($n)) disabled @endif>
                             <span class="nt-paso-marca" aria-hidden="true">
@@ -115,22 +115,22 @@
         </nav>
 
         {{-- ===== Indicador de pasos: compacto (pantallas estrechas) ===== --}}
-        <nav class="nt-pasos nt-pasos--compacto" aria-label="Pasos del alta de tripulante (compacto)">
+        <nav class="nt-pasos nt-pasos--compacto" aria-label="New crew member steps (compact)">
             <div class="nt-compacto-cab">
-                <span class="nt-compacto-tit"><span class="nt-ojo">Paso {{ $paso }} de 5</span><span class="nt-compacto-nom">{{ $nombrePaso }}</span></span>
+                <span class="nt-compacto-tit"><span class="nt-ojo">Step {{ $paso }} of 5</span><span class="nt-compacto-nom">{{ $nombrePaso }}</span></span>
                 <span class="nt-pastilla nt-pastilla--paso" data-estado="{{ $estados[$paso] }}"><span class="icono" aria-hidden="true">{{ $estados[$paso] === 'actual-error' ? 'priority_high' : 'edit' }}</span>{{ $etiquetaEstado[$estados[$paso]] }}</span>
             </div>
             <ol class="nt-segmentos">
                 @foreach ($this->pasos as $n => [$titulo, $icono])
                     @php $e = $estados[$n]; @endphp
                     <li wire:key="nt-seg-{{ $n }}" data-estado="{{ $e }}">
-                        <button type="button" wire:click="irAPaso({{ $n }})" aria-label="Paso {{ $n }} de 5: {{ $titulo }}. {{ $etiquetaEstado[$e] }}"
+                        <button type="button" wire:click="irAPaso({{ $n }})" aria-label="Step {{ $n }} of 5: {{ $titulo }}. {{ $etiquetaEstado[$e] }}"
                                 @if ($n === $paso) aria-current="step" @endif @if (! $alcanzable($n)) disabled @endif><span></span></button>
                     </li>
                 @endforeach
             </ol>
             @if ($conError)
-                <span class="nt-nota-error"><span class="icono" aria-hidden="true">error</span>{{ collect($conError)->map(fn ($i) => 'Paso '.$i)->implode(', ') }} {{ count($conError) > 1 ? 'tienen' : 'tiene' }} errores.</span>
+                <span class="nt-nota-error"><span class="icono" aria-hidden="true">error</span>{{ collect($conError)->map(fn ($i) => 'Step '.$i)->implode(', ') }} {{ count($conError) > 1 ? 'have' : 'has' }} errors.</span>
             @endif
         </nav>
 
@@ -138,16 +138,16 @@
         <details class="nt-resumen nt-resumen--linea" wire:key="nt-resumen-linea">
             <summary>
                 <span class="nt-avatar nt-avatar--s" aria-hidden="true">{{ $this->iniciales }}</span>
-                <span class="nt-resumen-tit"><strong>{{ $nombreVisible }}</strong><span class="nt-ojo">Resumen · {{ $pct }} % completo</span></span>
+                <span class="nt-resumen-tit"><strong>{{ $nombreVisible }}</strong><span class="nt-ojo">Summary · {{ $pct }} % complete</span></span>
                 <span class="icono nt-resumen-flecha" aria-hidden="true">expand_more</span>
             </summary>
             <div class="nt-resumen-cuerpo">
                 <dl class="nt-resumen-dl">
-                    <div><dt>Edad</dt><dd>{{ $edadTxt }}</dd></div>
-                    <div><dt>IMC</dt><dd><span>{{ $imcTxt }}</span>
+                    <div><dt>Age</dt><dd>{{ $edadTxt }}</dd></div>
+                    <div><dt>BMI</dt><dd><span>{{ $imcTxt }}</span>
                         @if ($tono) <span class="nt-tono" data-estado="{{ $tono['estado'] }}"><span class="icono" aria-hidden="true">{{ $tono['icono'] }}</span>{{ $tono['etiqueta'] }}</span> @endif</dd></div>
                 </dl>
-                <div class="nt-barra-pct" role="progressbar" aria-label="Expediente completo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}"><span style="width: {{ $pct }}%"></span></div>
+                <div class="nt-barra-pct" role="progressbar" aria-label="Record complete" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}"><span style="width: {{ $pct }}%"></span></div>
                 <span class="nt-resumen-falta">{{ $textoFaltan }}</span>
             </div>
         </details>
@@ -155,7 +155,7 @@
         <div class="nt-cuerpo">
             <div class="nt-principal">
                 <div class="nt-paso-cab">
-                    <span class="nt-ojo">Paso {{ $paso }} de 5</span>
+                    <span class="nt-ojo">Step {{ $paso }} of 5</span>
                     <h2 id="paso-titulo" class="nt-titulo" tabindex="-1">{{ $nombrePaso }}</h2>
                     <p>{{ $this->descripcionPaso }}</p>
                 </div>
@@ -164,7 +164,7 @@
                     <div id="resumen-errores" class="nt-resumen-errores" role="alert" tabindex="-1">
                         <span class="icono" aria-hidden="true">error</span>
                         <div>
-                            <strong>Revisa {{ count($errores) === 1 ? 'el campo marcado' : 'los '.count($errores).' campos marcados' }} antes de continuar</strong>
+                            <strong>Review {{ count($errores) === 1 ? 'the marked field' : 'the '.count($errores).' marked fields' }} before continuing</strong>
                             <ul class="nt-lista-errores">
                                 @foreach ($errores as $err)
                                     <li wire:key="nt-err-{{ $err['clave'] }}"><a href="#{{ $err['uid'] }}" data-ir="{{ $err['uid'] }}">{{ $err['etiqueta'] }}</a>: {{ $err['mensaje'] }}</li>
@@ -184,42 +184,42 @@
 
                 {{-- ===== Acciones ===== --}}
                 <div class="nt-barra">
-                    <button type="button" class="nt-btn nt-btn--suave" wire:click="cancelar" wire:loading.attr="disabled" wire:target="guardar">Cancelar</button>
+                    <button type="button" class="nt-btn nt-btn--suave" wire:click="cancelar" wire:loading.attr="disabled" wire:target="guardar">Cancel</button>
                     <span class="nt-barra-sep"></span>
                     @if ($paso > 1)
-                        <button type="button" class="nt-btn" wire:click="anterior" aria-label="Paso anterior" wire:loading.attr="disabled" wire:target="guardar"><span class="icono" aria-hidden="true">arrow_back</span><span class="nt-btn-txt">Anterior</span></button>
+                        <button type="button" class="nt-btn" wire:click="anterior" aria-label="Previous step" wire:loading.attr="disabled" wire:target="guardar"><span class="icono" aria-hidden="true">arrow_back</span><span class="nt-btn-txt">Previous</span></button>
                     @endif
                     @if ($paso < 5)
-                        <button type="submit" class="nt-btn nt-btn--primario">Siguiente <span class="icono" aria-hidden="true">arrow_forward</span></button>
+                        <button type="submit" class="nt-btn nt-btn--primario">Next <span class="icono" aria-hidden="true">arrow_forward</span></button>
                     @else
                         <button type="submit" class="nt-btn nt-btn--primario nt-btn--guardar" wire:loading.attr="disabled" wire:loading.class="is-guardando" wire:target="guardar">
-                            <span class="nt-guardar-normal"><span class="icono" aria-hidden="true">person_add</span> Guardar tripulante</span>
-                            <span class="nt-guardar-curso"><span class="nt-giro" aria-hidden="true"></span> Guardando…</span>
+                            <span class="nt-guardar-normal"><span class="icono" aria-hidden="true">person_add</span> Save crew member</span>
+                            <span class="nt-guardar-curso"><span class="nt-giro" aria-hidden="true"></span> Saving…</span>
                         </button>
                     @endif
                 </div>
-                <span class="nt-sr" role="status" aria-live="polite"><span wire:loading wire:target="guardar">Guardando tripulante…</span></span>
-                <p class="nt-seguridad">Esta herramienta orienta, no diagnostica ni receta.</p>
+                <span class="nt-sr" role="status" aria-live="polite"><span wire:loading wire:target="guardar">Saving crew member…</span></span>
+                <p class="nt-seguridad">This tool provides guidance only; it does not diagnose or prescribe.</p>
             </div>
 
             {{-- ===== Resumen lateral (pantallas anchas) ===== --}}
-            <aside class="nt-resumen nt-resumen--lateral" aria-label="Resumen del expediente" wire:key="nt-resumen-lateral">
-                <span class="nt-ojo">Resumen</span>
+            <aside class="nt-resumen nt-resumen--lateral" aria-label="Record summary" wire:key="nt-resumen-lateral">
+                <span class="nt-ojo">Summary</span>
                 <div class="nt-resumen-id">
                     <span class="nt-avatar" aria-hidden="true">{{ $this->iniciales }}</span>
                     <span class="nt-resumen-tit"><strong>{{ $nombreVisible }}</strong><span>{{ $this->rolResumen }}</span></span>
                 </div>
                 <dl class="nt-resumen-dl">
-                    <div><dt>Edad</dt><dd>{{ $edadTxt }}</dd></div>
-                    <div><dt>IMC</dt><dd><span>{{ $imcTxt }}</span>
+                    <div><dt>Age</dt><dd>{{ $edadTxt }}</dd></div>
+                    <div><dt>BMI</dt><dd><span>{{ $imcTxt }}</span>
                         @if ($tono) <span class="nt-tono" data-estado="{{ $tono['estado'] }}"><span class="icono" aria-hidden="true">{{ $tono['icono'] }}</span>{{ $tono['etiqueta'] }}</span> @endif</dd></div>
                 </dl>
                 <div class="nt-resumen-pct">
-                    <div class="nt-resumen-pct-cab"><span id="nt-sum-pct" class="nt-ojo">Expediente</span><span>{{ $pct }} %</span></div>
+                    <div class="nt-resumen-pct-cab"><span id="nt-sum-pct" class="nt-ojo">Record</span><span>{{ $pct }} %</span></div>
                     <div class="nt-barra-pct" role="progressbar" aria-labelledby="nt-sum-pct" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}"><span style="width: {{ $pct }}%"></span></div>
                     <span class="nt-resumen-falta">{{ $textoFaltan }}</span>
                 </div>
-                <p class="nt-resumen-nota">La app orienta, no diagnostica ni receta. Los datos se guardan en este equipo y se envían a Tierra cuando hay enlace.</p>
+                <p class="nt-resumen-nota">The app provides guidance only; it does not diagnose or prescribe. Data is stored on this device and sent to the ground when a link is available.</p>
             </aside>
         </div>
     </form>

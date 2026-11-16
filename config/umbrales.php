@@ -30,7 +30,7 @@ $grupos = (require __DIR__.'/sistemas.php')['grupos'];
 $umbrales = [
     'indicadores' => [
         'presion_arterial' => [
-            'nombre' => 'Presión arterial',
+            'nombre' => 'Blood pressure',
             'unidad' => 'mmHg',
             'riesgos' => ['gravedad_alterada', 'radiacion'],
             'frecuencia' => 'diaria',
@@ -44,8 +44,8 @@ $umbrales = [
             ],
         ],
         'frecuencia_cardiaca' => [
-            'nombre' => 'Frecuencia cardíaca',
-            'unidad' => 'lpm',
+            'nombre' => 'Heart rate',
+            'unidad' => 'bpm',
             'riesgos' => ['gravedad_alterada', 'radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -53,7 +53,7 @@ $umbrales = [
             ],
         ],
         'saturacion_o2' => [
-            'nombre' => 'Saturación de O₂',
+            'nombre' => 'SpO₂',
             'unidad' => '%',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
@@ -62,7 +62,7 @@ $umbrales = [
             ],
         ],
         'glucosa' => [
-            'nombre' => 'Glucosa en sangre',
+            'nombre' => 'Glucose',
             'unidad' => 'mg/dL',
             'riesgos' => ['entorno_cerrado'],
             'frecuencia' => 'diaria',
@@ -71,7 +71,7 @@ $umbrales = [
             ],
         ],
         'temperatura' => [
-            'nombre' => 'Temperatura corporal',
+            'nombre' => 'Temperature',
             'unidad' => '°C',
             'riesgos' => ['radiacion', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
@@ -84,7 +84,7 @@ $umbrales = [
             ],
         ],
         'imc' => [
-            'nombre' => 'Índice de masa corporal',
+            'nombre' => 'BMI',
             'unidad' => 'kg/m²',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
@@ -93,8 +93,8 @@ $umbrales = [
             ],
         ],
         'perdida_osea' => [
-            'nombre' => 'Pérdida ósea (cadera)',
-            'unidad' => '%/mes',
+            'nombre' => 'Bone loss (hip)',
+            'unidad' => '%/month',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'semanal',
             'componentes' => [
@@ -102,8 +102,8 @@ $umbrales = [
             ],
         ],
         'masa_muscular' => [
-            'nombre' => 'Masa muscular',
-            'unidad' => '% misión',
+            'nombre' => 'Muscle mass',
+            'unidad' => '% of mission',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'semanal',
             'componentes' => [
@@ -111,8 +111,8 @@ $umbrales = [
             ],
         ],
         'radiacion_diaria' => [
-            'nombre' => 'Radiación diaria',
-            'unidad' => 'mSv/día',
+            'nombre' => 'Daily radiation',
+            'unidad' => 'mSv/day',
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -121,7 +121,7 @@ $umbrales = [
             ],
         ],
         'dosis_acumulada' => [
-            'nombre' => 'Dosis acumulada',
+            'nombre' => 'Cumulative dose',
             'unidad' => 'mSv',
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
@@ -130,8 +130,8 @@ $umbrales = [
             ],
         ],
         'hidratacion' => [
-            'nombre' => 'Hidratación',
-            'unidad' => 'L/día',
+            'nombre' => 'Hydration',
+            'unidad' => 'L/day',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -139,7 +139,7 @@ $umbrales = [
             ],
         ],
         'sueno' => [
-            'nombre' => 'Sueño',
+            'nombre' => 'Sleep',
             'unidad' => 'h',
             'riesgos' => ['aislamiento', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
@@ -148,7 +148,7 @@ $umbrales = [
             ],
         ],
         'estres_cognitivo' => [
-            'nombre' => 'Estrés / cognitivo',
+            'nombre' => 'Stress / cognitive',
             'unidad' => '/100',
             'riesgos' => ['aislamiento', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
@@ -157,7 +157,7 @@ $umbrales = [
             ],
         ],
         'vision_sans' => [
-            'nombre' => 'Visión (SANS)',
+            'nombre' => 'Vision (SANS)',
             'unidad' => 'D',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'diaria',
@@ -166,7 +166,7 @@ $umbrales = [
             ],
         ],
         'animo' => [
-            'nombre' => 'Estado de ánimo',
+            'nombre' => 'Mood',
             // Escala analógica visual (VAS) 0-100, 100 = muy bien. Cortes de ejemplo (equivalen a los de la antigua escala 1-5): pendientes de revisión médica.
             'unidad' => 'VAS 0-100',
             'riesgos' => ['aislamiento'],
@@ -196,7 +196,7 @@ $umbrales = [
         // Proyección de evento solar que se considera crítica (mSv) y su acción. SOLO regla y texto: aún no hay
         // entrada de evento solar en el sistema (es del Nivel 3).
         'evento_solar_critico_msv' => 250,
-        'evento_solar_accion' => 'alarma y refugio blindado',
+        'evento_solar_accion' => 'alarm and shielded shelter',
         // pendiente: límites por órgano y por año (requieren dosis por órgano, que no se registra).
     ],
 
@@ -226,11 +226,11 @@ $umbrales = [
     ],
 
     'riesgos' => [
-        'radiacion' => 'Radiación espacial',
-        'aislamiento' => 'Aislamiento y confinamiento',
-        'distancia' => 'Distancia de la Tierra',
-        'gravedad_alterada' => 'Campos gravitatorios alterados',
-        'entorno_cerrado' => 'Entornos cerrados y hostiles',
+        'radiacion' => 'Space Radiation',
+        'aislamiento' => 'Isolation and Confinement',
+        'distancia' => 'Distance from Earth',
+        'gravedad_alterada' => 'Gravity Fields',
+        'entorno_cerrado' => 'Hostile/Closed Environments',
     ],
 
 

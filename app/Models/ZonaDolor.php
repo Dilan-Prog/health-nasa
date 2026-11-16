@@ -13,6 +13,21 @@ class ZonaDolor extends Model
 
     public const TIPOS = ['Punzante', 'Sordo', 'Quemante', 'Calambre', 'Rigidez'];
     public const DESDE = ['Hoy', '1–3 días', 'Más de 3 días'];
+    /** Pain type label shown to the user, keyed by the stored (Spanish) value. */
+    public const ETIQUETAS_TIPO = ['Punzante' => 'Sharp', 'Sordo' => 'Dull', 'Quemante' => 'Burning', 'Calambre' => 'Cramp', 'Rigidez' => 'Stiffness'];
+    /** Onset label shown to the user, keyed by the stored (Spanish) value. */
+    public const ETIQUETAS_DESDE = ['Hoy' => 'Today', '1–3 días' => '1–3 days', 'Más de 3 días' => 'More than 3 days'];
+
+    public static function etiquetaTipo(string $tipo): string
+    {
+        return self::ETIQUETAS_TIPO[$tipo] ?? $tipo;
+    }
+
+    public static function etiquetaDesde(string $desde): string
+    {
+        return self::ETIQUETAS_DESDE[$desde] ?? $desde;
+    }
+
     /** Intensidad a partir de la cual el registro se considera de aviso a tierra. */
     public const INTENSIDAD_ALERTA = 8;
 

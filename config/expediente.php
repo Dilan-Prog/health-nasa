@@ -7,36 +7,36 @@
  */
 
 return [
-    'sexos' => ['femenino' => 'Femenino', 'masculino' => 'Masculino', 'otro' => 'Otro'],
+    'sexos' => ['femenino' => 'Female', 'masculino' => 'Male', 'otro' => 'Other'],
 
-    'estados_servicio' => ['activo' => 'Activo', 'reserva' => 'Reserva', 'retirado' => 'Retirado'],
+    'estados_servicio' => ['activo' => 'Active', 'reserva' => 'Reserve', 'retirado' => 'Retired'],
 
     'aptitudes' => [
-        'apto' => 'Apto',
-        'apto_restricciones' => 'Apto con restricciones',
-        'no_apto' => 'No apto',
-        'pendiente' => 'Pendiente de evaluación',
+        'apto' => 'Fit',
+        'apto_restricciones' => 'Fit with restrictions',
+        'no_apto' => 'Not fit',
+        'pendiente' => 'Pending evaluation',
     ],
 
-    'gravedades' => ['leve' => 'Leve', 'moderada' => 'Moderada', 'grave' => 'Grave'],
+    'gravedades' => ['leve' => 'Mild', 'moderada' => 'Moderate', 'grave' => 'Severe'],
 
-    'estados_condicion' => ['activa' => 'Activa', 'controlada' => 'Controlada', 'resuelta' => 'Resuelta'],
+    'estados_condicion' => ['activa' => 'Active', 'controlada' => 'Controlled', 'resuelta' => 'Resolved'],
 
     'alcohol' => [
-        'nunca' => 'Nunca', 'ocasional' => 'Ocasional', 'moderado' => 'Moderado', 'frecuente' => 'Frecuente',
+        'nunca' => 'Never', 'ocasional' => 'Occasional', 'moderado' => 'Moderate', 'frecuente' => 'Frequent',
     ],
 
     'grupos_sanguineos' => ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
 
     'parentescos' => [
-        'madre' => 'Madre', 'padre' => 'Padre', 'hermano' => 'Hermano/a', 'hijo' => 'Hijo/a',
-        'pareja' => 'Pareja', 'abuelo' => 'Abuelo/a', 'tio' => 'Tío/a', 'amigo' => 'Amigo/a', 'otro' => 'Otro',
+        'madre' => 'Mother', 'padre' => 'Father', 'hermano' => 'Sibling', 'hijo' => 'Child',
+        'pareja' => 'Partner', 'abuelo' => 'Grandparent', 'tio' => 'Aunt/uncle', 'amigo' => 'Friend', 'otro' => 'Other',
     ],
 
     /** Sugerencias para el campo `rol` (texto libre: se acepta cualquier valor). */
     'roles' => [
-        'Comandante', 'Piloto', 'Ingeniero de vuelo', 'Especialista de misión',
-        'Oficial médico', 'Científico de carga útil', 'Especialista de EVA',
+        'Commander', 'Pilot', 'Flight Engineer', 'Mission Specialist',
+        'Crew Medical Officer (CMO)', 'Payload Scientist', 'EVA Specialist',
     ],
 
     /** Límites numéricos [min, max] por campo. */

@@ -1,19 +1,19 @@
 <div class="sis">
-    <x-encabezado titulo-a="Sistemas corporales" :titulo-b="$astronauta ? 'Tripulante '.$astronauta->nombre : 'Sin tripulante'" />
+    <x-encabezado titulo-a="Body systems" :titulo-b="$astronauta ? 'Crew member '.$astronauta->nombre : 'No crew member'" />
 
     <main class="sis-main" id="sistemas-contenido">
         <div class="sis-cabecera">
-            <span class="mono sis-kicker">SISTEMAS CORPORALES</span>
-            <h2 class="sis-titulo">Sistemas corporales</h2>
-            <p class="sis-sub">Estado por sistema · {{ $astronauta ? $astronauta->nombre : 'Sin tripulante' }}</p>
-            <p class="sis-intro">El color de cada sistema refleja su indicador más comprometido. Toca un indicador para ver el detalle.</p>
+            <span class="mono sis-kicker">BODY SYSTEMS</span>
+            <h2 class="sis-titulo">Body systems</h2>
+            <p class="sis-sub">Status by system · {{ $astronauta ? $astronauta->nombre : 'No crew member' }}</p>
+            <p class="sis-intro">The color of each system reflects its most affected indicator. Tap an indicator to see the detail.</p>
         </div>
 
         @if (! $astronauta)
             <div class="sis-vacio" role="status">
                 <span class="icono" aria-hidden="true">person_off</span>
-                <strong>Sin tripulante seleccionado</strong>
-                <span>Elige un tripulante para ver el estado de sus sistemas corporales.</span>
+                <strong>No crew member selected</strong>
+                <span>Select a crew member to see the status of their body systems.</span>
             </div>
         @else
             <div class="sis-rejilla">
@@ -38,16 +38,16 @@
                             @endforeach
                         </ul>
                         @if ($t['sin_cobertura'])
-                            <p class="sis-pendiente">Sin cobertura todavía.@if ($t['pendiente']) Falta medir: {{ $t['pendiente'] }}@endif</p>
+                            <p class="sis-pendiente">No coverage yet.@if ($t['pendiente']) Not yet measured: {{ $t['pendiente'] }}@endif</p>
                         @endif
                         @if ($t['proximamente'])
-                            <p class="sis-pendiente prox-linea" data-proximamente><span class="mono prox-etiqueta">Próximamente</span>: {{ implode(' · ', $t['proximamente']) }}</p>
+                            <p class="sis-pendiente prox-linea" data-proximamente><span class="mono prox-etiqueta">Coming soon</span>: {{ implode(' · ', $t['proximamente']) }}</p>
                         @endif
                     </section>
                 @endforeach
             </div>
         @endif
 
-        <p class="sis-aviso" role="note"><span class="icono" aria-hidden="true">info</span>Orienta, no diagnostica. Consulta al flight surgeon ante cualquier duda.</p>
+        <p class="sis-aviso" role="note"><span class="icono" aria-hidden="true">info</span>Guidance only, not a diagnosis. Consult the Flight Surgeon if in doubt.</p>
     </main>
 </div>

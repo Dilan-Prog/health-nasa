@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión · Monitor de salud</title>
+    <title>Sign in · Health monitor</title>
     <meta name="color-scheme" content="dark light">
     <script>
         (function () {

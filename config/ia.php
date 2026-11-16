@@ -14,10 +14,10 @@ return [
 
     'modos' => ['simulado', 'ia_local'],
 
-    'aviso' => 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. No es consejo médico real.',
+    'aviso' => 'This is a simulated version of a local AI. It can make mistakes. Everything is simulated, based on the crew simulation. It is not real medical advice.',
 
     'etiquetas' => [
-        'proximamente' => 'IA local y n8n: Próximamente',
+        'proximamente' => 'Local AI and n8n: Coming soon',
     ],
 
     // Etiqueta corta (mono, mayúsculas) de cada indicador para la línea de evidencia del flotante.

@@ -84,7 +84,7 @@ class GuardadorRegistro
                     'astronauta_id' => $astronauta->id,
                     'carga' => [
                         'astronauta' => $astronauta->nombre,
-                        'indicador' => 'Registro de salud',
+                        'indicador' => 'Health log',
                         'valores' => $mediciones ?: null,
                         'estado' => 'critico',
                         'accion' => ReglasEscalamiento::CONTACTAR_TIERRA,

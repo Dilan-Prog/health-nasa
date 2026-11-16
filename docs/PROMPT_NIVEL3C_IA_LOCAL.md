@@ -1,3 +1,5 @@
+> **Aplazado: Próximamente.** La IA local (Ollama) y n8n no se construyen por ahora; este documento queda como hoja de ruta. La experiencia con IA **simulada** está en `docs/PROMPT_MEDICO_FLOTANTE.md`.
+
 # Prompt Nivel 3C: Médico de vuelo con IA local (Ollama) orquestada por n8n
 
 **Requisito previo:** Niveles 1, 2 y 3A terminados. La IA debe quedar **apagada por defecto** (`IA_ACTIVA=false`): el sistema tiene que funcionar completo sin ella.

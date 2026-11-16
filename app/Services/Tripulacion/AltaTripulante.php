@@ -53,7 +53,7 @@ class AltaTripulante
             // Con el cupo lleno no se admite otro tripulante (se vuelve a comprobar dentro de la transacción).
             if (Astronauta::query()->where('mision_id', $mision->id)->lockForUpdate()->count() >= self::maximo()) {
                 throw ValidationException::withMessages([
-                    'nombre' => 'La misión ya tiene el máximo de '.self::maximo().' tripulantes.',
+                    'nombre' => 'The mission already has the maximum of '.self::maximo().' crew members.',
                 ]);
             }
             $a = new Astronauta(Arr::only($datos, self::IDENTIDAD));
@@ -115,31 +115,47 @@ class AltaTripulante
         return $this->cargar($a->id);
     }
 
-    /** @return array{porcentaje:int, faltantes:array<int,string>} */
+    /** Stable criterion key => label shown to the user. */
+    public const CRITERIOS = [
+        'nacimiento' => 'Date of birth',
+        'nacionalidad_agencia' => 'Nationality and agency',
+        'altura_peso' => 'Height and weight',
+        'grupo_sanguineo' => 'Blood type',
+        'linea_base' => 'Personal baseline',
+        'signos_basales' => 'Baseline vitals (heart rate and blood pressure)',
+        'habitos' => 'Habits (sleep and physical activity)',
+        'aptitud' => 'Flight fitness assessed',
+        'ultimo_examen' => 'Date of last medical exam',
+        'contacto_emergencia' => 'Primary emergency contact',
+    ];
+
+    /** @return array{porcentaje:int, faltantes:array<int,string>, faltantes_claves:array<int,string>} faltantes = display labels (CRITERIOS); faltantes_claves = stable keys */
     public function completitud(Astronauta $a): array
     {
         $a->loadMissing(self::RELACIONES);
         $e = $a->expediente;
 
         $criterios = [
-            'Fecha de nacimiento' => (bool) $a->fecha_nacimiento,
-            'Nacionalidad y agencia' => filled($a->nacionalidad) && filled($a->agencia),
-            'Altura y peso' => $a->altura_m && $a->peso_kg,
-            'Grupo sanguíneo' => filled($a->grupo_sanguineo),
-            'Línea base personal' => $e && ! empty($e->linea_base),
-            'Signos basales (frecuencia cardíaca y presión)' => $e && $e->fc_reposo && $e->presion_basal_sis && $e->presion_basal_dia,
-            'Hábitos (sueño y actividad física)' => $e && $e->horas_sueno_habituales !== null && $e->actividad_fisica_semana_min !== null,
-            'Aptitud de vuelo evaluada' => $e && $e->aptitud_vuelo !== 'pendiente',
-            'Fecha del último examen médico' => $e && $e->ultimo_examen_en,
-            'Contacto de emergencia principal' => $a->contactos->contains('principal', true),
+            'nacimiento' => (bool) $a->fecha_nacimiento,
+            'nacionalidad_agencia' => filled($a->nacionalidad) && filled($a->agencia),
+            'altura_peso' => $a->altura_m && $a->peso_kg,
+            'grupo_sanguineo' => filled($a->grupo_sanguineo),
+            'linea_base' => $e && ! empty($e->linea_base),
+            'signos_basales' => $e && $e->fc_reposo && $e->presion_basal_sis && $e->presion_basal_dia,
+            'habitos' => $e && $e->horas_sueno_habituales !== null && $e->actividad_fisica_semana_min !== null,
+            'aptitud' => $e && $e->aptitud_vuelo !== 'pendiente',
+            'ultimo_examen' => $e && $e->ultimo_examen_en,
+            'contacto_emergencia' => $a->contactos->contains('principal', true),
         ];
 
-        $faltantes = array_keys(array_filter($criterios, fn ($ok) => ! $ok));
+        $claves = array_keys(array_filter($criterios, fn ($ok) => ! $ok));
+        $faltantes = array_map(fn ($c) => self::CRITERIOS[$c], $claves);
         $total = count($criterios);
 
         return [
             'porcentaje' => (int) round(100 * ($total - count($faltantes)) / $total),
             'faltantes' => $faltantes,
+            'faltantes_claves' => $claves,
         ];
     }
 

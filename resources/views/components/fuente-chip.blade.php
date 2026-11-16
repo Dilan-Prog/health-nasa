@@ -6,7 +6,7 @@
 @endphp
 <span {{ $attributes->class(['fuente-chip']) }} data-tipo="{{ $tipo }}" data-validado="{{ $validado ? '1' : '0' }}">
     <span class="icono fuente-ic" aria-hidden="true">menu_book</span>
-    <span class="fuente-et">Fuente: {{ $etiqueta }}</span>
+    <span class="fuente-et">Source: {{ $etiqueta }}</span>
     @if ($rev)<span class="fuente-rev mono">{{ $rev }}</span>@endif
-    @unless ($validado)<span class="fuente-ejemplo">valor de ejemplo</span>@endunless
+    @unless ($validado)<span class="fuente-ejemplo">Example value (unvalidated)</span>@endunless
 </span>

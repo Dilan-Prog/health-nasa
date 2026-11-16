@@ -24,15 +24,15 @@ use Livewire\Component;
 class MedicoVuelo extends Component
 {
     public const SEV = [
-        'crit' => ['Crítico', 'error'],
-        'warn' => ['Revisar', 'warning'],
+        'crit' => ['Critical', 'error'],
+        'warn' => ['Caution', 'warning'],
     ];
 
     public const SELLO = [
-        'verif' => ['Verificado contra botiquín', 'verified_user', 'ok'],
-        'escal' => ['Escalado a humano', 'supervisor_account', 'warn'],
-        'rule' => ['Protocolo fijo verificado · sin IA', 'verified_user', 'ok'],
-        'none' => ['Sin orientación de IA', 'rule', 'neu'],
+        'verif' => ['Verified against the medical kit', 'verified_user', 'ok'],
+        'escal' => ['Escalated to a human', 'supervisor_account', 'warn'],
+        'rule' => ['Fixed protocol verified · no AI', 'verified_user', 'ok'],
+        'none' => ['No AI guidance', 'rule', 'neu'],
     ];
 
     /** Indicadores marcados para compartir (id => bool). */
@@ -98,10 +98,10 @@ class MedicoVuelo extends Component
         $res = ConsultasTierra::votar($a, $id, $voto);
         if ($res) {
             $this->gracias[$id] = $res;
-            $this->anuncio = 'Gracias por tu opinión.';
+            $this->anuncio = 'Thank you for your feedback.';
         } else {
             unset($this->gracias[$id]);
-            $this->anuncio = 'Opinión retirada.';
+            $this->anuncio = 'Feedback withdrawn.';
         }
     }
 
@@ -111,7 +111,7 @@ class MedicoVuelo extends Component
         $base = preg_replace('/^(em-|r-)/', '', $id);
         $this->marcados[$id] = true;
         $this->marcados[$base] = true;
-        $this->anuncio = 'Añadido al mensaje para el médico de vuelo.';
+        $this->anuncio = 'Added to the message for the Flight Surgeon.';
     }
 
     public function borrador(): void
@@ -127,9 +127,9 @@ class MedicoVuelo extends Component
                 $partes[] = mb_strtolower($s['label']).' '.$s['val'];
             }
         }
-        $this->nota = 'Hola, soy '.$a->nombre.'.'
-            .($partes ? ' Comparto: '.implode('; ', $partes).'.' : ' Hoy todo está en rango.')
-            .' ¿Podemos revisar el plan en la próxima ventana?';
+        $this->nota = 'Hello, I am '.$a->nombre.'.'
+            .($partes ? ' I am sharing: '.implode('; ', $partes).'.' : ' Everything is in range today.')
+            .' Can we review the plan in the next window?';
     }
 
     public function enviar(string $tipo): void
@@ -137,7 +137,7 @@ class MedicoVuelo extends Component
         $this->error = null;
         $a = TripulanteActual::obtener();
         if (! $a) {
-            $this->error = 'No hay tripulante seleccionado.';
+            $this->error = 'No crew member selected.';
 
             return;
         }
@@ -151,12 +151,12 @@ class MedicoVuelo extends Component
         try {
             ConsultasTierra::enviar($a, $tipo, $ids, trim($this->nota) !== '' ? trim($this->nota) : null, $adj);
         } catch (InvalidArgumentException $e) {
-            $this->error = $ids === [] ? 'Elige al menos una alerta para compartir.' : $e->getMessage();
+            $this->error = $ids === [] ? 'Choose at least one alert to share.' : $e->getMessage();
             $this->anuncio = $this->error;
 
             return;
         }
-        $this->anuncio = $tipo === 'video' ? 'Videoconsulta solicitada.' : 'Mensaje en cola.';
+        $this->anuncio = $tipo === 'video' ? 'Video consultation requested.' : 'Message queued.';
         $this->nota = '';
         $this->anadidas = [];
     }
@@ -169,8 +169,8 @@ class MedicoVuelo extends Component
             return;
         }
         $this->anuncio = ConsultasTierra::reintentar($c)
-            ? 'Envío reintentado. El enlace está activo.'
-            : 'Sigue sin enlace. Se enviará automáticamente al recuperarlo.';
+            ? 'Send retried. The link is active.'
+            : 'Still no link. It will be sent automatically when it is restored.';
     }
 
     /** @return array<int, array{id:string,label:string,val:string,sev:string,locked:bool}> */
@@ -219,9 +219,9 @@ class MedicoVuelo extends Component
                 'banda' => null,
                 'kind' => 'rule', 'rule' => 'V-1',
                 'finding' => $v['texto'],
-                'steps' => $v['pasos'] ?: ['Comenta este patrón con el médico de vuelo en la próxima ventana.'],
+                'steps' => $v['pasos'] ?: ['Discuss this pattern with the Flight Surgeon in the next window.'],
                 'pend' => null, 'conf' => null, 'safe' => 'none',
-                'src' => [['l' => 'Regla de ventana: '.$v['nombre'], 't' => 'Se activa al repetirse el valor bajo el umbral en lecturas diarias seguidas. Supuesto del proyecto, no de la norma.', 'ic' => 'date_range']],
+                'src' => [['l' => 'Window rule: '.$v['nombre'], 't' => 'Triggered when the value stays below the threshold in consecutive daily readings. Project assumption, not from the standard.', 'ic' => 'date_range']],
             ];
         }
 

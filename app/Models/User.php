@@ -19,9 +19,9 @@ class User extends Authenticatable
     public const ROLES = [self::ROL_TRIPULANTE, self::ROL_CMO, self::ROL_FLIGHT_SURGEON];
 
     public const ETIQUETAS_ROL = [
-        self::ROL_TRIPULANTE => 'Tripulante',
-        self::ROL_CMO => 'Oficial médico (CMO)',
-        self::ROL_FLIGHT_SURGEON => 'Flight surgeon',
+        self::ROL_TRIPULANTE => 'Crew member',
+        self::ROL_CMO => 'Crew Medical Officer (CMO)',
+        self::ROL_FLIGHT_SURGEON => 'Flight Surgeon',
     ];
 
     /**
