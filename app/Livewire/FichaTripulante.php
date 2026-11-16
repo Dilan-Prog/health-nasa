@@ -52,6 +52,7 @@ class FichaTripulante extends Component
     {
         abort_unless(TripulanteActual::tripulacion()->contains('id', $astronauta->id), 404);
         $this->astronautaId = $astronauta->id;
+        \App\Services\Auditoria::registrar('ver', 'ficha', $astronauta->id, $astronauta->id);
         $this->cargarFormularios($astronauta);
     }
 
@@ -191,6 +192,7 @@ class FichaTripulante extends Component
             'iniciales' => $this->iniciales($a->nombre),
             'subtitulo' => collect([$a->rol, $edad !== null ? $edad.' años' : null, $a->agencia, $a->nacionalidad])->filter()->implode(' · '),
             'pildoras' => $this->pildoras($a),
+            'bateriaBaja' => $a->bateria_pct !== null && $a->bateria_pct < (int) config('mision.reloj_bateria_baja_pct', 20) ? $a->bateria_pct : null,
             'restriccion' => $e && $e->aptitud_vuelo === 'apto_restricciones' && filled($e->restricciones) ? $e->restricciones : null,
             'comp' => app(AltaTripulante::class)->completitud($a),
             'linea' => $this->lineaBase($a),

@@ -15,6 +15,11 @@ class Botiquin extends Component
 {
     public ?int $editando = null;
 
+    public function mount(): void
+    {
+        \App\Services\Auditoria::registrar('ver', 'botiquin');
+    }
+
     public string $stock = '';
 
     public string $caducidad = '';

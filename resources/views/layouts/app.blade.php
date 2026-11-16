@@ -27,6 +27,7 @@
             ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt', 'ruta' => 'cola-tierra', 'href' => '/cola-a-tierra'],
             ['t' => 'Botiquín', 'ic' => 'medication', 'ruta' => 'botiquin', 'href' => '/botiquin'],
             ['t' => 'Flight surgeon', 'ic' => 'stethoscope', 'ruta' => 'medico', 'href' => '/medico-de-vuelo'],
+            ['t' => 'Auditoría', 'ic' => 'fact_check', 'ruta' => 'auditoria', 'href' => '/auditoria'],
         ]],
         ['t' => 'Apoyo', 'links' => [
             ['t' => 'Aviso legal', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],

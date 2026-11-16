@@ -17,6 +17,11 @@ class ColaTierra extends Component
 {
     public const LIMITE = 50;
 
+    public function mount(): void
+    {
+        \App\Services\Auditoria::registrar('ver', 'consultas_tierra');
+    }
+
     public function render()
     {
         $filas = AlertaSaliente::orderByDesc('id')->limit(self::LIMITE)->get();

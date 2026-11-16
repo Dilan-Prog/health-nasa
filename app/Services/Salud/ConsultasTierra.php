@@ -59,6 +59,8 @@ class ConsultasTierra
             ],
         ]);
 
+        \App\Services\Auditoria::registrar('enviar', 'consultas_tierra', $consulta->id, $a->id);
+
         return $consulta;
     }
 

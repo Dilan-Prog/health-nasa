@@ -64,4 +64,7 @@ Route::middleware('login.requerido')->group(function () {
     if (class_exists(\App\Livewire\ColaTierra::class)) {
         Route::get('/cola-a-tierra', \App\Livewire\ColaTierra::class)->name('cola-tierra');
     }
+    if (class_exists(\App\Livewire\Auditoria::class)) {
+        Route::get('/auditoria', \App\Livewire\Auditoria::class)->name('auditoria');
+    }
 });
