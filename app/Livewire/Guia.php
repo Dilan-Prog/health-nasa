@@ -3,13 +3,12 @@
 namespace App\Livewire;
 
 use App\Models\Medicion;
-use App\Models\Requisito;
 use App\Services\Salud\AnalisisRegistro;
 use App\Services\Salud\DatosIndicador;
+use App\Services\Salud\ResolvedorRequisito;
 use App\Support\TripulanteActual;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 
 /**
@@ -33,17 +32,15 @@ class Guia extends Component
     {
         $a = TripulanteActual::obtener();
 
-        $fuentes = $this->fuentesPorDominio(); // una sola consulta por render
-
         return view('livewire.guia', [
             'astronauta' => $a,
-            'tarjetas' => $this->tarjetas($a, $fuentes),
-            'extras' => $this->extras($a, $fuentes),
+            'tarjetas' => $this->tarjetas($a),
+            'extras' => $this->extras($a),
         ]);
     }
 
     /** @return array<int, array<string, mixed>> */
-    private function tarjetas($a, array $fuentes): array
+    private function tarjetas($a): array
     {
         $vivos = [];
         if ($a) {
@@ -74,7 +71,7 @@ class Guia extends Component
             $out[] = [
                 'clave' => $clave, 'label' => $c['label'], 'ic' => $c['ic'], 'parte' => $g['parte'], 'rango' => $rango,
                 'texto' => $g['texto'], 'rec' => $c['rec'],
-                'fuentes' => ($d = $g['requisito_dominio'] ?? null) ? ($fuentes[$d] ?? []) : [],
+                'fuentes' => $this->fuentes($clave), 'contexto' => $g['contexto'] ?? null,
                 'valor' => $v ? $v['disp'] : null, 'unidad' => $c['unit'],
                 'estado' => $v ? $v['estado'] : null,
                 'estado_txt' => $v ? self::ESTADOS[$v['estado']] : null,
@@ -86,25 +83,18 @@ class Guia extends Component
     }
 
     /**
-     * Fuentes distintas (tipo + revisión + validado) por dominio de requisito, con UNA sola consulta.
-     * Si la tabla falta o está vacía devuelve [] y la Guía muestra «sin requisito asociado».
+     * Fuente del indicador (config/trazabilidad.php) y, si es una proyección HRP, la referencia normativa real.
+     * Si la tabla falta o está vacía devuelve [] y la tarjeta muestra «sin requisito asociado».
      *
-     * @return array<string, array<int, array{tipo: string, revision: ?string, validado: bool}>>
+     * @return array<int, array<string, mixed>>
      */
-    private function fuentesPorDominio(): array
+    private function fuentes(string $clave): array
     {
         try {
-            if (! Schema::hasTable('requisitos')) {
-                return [];
-            }
-            $out = [];
-            foreach (Requisito::query()->orderBy('tipo')->get(['dominio', 'tipo', 'revision', 'validado']) as $r) {
-                $out[$r->dominio][$r->tipo.'|'.$r->revision.'|'.(int) $r->validado] = [
-                    'tipo' => $r->tipo, 'revision' => $r->revision, 'validado' => (bool) $r->validado,
-                ];
-            }
-
-            return array_map('array_values', $out);
+            return array_values(array_filter([
+                ResolvedorRequisito::fuente(ResolvedorRequisito::para($clave)),
+                ResolvedorRequisito::fuente(ResolvedorRequisito::referenciaDe($clave)),
+            ]));
         } catch (\Throwable $e) {
             report($e);
 
@@ -117,7 +107,7 @@ class Guia extends Component
      *
      * @return array<int, array<string, mixed>>
      */
-    private function extras($a, array $fuentes): array
+    private function extras($a): array
     {
         $out = [];
         foreach (config('guia.extras', []) as $clave => $e) {
@@ -142,7 +132,7 @@ class Guia extends Component
             $out[] = [
                 'clave' => $clave, 'label' => $e['label'], 'ic' => $e['ic'], 'parte' => $e['parte'], 'rango' => $rango,
                 'texto' => $e['texto'], 'rec' => $e['rec'],
-                'fuentes' => ($d = $e['requisito_dominio'] ?? null) ? ($fuentes[$d] ?? []) : [],
+                'fuentes' => $this->fuentes($clave), 'contexto' => null,
                 'valor' => $valor, 'unidad' => $unidad,
                 'estado' => $estado, 'estado_txt' => $estado ? self::ESTADOS[$estado] : null,
                 'busca' => mb_strtolower($e['label'].' '.$e['parte'].' '.$e['texto']),

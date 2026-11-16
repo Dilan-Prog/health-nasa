@@ -22,6 +22,9 @@
 .guia-texto { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text); }
 .guia-hacer { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
 .guia-hacer strong { color: var(--text-2); }
+.guia-contexto { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.guia-contexto strong { color: var(--text-2); }
+.fuente-cod { font-size: 12px; color: var(--muted); align-self: center; }
 
 /* Último valor del tripulante: el color de estado llega por data-estado (siempre con icono y texto, nunca solo color). */
 .guia-tuyo { --e: var(--muted); --e-soft: var(--border-faint); margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 12px; border-radius: var(--radius); border-left: 4px solid var(--e); background: var(--e-soft); }

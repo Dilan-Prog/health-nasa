@@ -29,6 +29,12 @@ class OrientacionAlertas
                 'icono' => $i['icono'],
             ];
 
+            $requisito = ResolvedorRequisito::para($clave);
+            $base['fuente'] = ResolvedorRequisito::fuente($requisito);
+            // La pérdida ósea es una tasa del HRP (proyección): el requisito real es V1 4027.
+            $base['referencia'] = $requisito?->tipo === 'hrp' ? ResolvedorRequisito::fuente(ResolvedorRequisito::referenciaDe($clave)) : null;
+            $base['banda'] = self::banda($i);
+
             if (self::esEmergencia($i, $em)) {
                 $tarjetas[] = array_merge($base, [
                     'kind' => 'emerg', 'rule' => $em['regla'], 'sev' => 'crit',
@@ -78,6 +84,21 @@ class OrientacionAlertas
     private static function incidencias(Astronauta $a): array
     {
         return ResumenTripulante::make()->de($a)['incidencias'];
+    }
+
+    /** Banda de la regla nueva (EvaluadorEstado::banda, de T2); null mientras no exista. */
+    private static function banda(array $i): ?string
+    {
+        $evaluador = new EvaluadorEstado(config('umbrales'));
+        if (! method_exists($evaluador, 'banda')) {
+            return null;
+        }
+        $partes = explode('/', $i['valor']);
+        $valores = count($partes) === 2
+            ? ['sistolica' => self::numero($partes[0]), 'diastolica' => self::numero($partes[1])]
+            : ['valor' => self::numero($i['valor'])];
+
+        return $evaluador->banda($i['clave'], $valores);
     }
 
     private static function esEmergencia(array $i, array $em): bool

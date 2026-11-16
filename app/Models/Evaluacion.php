@@ -10,7 +10,7 @@ class Evaluacion extends Model
 {
     protected $table = 'evaluaciones';
 
-    protected $fillable = ['medicion_id', 'estado', 'tendencia', 'accion', 'recomendacion'];
+    protected $fillable = ['medicion_id', 'requisito_id', 'estado', 'tendencia', 'accion', 'recomendacion'];
 
     public function medicion(): BelongsTo
     {

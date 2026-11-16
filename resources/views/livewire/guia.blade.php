@@ -26,9 +26,13 @@
                     <div class="guia-rango"><span class="guia-et">Rango: </span><span class="mono">{{ $t['rango'] }}</span></div>
                     <p class="guia-texto">{{ $t['texto'] }}</p>
                     <p class="guia-hacer"><strong>Qué hacer:</strong> {{ $t['rec'] }}</p>
+                    @if ($t['contexto'])
+                        <p class="guia-contexto"><strong>Contexto:</strong> {{ $t['contexto'] }}</p>
+                    @endif
                     <div class="fuente-chips">
                         @forelse ($t['fuentes'] as $f)
-                            <x-fuente-chip :tipo="$f['tipo']" :revision="$f['revision']" :validado="$f['validado']" />
+                            <x-fuente-chip :tipo="$f['tipo']" :revision="$f['revision']" :validado="$f['validado']" :label="$f['etiqueta']" />
+                            @if ($f['codigo'])<span class="mono fuente-cod">{{ $f['codigo'] }}</span>@endif
                         @empty
                             <span class="fuente-sin">Umbral de ejemplo (sin requisito asociado)</span>
                         @endforelse

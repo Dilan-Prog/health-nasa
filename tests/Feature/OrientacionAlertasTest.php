@@ -47,7 +47,7 @@ class OrientacionAlertasTest extends TestCase
 
         $t = OrientacionAlertas::para($a);
         $this->assertSame(['perdida_osea', 'presion_arterial'], array_column($t, 'id'));
-        $this->assertEqualsCanonicalizing(['id', 'kind', 'rule', 'sev', 'finding', 'steps', 'pend', 'conf', 'safe', 'src', 'time', 'etiqueta', 'valor', 'icono'], array_keys($t[0]));
+        $this->assertEqualsCanonicalizing(['id', 'kind', 'rule', 'sev', 'finding', 'steps', 'pend', 'conf', 'safe', 'src', 'time', 'etiqueta', 'valor', 'icono', 'fuente', 'referencia', 'banda'], array_keys($t[0]));
         $this->assertSame('ai', $t[0]['kind']);
         $this->assertSame('crit', $t[0]['sev']);
         $this->assertStringContainsString('−1.6 %/mes', $t[0]['finding']);
