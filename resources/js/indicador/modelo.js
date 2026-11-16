@@ -3,11 +3,11 @@
 // API: crearModelo(payload) -> { estadoInicial(params, ancho), build(state, acciones, ctx) }
 
 const ST = {
-  ok:   { c: 'oklch(0.6 0.15 150)', t: 'oklch(0.5 0.15 150)', soft: 'oklch(0.6 0.15 150 / 0.14)', l: 'NORMAL', ic: 'check_circle' },
-  warn: { c: 'oklch(0.7 0.16 60)',  t: 'oklch(0.52 0.14 60)', soft: 'oklch(0.7 0.16 60 / 0.16)',  l: 'ATENCIÓN', ic: 'warning' },
-  crit: { c: 'oklch(0.58 0.21 25)', t: 'oklch(0.55 0.2 25)',  soft: 'oklch(0.58 0.21 25 / 0.13)', l: 'GRAVE', ic: 'error' },
+  ok:   { c: 'var(--ok)', t: 'var(--ok-text)', soft: 'var(--ok-soft)', l: 'NORMAL', ic: 'check_circle' },
+  warn: { c: 'var(--warn)',  t: 'var(--warn-text)', soft: 'var(--warn-soft)',  l: 'ATENCIÓN', ic: 'warning' },
+  crit: { c: 'var(--crit)', t: 'var(--crit-text)',  soft: 'var(--crit-soft)', l: 'GRAVE', ic: 'error' },
 };
-const SERIES_COLORS = ['oklch(0.42 0.14 258)', 'oklch(0.6 0.16 30)', 'oklch(0.55 0.13 170)', 'oklch(0.55 0.17 320)', 'oklch(0.62 0.14 90)', 'oklch(0.5 0.12 220)'];
+const SERIES_COLORS = ['var(--serie-1)', 'var(--serie-2)', 'var(--serie-3)', 'var(--serie-4)', 'var(--serie-5)', 'var(--serie-6)'];
 const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const PRESETS = [['24h', '24 h'], ['7', '7 d'], ['10', '10 d'], ['30', '30 d'], ['all', 'Misión completa'], ['custom', 'Personalizado']];
 const VIEWS = [['bars', 'Barras', 'bar_chart', '1'], ['lines', 'Líneas', 'show_chart', '2'], ['forecast', 'Pronóstico', 'online_prediction', '3'], ['heat', 'Mapa de calor', 'grid_on', '4']];
@@ -169,24 +169,24 @@ export function crearModelo(payload) {
   function svgParts(st, cd, r, H) {
     const view = st.view, { ser, n, N, h, xs, prev, fc, norm, cmp, lo, hi, mg, Y, X, m0 } = cd;
     const bands = [], refs = [], polys = [], bars = [], lines = [], dots = [], keys = [];
-    if (norm) { bands.push({ y: Y(100), h: Y(0) - Y(100), fill: 'oklch(0.6 0.15 150 / 0.1)' }); refs.push({ y: Y(100), stroke: 'oklch(0.55 0.2 25)', dash: '6 4' }, { y: Y(0), stroke: 'oklch(0.46 0.035 258)', dash: '3 4' }); keys.push({ t: '100 % = límite del rango normal', bg: 'transparent', h: '0', bt: '2px dashed oklch(0.55 0.2 25)' }); }
+    if (norm) { bands.push({ y: Y(100), h: Y(0) - Y(100), fill: 'var(--ok-faint)' }); refs.push({ y: Y(100), stroke: 'var(--crit-text)', dash: '6 4' }, { y: Y(0), stroke: 'var(--muted)', dash: '3 4' }); keys.push({ t: '100 % = límite del rango normal', bg: 'transparent', h: '0', bt: '2px dashed var(--crit-text)' }); }
     else if (!cmp) {
-      if (m0.cum) { bands.push({ y: Y(75), h: Y(0) - Y(75), fill: 'oklch(0.6 0.15 150 / 0.1)' }, { y: Y(100), h: Y(75) - Y(100), fill: 'oklch(0.7 0.16 60 / 0.12)' }); }
+      if (m0.cum) { bands.push({ y: Y(75), h: Y(0) - Y(75), fill: 'var(--ok-faint)' }, { y: Y(100), h: Y(75) - Y(100), fill: 'var(--warn-faint)' }); }
       else {
-        bands.push({ y: Y(hi), h: Y(lo) - Y(hi), fill: 'oklch(0.6 0.15 150 / 0.1)' }, { y: Y(lo), h: Y(lo - mg) - Y(lo), fill: 'oklch(0.7 0.16 60 / 0.12)' });
-        if (!m0.loss) bands.push({ y: Y(hi + mg), h: Y(hi) - Y(hi + mg), fill: 'oklch(0.7 0.16 60 / 0.12)' });
+        bands.push({ y: Y(hi), h: Y(lo) - Y(hi), fill: 'var(--ok-faint)' }, { y: Y(lo), h: Y(lo - mg) - Y(lo), fill: 'var(--warn-faint)' });
+        if (!m0.loss) bands.push({ y: Y(hi + mg), h: Y(hi) - Y(hi + mg), fill: 'var(--warn-faint)' });
       }
-      if (!m0.cum) refs.push({ y: Y(m0.base), stroke: 'oklch(0.46 0.035 258)', dash: '5 4' });
-      keys.push({ t: 'Rango normal', bg: 'oklch(0.6 0.15 150 / 0.25)', h: '10px', bt: '0' }, { t: 'Atención', bg: 'oklch(0.7 0.16 60 / 0.3)', h: '10px', bt: '0' });
-      if (!m0.cum) keys.push({ t: 'Tu base', bg: 'transparent', h: '0', bt: '2px dashed oklch(0.46 0.035 258)' });
+      if (!m0.cum) refs.push({ y: Y(m0.base), stroke: 'var(--muted)', dash: '5 4' });
+      keys.push({ t: 'Rango normal', bg: 'var(--ok-soft)', h: '10px', bt: '0' }, { t: 'Atención', bg: 'var(--warn-soft)', h: '10px', bt: '0' });
+      if (!m0.cum) keys.push({ t: 'Tu base', bg: 'transparent', h: '0', bt: '2px dashed var(--muted)' });
     }
-    if (prev && view !== 'heat') { lines.push({ pts: prev.v.map((v, j) => X(j) + ',' + Y(v)).join(' '), stroke: 'oklch(0.75 0.015 250)', w: 2, dash: '0' }); keys.push({ t: 'Periodo anterior', bg: 'oklch(0.75 0.015 250)', h: '3px', bt: '0' }); }
+    if (prev && view !== 'heat') { lines.push({ pts: prev.v.map((v, j) => X(j) + ',' + Y(v)).join(' '), stroke: 'var(--ch-prev)', w: 2, dash: '0' }); keys.push({ t: 'Periodo anterior', bg: 'var(--ch-prev)', h: '3px', bt: '0' }); }
     if (view === 'bars') {
       const k = ser.length, slot = 720 / N, bw = slot * 0.78 / k;
       ser.forEach((s, si) => s.v.forEach((v, j) => {
         const base = norm ? Y(0) : m0.loss ? Y(0) : H - 8, y = Y(v), top = Math.min(base, y), hh = Math.max(1, Math.abs(base - y));
         const sk = status(s.m, s.raw[j]), last = j === n - 1;
-        bars.push({ x: (j * slot + slot * 0.11 + si * bw).toFixed(1), y: top, w: Math.max(0.8, bw - 0.6).toFixed(1), h: hh, fill: cmp ? s.color : last ? ST[sk].c : 'oklch(0.72 0.05 255)' });
+        bars.push({ x: (j * slot + slot * 0.11 + si * bw).toFixed(1), y: top, w: Math.max(0.8, bw - 0.6).toFixed(1), h: hh, fill: cmp ? s.color : last ? ST[sk].c : 'var(--ch-bar)' });
       }));
       if (!cmp) keys.push({ t: 'Último día con color de su estado', bg: ST[status(m0, ser[0].raw[n - 1])].c, h: '10px', bt: '0' });
     } else if (view !== 'heat') {
@@ -198,11 +198,11 @@ export function crearModelo(payload) {
         }
         if (h) {
           const f = fc[si], up = f.map((q, j) => X(n - 1 + j) + ',' + Y(q.y + q.e)), dn = f.map((q, j) => X(n - 1 + j) + ',' + Y(q.y - q.e)).reverse();
-          polys.push({ d: 'M' + up.join(' L') + ' L' + dn.join(' L') + ' Z', fill: cmp ? 'oklch(0.42 0.14 258 / 0.06)' : 'oklch(0.42 0.14 258 / 0.12)' });
+          polys.push({ d: 'M' + up.join(' L') + ' L' + dn.join(' L') + ' Z', fill: cmp ? 'var(--primary-faint)' : 'var(--primary-soft)' });
           lines.push({ pts: f.map((q, j) => X(n - 1 + j) + ',' + Y(q.y)).join(' '), stroke: s.color, w: 2.5, dash: '6 5' });
         }
       });
-      if (h) keys.push({ t: `Proyección ${h} ${r.hourly ? 'h' : 'días'}`, bg: 'transparent', h: '0', bt: '2px dashed oklch(0.42 0.14 258)' }, { t: 'Incertidumbre', bg: 'oklch(0.42 0.14 258 / 0.18)', h: '10px', bt: '0' });
+      if (h) keys.push({ t: `Proyección ${h} ${r.hourly ? 'h' : 'días'}`, bg: 'transparent', h: '0', bt: '2px dashed var(--primary)' }, { t: 'Incertidumbre', bg: 'var(--ch-incert)', h: '10px', bt: '0' });
     }
     const ticks = 4, yLabels = Array.from({ length: ticks + 1 }, (_, i) => { const v = cd.yMin + (cd.yMax - cd.yMin) * (i / ticks); return { top: (Y(v) / H * 100).toFixed(1) + '%', t: norm ? Math.round(v) + '%' : fmt(m0, v) }; });
     const paso = st.group === 'semana' && n > 1 ? xs[1] - xs[0] : 1;
@@ -217,19 +217,19 @@ export function crearModelo(payload) {
   const nse = 'vector-effect="non-scaling-stroke"';
   function svgPrincipal(sp, H, hx) {
     let s = '';
-    sp.bands.forEach(b => { s += `<rect x="0" width="720" y="${esc(b.y)}" height="${esc(b.h)}" fill="${esc(b.fill)}"></rect>`; });
-    sp.refs.forEach(r => { s += `<line x1="0" x2="720" y1="${esc(r.y)}" y2="${esc(r.y)}" stroke="${esc(r.stroke)}" stroke-width="1" stroke-dasharray="${esc(r.dash)}" ${nse}></line>`; });
-    sp.polys.forEach(q => { s += `<path d="${esc(q.d)}" fill="${esc(q.fill)}" stroke="none"></path>`; });
-    sp.bars.forEach(b => { s += `<rect x="${esc(b.x)}" y="${esc(b.y)}" width="${esc(b.w)}" height="${esc(b.h)}" fill="${esc(b.fill)}" rx="1"></rect>`; });
-    sp.lines.forEach(l => { s += `<polyline points="${esc(l.pts)}" fill="none" stroke="${esc(l.stroke)}" stroke-width="${esc(l.w)}" stroke-dasharray="${esc(l.dash)}" stroke-linejoin="round" ${nse}></polyline>`; });
-    sp.dots.forEach(d => { s += `<path d="${esc(d.d)}" fill="none" stroke="${esc(d.stroke)}" stroke-width="${esc(d.w)}" stroke-linecap="round" ${nse}></path>`; });
-    s += `<line x1="${esc(hx)}" x2="${esc(hx)}" y1="0" y2="${esc(H)}" stroke="oklch(0.42 0.14 258 / 0.5)" stroke-width="1" ${nse}></line>`;
+    sp.bands.forEach(b => { s += `<rect x="0" width="720" y="${esc(b.y)}" height="${esc(b.h)}" style="fill:${esc(b.fill)}"></rect>`; });
+    sp.refs.forEach(r => { s += `<line x1="0" x2="720" y1="${esc(r.y)}" y2="${esc(r.y)}" style="stroke:${esc(r.stroke)}" stroke-width="1" stroke-dasharray="${esc(r.dash)}" ${nse}></line>`; });
+    sp.polys.forEach(q => { s += `<path d="${esc(q.d)}" style="fill:${esc(q.fill)}" stroke="none"></path>`; });
+    sp.bars.forEach(b => { s += `<rect x="${esc(b.x)}" y="${esc(b.y)}" width="${esc(b.w)}" height="${esc(b.h)}" style="fill:${esc(b.fill)}" rx="1"></rect>`; });
+    sp.lines.forEach(l => { s += `<polyline points="${esc(l.pts)}" style="fill:none;stroke:${esc(l.stroke)}" stroke-width="${esc(l.w)}" stroke-dasharray="${esc(l.dash)}" stroke-linejoin="round" ${nse}></polyline>`; });
+    sp.dots.forEach(d => { s += `<path d="${esc(d.d)}" style="fill:none;stroke:${esc(d.stroke)}" stroke-width="${esc(d.w)}" stroke-linecap="round" ${nse}></path>`; });
+    s += `<line x1="${esc(hx)}" x2="${esc(hx)}" y1="0" y2="${esc(H)}" style="stroke:var(--primary-line)" stroke-width="1" ${nse}></line>`;
     return s;
   }
   const svgCarril = (bandY, bandH, pts, color) =>
-    `<rect x="0" width="720" y="${esc(bandY)}" height="${esc(bandH)}" fill="oklch(0.6 0.15 150 / 0.12)"></rect><polyline points="${esc(pts)}" fill="none" stroke="${esc(color)}" stroke-width="2" ${nse}></polyline>`;
+    `<rect x="0" width="720" y="${esc(bandY)}" height="${esc(bandH)}" style="fill:var(--ok-faint)"></rect><polyline points="${esc(pts)}" style="fill:none;stroke:${esc(color)}" stroke-width="2" ${nse}></polyline>`;
   const svgMini = (bandY, bandH, pts, color) =>
-    `<rect x="0" width="200" y="${esc(bandY)}" height="${esc(bandH)}" fill="oklch(0.6 0.15 150 / 0.12)"></rect><polyline points="${esc(pts)}" fill="none" stroke="${esc(color)}" stroke-width="2" ${nse}></polyline>`;
+    `<rect x="0" width="200" y="${esc(bandY)}" height="${esc(bandH)}" style="fill:var(--ok-faint)"></rect><polyline points="${esc(pts)}" style="fill:none;stroke:${esc(color)}" stroke-width="2" ${nse}></polyline>`;
 
   // ---------- build ----------
   function build(st, acciones, ctx) {
@@ -240,8 +240,8 @@ export function crearModelo(payload) {
     const narrow = w < 900, r = range(st), H = narrow ? 220 : 280;
     const cmp = st.mode === 'cmp', mini = st.mode === 'mini', m = actual(st), view = st.view;
     const loading = st.estado === 'carga', error = st.estado === 'error', empty = st.estado === 'vacio' && !loading && !error, ok = !loading && !error && !empty;
-    const btn = (on, extra = {}) => ({ checked: on ? 'true' : 'false', bg: on ? 'oklch(0.42 0.14 258)' : 'oklch(1 0 0)', fg: on ? 'oklch(1 0 0)' : 'oklch(0.3 0.04 258)', border: on ? 'oklch(0.42 0.14 258)' : 'oklch(0.89 0.02 250)', ...extra });
-    const seg = on => ({ checked: on ? 'true' : 'false', bg: on ? 'oklch(1 0 0)' : 'transparent', fg: on ? 'oklch(0.42 0.14 258)' : 'oklch(0.36 0.035 258)' });
+    const btn = (on, extra = {}) => ({ checked: on ? 'true' : 'false', bg: on ? 'var(--primary)' : 'var(--surface)', fg: on ? 'var(--on-primary)' : 'var(--text-2)', border: on ? 'var(--primary)' : 'var(--border)', ...extra });
+    const seg = on => ({ checked: on ? 'true' : 'false', bg: on ? 'var(--surface)' : 'transparent', fg: on ? 'var(--primary)' : 'var(--muted-3)' });
     const cd = chartData(st, r, H);
     const sp = cd.n ? svgParts(stx, cd, r, H) : { bands: [], refs: [], polys: [], bars: [], lines: [], dots: [], keys: [], yLabels: [], xLabels: [], xAt: () => 0, lastX: 0 };
     const q = String(st.query || '').trim().toLowerCase();
@@ -253,17 +253,17 @@ export function crearModelo(payload) {
       const isF = hv >= cd.n, raw = isF ? null : s.raw[hv], fv = isF ? cd.fc[cd.ser.indexOf(s)][hv - cd.n + 1].y : null;
       const val = isF ? fv : raw, sk = isF ? null : status(s.m, raw), pv = !isF && hv > 0 ? s.raw[hv - 1] : null, d = pv == null ? 0 : raw - pv;
       return { label: s.m.label + (isF ? ' · estimado' : ''), color: s.color, v: cd.norm && !isF ? Math.round(s.v[hv]) + '%' : cd.norm ? Math.round(fv) + '%' : fmt(s.m, val), unit: cd.norm ? 'del rango' : s.m.unit,
-        st: sk ? ST[sk].l : 'ESTIMACIÓN', stIc: sk ? ST[sk].ic : 'online_prediction', text: sk ? ST[sk].t : 'oklch(0.42 0.14 258)',
+        st: sk ? ST[sk].l : 'ESTIMACIÓN', stIc: sk ? ST[sk].ic : 'online_prediction', text: sk ? ST[sk].t : 'var(--primary)',
         trIc: pv == null ? 'remove' : Math.abs(d) < (s.m.hi - s.m.lo) * 0.01 ? 'trending_flat' : d > 0 ? 'trending_up' : 'trending_down', tr: pv == null ? '' : (d >= 0 ? '+' : '−') + Math.abs(d).toFixed(s.m.dec) };
-    }).concat(hv != null && hv < cd.n && cd.prev && cd.prev.v[hv] !== undefined ? [{ label: 'Periodo anterior', color: 'oklch(0.75 0.015 250)', v: fmt(m, cd.prev.v[hv]), unit: m.unit, st: ST[status(m, cd.prev.v[hv])].l, stIc: ST[status(m, cd.prev.v[hv])].ic, text: 'oklch(0.36 0.035 258)', trIc: 'history', tr: '' }] : []);
+    }).concat(hv != null && hv < cd.n && cd.prev && cd.prev.v[hv] !== undefined ? [{ label: 'Periodo anterior', color: 'var(--ch-prev)', v: fmt(m, cd.prev.v[hv]), unit: m.unit, st: ST[status(m, cd.prev.v[hv])].l, stIc: ST[status(m, cd.prev.v[hv])].ic, text: 'var(--muted-3)', trIc: 'history', tr: '' }] : []);
     const hx = hv == null ? -10 : cd.X(hv), hpct = hx / 720 * 100;
 
     // Mapa de calor
     let heat = { cols: 7, minW: '0', colLabels: [], cells: [], legend: [] };
     if (view === 'heat' && cd.n) {
-      const bgOf = sk => sk === 'ok' ? 'oklch(0.6 0.15 150 / 0.3)' : sk === 'warn' ? 'oklch(0.7 0.16 60 / 0.45)' : 'oklch(0.58 0.21 25 / 0.5)';
-      const cell = (mm, v, label) => { const sk = status(mm, v); return { role: 'gridcell', t: fmt(mm, v), title: `${label}: ${fmt(mm, v)} ${mm.unit} · ${ST[sk].l}`, bg: bgOf(sk), fg: 'oklch(0.24 0.04 258)', align: 'center' }; };
-      const rowH = t => ({ role: 'rowheader', t, title: t, bg: 'transparent', fg: 'oklch(0.3 0.04 258)', align: 'start' });
+      const bgOf = sk => sk === 'ok' ? 'var(--heat-ok)' : sk === 'warn' ? 'var(--heat-warn)' : 'var(--heat-crit)';
+      const cell = (mm, v, label) => { const sk = status(mm, v); return { role: 'gridcell', t: fmt(mm, v), title: `${label}: ${fmt(mm, v)} ${mm.unit} · ${ST[sk].l}`, bg: bgOf(sk), fg: 'var(--text)', align: 'center' }; };
+      const rowH = t => ({ role: 'rowheader', t, title: t, bg: 'transparent', fg: 'var(--text-2)', align: 'start' });
       if (cmp) {
         heat.cols = cd.n; heat.minW = (64 + cd.n * 22) + 'px'; heat.colLabels = cd.xs.map((x, j) => j % Math.ceil(cd.n / 10) === 0 ? (r.hourly ? x + 'h' : 'D' + x) : '');
         cd.ser.forEach(s => { heat.cells.push(rowH(s.m.label.split(' ')[0])); s.raw.forEach((v, j) => heat.cells.push(cell(s.m, v, xLabel(r, cd.xs[j])))); });
@@ -276,7 +276,7 @@ export function crearModelo(payload) {
         const all = [...Array(dow).fill(null), ...cd.xs.map((d, j) => ({ d, v: cd.ser[0].raw[j] }))];
         for (let i = 0; i < all.length; i += 7) {
           const wk = all.slice(i, i + 7); heat.cells.push(rowH('Sem ' + (Math.floor((first - dow + i - 1) / 7) + 1)));
-          for (let k = 0; k < 7; k++) { const e = wk[k]; heat.cells.push(e ? cell(m, e.v, 'D' + e.d + ' · ' + fdate(e.d)) : { role: 'gridcell', t: '', title: 'Sin dato', bg: 'oklch(0.97 0.006 250)', fg: 'transparent', align: 'center' }); }
+          for (let k = 0; k < 7; k++) { const e = wk[k]; heat.cells.push(e ? cell(m, e.v, 'D' + e.d + ' · ' + fdate(e.d)) : { role: 'gridcell', t: '', title: 'Sin dato', bg: 'var(--bg)', fg: 'transparent', align: 'center' }); }
         }
       }
       heat.legend = ['ok', 'warn', 'crit'].map(k => ({ t: ST[k].l[0] + ST[k].l.slice(1).toLowerCase(), ic: ST[k].ic, text: ST[k].t, bg: bgOf(k) }));
@@ -304,11 +304,11 @@ export function crearModelo(payload) {
       openDrawer: () => set({ drawer: true }), closeDrawer: () => set({ drawer: false }),
       pm: {
         role: narrow ? 'dialog' : 'region', modal: narrow ? 'true' : 'false', pos: narrow ? 'fixed' : 'sticky', top: narrow ? 'auto' : '12px', side: narrow ? '0' : 'auto', bottom: narrow ? '0' : 'auto',
-        maxH: narrow ? '82vh' : 'calc(100vh - 24px)', radius: narrow ? '16px 16px 0 0' : '14px', shadow: narrow ? '0 -12px 40px oklch(0.24 0.04 258 / 0.2)' : 'none',
+        maxH: narrow ? '82vh' : 'calc(100vh - 24px)', radius: narrow ? '16px 16px 0 0' : '14px', shadow: narrow ? '0 -12px 40px ' + 'color-mix(in srgb, var(--shadow-c) 20%, transparent)' : 'none',
         count: cmp ? st.cmp.length + ' seleccionados' : mini ? MK.length : m.label,
         modes: [['ind', 'Individual', 'looks_one'], ['cmp', 'Comparar', 'stacked_line_chart'], ['mini', 'Miniaturas', 'grid_view']].map(([id, label, ic]) => ({ label, ic, ...seg(st.mode === id), onClick: () => fade({ mode: id }) })),
         query: st.query, onQuery: e => set({ query: e && e.target ? e.target.value : '' }),
-        filters: [['all', 'Todos', 'oklch(0.46 0.035 258)'], ['warn', 'Solo atención', ST.warn.c], ['crit', 'Solo graves', ST.crit.c]].map(([id, label, dot]) => ({ label, dot, ...btn(st.filter === id), onClick: () => set({ filter: id }) })),
+        filters: [['all', 'Todos', 'var(--muted)'], ['warn', 'Solo atención', ST.warn.c], ['crit', 'Solo graves', ST.crit.c]].map(([id, label, dot]) => ({ label, dot, ...btn(st.filter === id), onClick: () => set({ filter: id }) })),
         none: !vis.length,
         groups: SYS.map(([name, ic], si) => {
           const items = vis.filter(x => x.sys === si); if (!items.length) return null;
@@ -317,15 +317,15 @@ export function crearModelo(payload) {
             onAll: () => fade({ cmp: allOn ? st.cmp.filter(id => !items.some(x => x.id === id)) : [...new Set([...st.cmp, ...items.map(x => x.id)])] }),
             items: items.map(x => { const on = cmp ? st.cmp.includes(x.id) : x.id === m.id, sk = x.estado;
               return { id: x.id, label: x.label, value: x.disp, unit: x.unit, st: ST[sk].l, stIc: ST[sk].ic, soft: ST[sk].soft, text: ST[sk].t,
-                role: cmp ? 'checkbox' : 'radio', checked: on ? 'true' : 'false', bg: on && !mini ? 'oklch(0.42 0.14 258 / 0.07)' : 'transparent',
-                ctl: mini ? 'open_in_new' : cmp ? (on ? 'check_box' : 'check_box_outline_blank') : (on ? 'radio_button_checked' : 'radio_button_unchecked'), ctlColor: on ? 'oklch(0.42 0.14 258)' : 'oklch(0.55 0.03 258)',
+                role: cmp ? 'checkbox' : 'radio', checked: on ? 'true' : 'false', bg: on && !mini ? 'var(--primary-soft)' : 'transparent',
+                ctl: mini ? 'open_in_new' : cmp ? (on ? 'check_box' : 'check_box_outline_blank') : (on ? 'radio_button_checked' : 'radio_button_unchecked'), ctlColor: on ? 'var(--primary)' : 'var(--muted)',
                 onToggle: () => cmp ? toggleCmp(x.id) : fade({ id: x.id, mode: 'ind', drawer: false }) }; }) };
         }).filter(Boolean),
       },
       ff: {
         presets: PRESETS.map(([id, label]) => ({ label, ...btn(st.pre === id), onClick: () => fade({ pre: id, group: id === '24h' ? 'hora' : st.group === 'hora' ? 'dia' : st.group }) })),
-        text: r.text, textIc: r.bad ? 'error' : 'date_range', textColor: r.bad ? ST.crit.t : 'oklch(0.24 0.04 258)',
-        isCustom: st.pre === 'custom', from: st.from, to: st.to, min: iso(1), max: iso(DAYS), invalid: r.bad ? 'true' : 'false', inBorder: r.bad ? ST.crit.c : 'oklch(0.85 0.02 250)',
+        text: r.text, textIc: r.bad ? 'error' : 'date_range', textColor: r.bad ? ST.crit.t : 'var(--text)',
+        isCustom: st.pre === 'custom', from: st.from, to: st.to, min: iso(1), max: iso(DAYS), invalid: r.bad ? 'true' : 'false', inBorder: r.bad ? ST.crit.c : 'var(--border-strong)',
         onFrom: e => fade({ from: e && e.target ? e.target.value : '' }), onTo: e => fade({ to: e && e.target ? e.target.value : '' }),
         compare: !!st.compare && !cmp, compareDisabled: cmp || !!r.hourly, onCompare: e => fade({ compare: !!(e && e.target && e.target.checked) }),
         groups: [['hora', 'Hora'], ['dia', 'Día'], ['semana', 'Semana']].map(([id, label]) => { const dis = r.hourly ? id !== 'hora' : id === 'hora' || (id === 'semana' && r.b - r.a < 13); const on = r.hourly ? id === 'hora' : st.group === id; return { label, ...btn(on), disabled: dis, op: dis ? '0.45' : '1', onClick: () => { if (!dis) fade({ group: id }); } }; }),
@@ -336,9 +336,9 @@ export function crearModelo(payload) {
       ch: {
         title: mini ? 'Todos los marcadores' : cmp ? `Comparación · ${cd.ser.length} marcadores` : `${m.label} · ${m.unit}`,
         showSelector: !mini, aria: `${mini ? 'Miniaturas' : cmp ? 'Comparación' : m.label}, ${r.text}, vista ${VIEWS.find(v => v[0] === view)[1]}`,
-        toggleTable: () => set({ table: !st.table }), tablePressed: st.table ? 'true' : 'false', tableBg: st.table ? 'oklch(0.93 0.015 250)' : 'oklch(1 0 0)', tableIc: st.table ? 'monitoring' : 'table', tableLabel: st.table ? 'Ver gráfico' : 'Ver como tabla',
+        toggleTable: () => set({ table: !st.table }), tablePressed: st.table ? 'true' : 'false', tableBg: st.table ? 'var(--hover)' : 'var(--surface)', tableIc: st.table ? 'monitoring' : 'table', tableLabel: st.table ? 'Ver gráfico' : 'Ver como tabla',
         hasLegend: cmp && !mini, norm: !!st.norm, onNorm: e => fade({ norm: !!(e && e.target && e.target.checked) }),
-        legend: st.cmp.filter(id => MKI[id]).map(id => { const off = st.hidden.includes(id); return { label: MKI[id].label, color: SERIES_COLORS[st.cmp.indexOf(id) % SERIES_COLORS.length], pressed: off ? 'false' : 'true', op: off ? '0.5' : '1', bg: off ? 'oklch(1 0 0)' : 'oklch(0.975 0.006 250)', border: 'oklch(0.89 0.02 250)', ic: off ? 'visibility_off' : 'visibility', onClick: () => fade({ hidden: off ? st.hidden.filter(x => x !== id) : [...st.hidden, id] }) }; }),
+        legend: st.cmp.filter(id => MKI[id]).map(id => { const off = st.hidden.includes(id); return { label: MKI[id].label, color: SERIES_COLORS[st.cmp.indexOf(id) % SERIES_COLORS.length], pressed: off ? 'false' : 'true', op: off ? '0.5' : '1', bg: off ? 'var(--surface)' : 'var(--bg)', border: 'var(--border)', ic: off ? 'visibility_off' : 'visibility', onClick: () => fade({ hidden: off ? st.hidden.filter(x => x !== id) : [...st.hidden, id] }) }; }),
         forecastNote: view === 'forecast' && !mini, loading, error, empty: empty && !mini,
         retry: () => { set({ estado: 'carga' }); setTimeout(() => set({ estado: 'ok' }), 900); },
         showSvg: ok && !st.table && !mini && view !== 'heat' && !(cmp && !st.norm) && cd.n > 0,

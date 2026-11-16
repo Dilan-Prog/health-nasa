@@ -3,9 +3,9 @@
 .trip-cupo { margin-right: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); }
 .trip-nuevo {
     display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border-radius: 10px;
-    font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; color: #fff; background: var(--primary);
+    font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; color: var(--on-primary); background: var(--primary);
 }
-.trip-nuevo:hover { color: #fff; background: var(--primary-dark); }
+.trip-nuevo:hover { color: var(--on-primary); background: var(--primary-dark); }
 .trip-nuevo:focus-visible { outline: 2px solid var(--accent, var(--primary)); outline-offset: 2px; }
 .trip-nuevo.is-off, .trip-nuevo.is-off:hover { cursor: not-allowed; opacity: .6; background: var(--muted-2); }
 
@@ -36,13 +36,13 @@
 }
 @media (prefers-reduced-motion: reduce) { .trip-tarjeta.is-nueva { animation: none; box-shadow: 0 0 0 2px var(--primary); } }
 .trip-nuevo-tag {
-    font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; letter-spacing: .08em; padding: 3px 8px; border-radius: 999px;
     background: color-mix(in oklch, var(--primary) 12%, transparent); color: var(--primary-dark);
 }
 
 /* Botón Expediente dentro de la tarjeta. */
 .trip-expediente {
-    flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; text-decoration: none;
+    flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; text-decoration: none;
     color: var(--primary); border: 1px solid var(--border); background: var(--surface);
 }
 .trip-expediente:hover { background: var(--hover); }

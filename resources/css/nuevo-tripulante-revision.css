@@ -14,12 +14,12 @@
 .nt-rev-texto { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text); }
 .nt-rev-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .nt-rev-chip {
-    font: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px;
+    font: inherit; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px;
     border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text);
 }
 button.nt-rev-chip { cursor: pointer; }
 button.nt-rev-chip:hover { background: var(--hover); }
-.nt-rev-chip-paso { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; color: var(--muted); }
+.nt-rev-chip-paso { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; color: var(--muted); }
 
 .nt-rev-pend, .nt-rev-errores { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius-lg); }
 .nt-rev-pend { border: 1px solid var(--warn); background: var(--warn-soft); }
@@ -31,7 +31,7 @@ button.nt-rev-chip:hover { background: var(--hover); }
 .nt-rev-pend li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14px; }
 .nt-rev-pend-t { flex: 1 1 240px; }
 .nt-rev-ir {
-    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 10px;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 10px;
     border-radius: var(--radius); border: 1px solid var(--warn); background: var(--surface); color: var(--warn-text);
 }
 .nt-rev-ir .icono { font-size: 18px; }
@@ -43,22 +43,22 @@ button.nt-rev-chip:hover { background: var(--hover); }
 .nt-rev-sec-cab { display: flex; align-items: center; gap: 8px; }
 .nt-rev-sec-cab h3 { flex: 1; margin: 0; font-size: 16px; font-weight: 600; }
 .nt-rev-err-tag {
-    display: inline-flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em;
+    display: inline-flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .06em;
     padding: 3px 8px; border-radius: 999px; background: var(--crit-soft); color: var(--crit-text);
 }
 .nt-rev-err-tag .icono { font-size: 14px; }
 .nt-rev-editar {
-    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px;
     border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--primary);
 }
 .nt-rev-editar:hover { background: var(--hover); }
 .nt-rev-editar .icono { font-size: 18px; }
-.nt-rev-chip:focus-visible, .nt-rev-ir:focus-visible, .nt-rev-editar:focus-visible { outline: 2px solid oklch(0.64 0.22 33); outline-offset: 2px; }
+.nt-rev-chip:focus-visible, .nt-rev-ir:focus-visible, .nt-rev-editar:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .nt-rev-dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px 16px; }
 .nt-rev-dl > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .nt-rev-dl > .nt-rev-ancho { grid-column: 1 / -1; }
-.nt-rev-dl dt { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nt-rev-dl dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .nt-rev-dl dd { margin: 0; font-size: 14px; line-height: 1.4; color: var(--text); overflow-wrap: anywhere; }
 .nt-rev-dl dd.nt-rev-vacio { color: var(--muted); }
 

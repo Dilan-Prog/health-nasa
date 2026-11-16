@@ -8,7 +8,7 @@
 
 .mision-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .mision-stat { display: flex; flex-direction: column; gap: 3px; padding: 12px; border-radius: var(--radius); background: var(--surface-sel); border: 1px solid var(--border-faint); }
-.mision-stat-et { font-size: 11px; letter-spacing: .08em; color: var(--muted-3); }
+.mision-stat-et { font-size: 12px; letter-spacing: .08em; color: var(--muted-3); }
 .mision-stat-v { font-size: 20px; color: var(--text); }
 .mision-stat-v--txt { font-size: 16px; }
 .mision-stat-v--estado { display: flex; align-items: center; gap: 6px; color: var(--t); }
@@ -17,7 +17,7 @@
 .mision-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); min-width: 0; }
 .mision-cuerpo { display: flex; flex-wrap: wrap; gap: 16px; }
 .mision-cuerpo > .mision-panel { flex: 1 1 320px; }
-.mision-nota { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted-3); }
+.mision-nota { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted-3); }
 
 /* Línea de tiempo */
 .mision-tl-marco { overflow-x: auto; padding-bottom: 4px; }
@@ -28,8 +28,8 @@
 .mision-hito { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .mision-hito-punto { width: 12px; height: 12px; border-radius: 50%; background: var(--border); }
 .mision-hito.is-hecho .mision-hito-punto { background: var(--primary); }
-.mision-hito-n { font-size: 12px; white-space: nowrap; color: var(--text); }
-.mision-hito-d { font-size: 11px; color: var(--muted-3); }
+.mision-hito-n { font-size: 14px; white-space: nowrap; color: var(--text); }
+.mision-hito-d { font-size: 14px; color: var(--muted-3); }
 
 /* Dosis */
 .mision-dosis-cifras { display: flex; justify-content: space-between; font-size: 14px; color: var(--text); }

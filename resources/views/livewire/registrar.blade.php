@@ -175,6 +175,51 @@
                                 </div>
                             </div>
                         @endforeach
+
+                        {{-- Estado de ánimo: escala analógica visual (VAS) 0-100, opcional. Se activa con el botón. --}}
+                        @php
+                            $aa = $analisis['animo'];
+                            $aErr = $aa['error'] !== null;
+                            $aEst = $aErr ? 'crit' : $aa['estado'];
+                            $aMsg = $aErr ? $aa['error'] : $aa['mensaje'];
+                            $aOn = trim((string) ($campos['animo'] ?? '')) !== '';
+                        @endphp
+                        <div class="rg-campo rg-campo--animo {{ $aErr ? 'es-invalido' : '' }}" wire:key="campo-animo" @if ($aEst) data-estado="{{ $aEst }}" @endif>
+                            <div class="rg-campo-cab">
+                                <span class="icono rg-campo-ic" aria-hidden="true">mood</span>
+                                <span class="rg-campo-nombre">Estado de ánimo</span>
+                                <span class="rg-campo-unidad">VAS 0–100</span>
+                            </div>
+                            <span class="rg-rango mono">0 = MUY MAL · 100 = MUY BIEN · VALOR DE EJEMPLO</span>
+                            @if ($aOn)
+                                <div class="rg-vas-fila">
+                                    <label class="rg-etq" for="in-animo">Cómo te sientes ahora
+                                        <input id="in-animo" class="rg-vas" type="range" min="0" max="100" step="1"
+                                               wire:model.live.debounce.250ms="campos.animo"
+                                               aria-valuetext="{{ $campos['animo'] }} de 100" aria-describedby="msg-animo">
+                                    </label>
+                                    <output class="rg-vas-valor mono" for="in-animo">{{ $campos['animo'] }}<span class="rg-vas-de">/100</span></output>
+                                </div>
+                                <div class="rg-vas-extremos mono" aria-hidden="true"><span>0 · muy mal</span><span>100 · muy bien</span></div>
+                                <button type="button" class="rg-btn rg-btn--animo" wire:click="alternarAnimo">
+                                    <span class="icono" aria-hidden="true">close</span>Quitar del registro
+                                </button>
+                            @else
+                                <button type="button" class="rg-btn rg-btn--animo" wire:click="alternarAnimo">
+                                    <span class="icono" aria-hidden="true">add_reaction</span>Registrar mi ánimo
+                                </button>
+                            @endif
+                            <div id="msg-animo" class="rg-msg" aria-live="polite" @if (! $aMsg && ! $aEst) hidden @endif>
+                                @if ($aEst)
+                                    <span class="rg-insignia">
+                                        <span class="icono" aria-hidden="true">{{ $aErr ? 'report' : $insignias[$aEst][1] }}</span>{{ $aErr ? 'ERROR' : $insignias[$aEst][0] }}
+                                    </span>
+                                @endif
+                                @if ($aMsg)
+                                    <span class="rg-msg-txt {{ $aErr ? 'es-error' : '' }}">{{ $aMsg }}</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     <details class="rg-sintomas" wire:ignore.self @if ($sintomas || $nota !== '') open @endif>

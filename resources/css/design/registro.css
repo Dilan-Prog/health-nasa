@@ -2,16 +2,16 @@
 .reg-vivo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .reg-fondo {
     position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
-    background: oklch(0.24 0.04 258 / 0.35);
+    background: var(--scrim);
 }
 .reg-dialogo {
     width: 100%; max-width: 620px; max-height: calc(100vh - 32px); overflow: auto; display: flex; flex-direction: column; gap: 16px;
     padding: 20px; box-sizing: border-box; background: var(--surface); border-radius: 16px; border: 1px solid var(--border);
-    box-shadow: 0 16px 48px oklch(0.24 0.04 258 / 0.2); color: var(--text);
+    box-shadow: 0 16px 48px color-mix(in srgb, var(--shadow-c) 20%, transparent); color: var(--text);
 }
 .reg-cabecera { display: flex; align-items: flex-start; gap: 12px; }
 .reg-titulos { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.reg-sobretitulo { font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+.reg-sobretitulo { font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 .reg-titulo { font-size: 20px; font-weight: 600; }
 .reg-cerrar {
     cursor: pointer; width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--radius);
@@ -20,7 +20,7 @@
 .reg-cerrar .icono { font-size: 22px; }
 .reg-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
 .reg-campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.reg-etiqueta { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
+.reg-etiqueta { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; }
 .reg-etiqueta .icono { font-size: 18px; color: var(--primary); }
 .reg-entrada {
     display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; box-sizing: border-box;
@@ -32,15 +32,15 @@
     flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; color: var(--text); outline: none; padding: 0; box-shadow: none;
 }
 .reg-entrada input:focus { outline: none; box-shadow: none; }
-.reg-unidad { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.reg-unidad { font-size: 14px; color: var(--muted); white-space: nowrap; }
 .reg-insignia {
     display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px 2px 4px; border-radius: 999px;
-    background: var(--s); color: var(--t); font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em;
+    background: var(--s); color: var(--t); font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .06em;
     white-space: nowrap;
 }
 .reg-insignia .icono { font-size: 14px; }
-.reg-rango { font-size: 10px; letter-spacing: .04em; color: var(--muted); }
-.reg-error { font-size: 12px; font-weight: 500; color: var(--crit-text); }
+.reg-rango { font-size: 12px; letter-spacing: .04em; color: var(--muted); }
+.reg-error { font-size: 14px; font-weight: 500; color: var(--crit-text); }
 .reg-error-general { margin: 0; }
 .reg-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .reg-btn {
@@ -48,7 +48,7 @@
     min-height: 44px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--border);
     background: var(--surface); color: var(--text-2);
 }
-.reg-btn-primario { padding: 0 18px; border: 0; background: var(--primary); color: var(--surface); }
+.reg-btn-primario { padding: 0 18px; border: 0; background: var(--primary); color: var(--on-primary); }
 .reg-btn-primario:hover { background: var(--primary-dark); }
 .reg-btn .icono { font-size: 18px; }
 .reg-btn:focus-visible, .reg-cerrar:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

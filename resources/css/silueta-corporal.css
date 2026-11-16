@@ -5,17 +5,17 @@
  * del padre (proporción 420/1100, centrada); sin ella, ancho 100% con máximo 26rem.
  */
 .silueta-corporal {
-    --musculo-inactivo: #ECECEB;
-    --musculo-activo: #E40612;
-    --musculo-borde: #9CA3AF;
-    --silueta-relleno: #C7C6C6;
-    --silueta-contorno: #888788;
-    --silueta-foco: #0A1F44;
-    --silueta-btn-fondo: #FFFFFF;
-    --silueta-btn-texto: #0A1F44;
-    --silueta-btn-borde: #CBD5E1;
-    --silueta-btn-activo-fondo: #0A1F44;
-    --silueta-btn-activo-texto: #FFFFFF;
+    --musculo-inactivo: var(--sil-inactivo, #ECECEB);
+    --musculo-activo: var(--sil-activo, #E40612);
+    --musculo-borde: var(--sil-borde, #9CA3AF);
+    --silueta-relleno: var(--sil-relleno, #C7C6C6);
+    --silueta-contorno: var(--sil-contorno, #888788);
+    --silueta-foco: var(--sil-foco, #0A1F44);
+    --silueta-btn-fondo: var(--sil-btn-fondo, #FFFFFF);
+    --silueta-btn-texto: var(--sil-btn-texto, #0A1F44);
+    --silueta-btn-borde: var(--sil-btn-borde, #CBD5E1);
+    --silueta-btn-activo-fondo: var(--sil-btn-act-fondo, #0A1F44);
+    --silueta-btn-activo-texto: var(--sil-btn-act-texto, #FFFFFF);
     --silueta-transicion: 150ms;
 
     position: relative;

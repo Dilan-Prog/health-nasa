@@ -64,7 +64,7 @@ class Registrar extends Component
 
     private function vaciar(): void
     {
-        $this->campos = array_fill_keys(array_merge(array_keys(config('panel.indicadores', [])), ['pa_s', 'pa_d']), '');
+        $this->campos = array_fill_keys(array_merge(array_keys(config('panel.indicadores', [])), ['pa_s', 'pa_d', 'animo']), '');
         $this->zonas = [];
         $this->sintomas = [];
         $this->nota = '';
@@ -119,6 +119,16 @@ class Registrar extends Component
     }
 
     // ---------- Formulario ----------
+
+    /** Activa (50 = punto medio) o quita el registro opcional del estado de ánimo (VAS 0-100). */
+    public function alternarAnimo(): void
+    {
+        if ($this->guardado !== null) {
+            return;
+        }
+        $this->campos['animo'] = trim((string) ($this->campos['animo'] ?? '')) === '' ? '50' : '';
+        $this->erroresGuardado = [];
+    }
 
     public function fijarOrigen(string $origen): void
     {
@@ -207,8 +217,42 @@ class Registrar extends Component
             }
             $salida[$clave] = $r;
         }
+        $salida['animo'] = $this->analizarAnimo($an);
 
         return $salida;
+    }
+
+    /** Estado de ánimo: escala VAS 0-100 (opcional); sus umbrales viven en config/umbrales.php (valores de ejemplo). */
+    private function analizarAnimo(AnalisisRegistro $an): array
+    {
+        $r = ['valores' => null, 'error' => null, 'estado' => null, 'mensaje' => null, 'pendiente' => null];
+        $t = trim((string) ($this->campos['animo'] ?? ''));
+        if ($t === '') {
+            return $r;
+        }
+        $n = $an->numero($t);
+        if ($n === null) {
+            $r['error'] = 'Introduce un número';
+        } else {
+            $valores = ['valor' => $n];
+            $e = $an->evaluar('animo', $valores);
+            if ($e['error']) {
+                $r['error'] = $e['error'];
+            } else {
+                $r['valores'] = $valores;
+                $r['estado'] = $e['estado'];
+                $r['mensaje'] = match ($e['estado']) {
+                    'ok' => 'Dentro de lo habitual',
+                    'warn' => 'Por debajo de lo habitual: habla con un compañero o programa una llamada de apoyo',
+                    default => 'Muy bajo: avisa a tierra o a tu equipo de apoyo',
+                };
+            }
+        }
+        if ($this->erroresGuardado['animo'] ?? null) {
+            $r['error'] ??= $this->erroresGuardado['animo'];
+        }
+
+        return $r;
     }
 
     /** Resumen del formulario: mediciones válidas, errores, críticas, zonas y si hay aviso a tierra. */
@@ -271,7 +315,9 @@ class Registrar extends Component
 
         $filas = [];
         foreach ($r['hechas'] as $clave => $a) {
-            $cfg = config("panel.indicadores.$clave");
+            $cfg = $clave === 'animo'
+                ? ['icono' => 'mood', 'etiqueta' => 'Estado de ánimo', 'unidad' => '/100 VAS']
+                : config("panel.indicadores.$clave");
             $filas[] = [
                 'ic' => $cfg['icono'], 'label' => $cfg['etiqueta'], 'estado' => $a['estado'],
                 'v' => $this->textoValor($clave, $a['valores']).' '.$cfg['unidad'],
