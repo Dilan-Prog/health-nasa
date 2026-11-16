@@ -36,6 +36,8 @@ return [
             'componentes' => [
                 // El estado por encima de lo normal lo decide 'presion_bandas' (más abajo); estos rangos
                 // quedan para el lado BAJO (hipotensión, sin banda definida), el simulador y los textos de pantalla.
+                // SUPOSICIÓN del proyecto (no de la norma): la norma dada no define bandas de hipotensión, así que se
+                // conservan los rangos anteriores. Pendiente: que el médico defina las bandas bajas.
                 'sistolica' => ['valido' => [50, 260], 'normal' => [90, 120], 'precaucion' => [80, 135]],
                 'diastolica' => ['valido' => [30, 160], 'normal' => [60, 80], 'precaucion' => [50, 90]],
             ],
@@ -79,6 +81,8 @@ return [
             'componentes' => [
                 // 'valido' = rango de validez. 'normal'/'precaucion' absolutos solo rigen SIN base personal
                 // (ni pre-vuelo ni base móvil); con base manda el salto de 'temperatura_salto'.
+                // SUPOSICIÓN del proyecto (no de la norma): sin ninguna base se mantienen estos rangos absolutos de
+                // respaldo; quitarlos dejaría "normal" una fiebre en alguien sin historial.
                 'valor' => ['valido' => [30, 45], 'normal' => [36.1, 37.2], 'precaucion' => [35.0, 38.0], 'decimales' => 1],
             ],
         ],
@@ -229,6 +233,8 @@ return [
         'precaucion_c' => 0.6,   // supuesto del proyecto, no de la norma
         'critico_c' => 1.2,      // supuesto del proyecto, no de la norma
         // Ventana tras ejercicio (rutina tipo 'ej' hecha) en que una temperatura alta no alerta.
+        // SUPOSICIÓN del proyecto (no de la norma): se enlaza con RutinaEjecucion en estado 'done'; el ejercicio es
+        // autodeclarado, así que podría usarse para silenciar una fiebre real. Solo silencia el salto ALTO.
         'ventana_ejercicio_min' => 60,   // supuesto del proyecto, no de la norma
     ],
 
