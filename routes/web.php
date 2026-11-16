@@ -4,6 +4,7 @@ use App\Livewire\Alertas;
 use App\Livewire\ContextoMision;
 use App\Livewire\Guia;
 use App\Livewire\Indicador;
+use App\Livewire\MedicoVuelo;
 use App\Livewire\Panel;
 use App\Livewire\Registrar;
 use App\Livewire\Rutinas;
@@ -19,6 +20,7 @@ Route::get('/rutinas', Rutinas::class)->name('rutinas');
 Route::get('/alertas', Alertas::class)->name('alertas');
 Route::get('/guia', Guia::class)->name('guia');
 Route::get('/mision', ContextoMision::class)->name('mision');
+Route::get('/medico-de-vuelo', MedicoVuelo::class)->name('medico');
 
 // Demo de la silueta: solo disponible fuera de producción.
 if (! app()->environment('production')) {

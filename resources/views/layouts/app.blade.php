@@ -26,7 +26,7 @@
             ...(app()->environment('production') ? [] : [['t' => 'Simulación', 'ic' => 'model_training', 'ruta' => 'simulacion', 'href' => '/simulacion']]),
             ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt', 'ruta' => 'cola-tierra', 'href' => '/cola-a-tierra'],
             ['t' => 'Botiquín', 'ic' => 'medication', 'ruta' => 'botiquin', 'href' => '/botiquin'],
-            ['t' => 'Flight surgeon', 'ic' => 'stethoscope'],
+            ['t' => 'Flight surgeon', 'ic' => 'stethoscope', 'ruta' => 'medico', 'href' => '/medico-de-vuelo'],
         ]],
         ['t' => 'Apoyo', 'links' => [
             ['t' => 'Aviso legal', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],
