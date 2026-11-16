@@ -123,6 +123,30 @@
                 </div>
             </div>
 
+            @if ($caso && $orientacionCaso)
+                @php($oc = $orientacionCaso)
+                <article class="panel-caso" data-sev="{{ $caso->severidad }}" aria-label="Caso del Médico de vuelo: {{ $oc->titulo }}" wire:key="panel-caso-{{ $caso->id }}-{{ $caso->severidad }}">
+                    <div class="panel-caso-cab">
+                        <span class="icono panel-caso-ic" aria-hidden="true">stethoscope</span>
+                        <span class="panel-caso-t">{{ $oc->titulo }}</span>
+                        <span class="panel-badge mono"><span class="icono" aria-hidden="true">{{ $caso->severidad === 'critico' ? 'error' : 'warning' }}</span>{{ $caso->severidad === 'critico' ? 'Crítico' : 'Precaución' }}</span>
+                    </div>
+                    <p class="panel-caso-txt">{{ $oc->hallazgo }}</p>
+                    @if ($oc->acciones)
+                        <ol class="panel-caso-pasos">
+                            @foreach ($oc->acciones as $ac)<li>{{ $ac['texto'] }}</li>@endforeach
+                        </ol>
+                    @endif
+                    @if ($oc->historial7d)
+                        <x-caso-historial :o="$oc" />
+                    @endif
+                    <p class="panel-caso-sim mono">Orientación simulada · {{ $oc->confianza }} % de confianza simulada</p>
+                    <div class="panel-botones">
+                        <button type="button" class="panel-btn" onclick="window.Livewire && Livewire.dispatch('abrir-medico-flotante', { casoId: {{ $caso->id }} })"><span class="icono" aria-hidden="true">open_in_full</span>Abrir en Médico de vuelo</button>
+                    </div>
+                </article>
+            @endif
+
             @if ($cargando)
                 <div role="status" aria-live="polite" class="panel-cargando">
                     <span class="panel-cargando-t mono"><span class="icono">hourglass_top</span>CARGANDO SUGERENCIAS…</span>

@@ -131,6 +131,8 @@
     </div>
 </div>
 
+<livewire:medico-flotante />
+
 {{-- El registro de mediciones es ahora la pantalla /registrar: el evento `abrir-registro` (con `indicador` opcional) navega a ella.
      El componente RegistrarMedicion (modal) sigue existiendo, sin montar. --}}
 @livewireScripts

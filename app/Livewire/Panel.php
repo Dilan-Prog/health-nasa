@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\AlertaSaliente;
+use App\Models\CasoClinico;
 use App\Models\Astronauta;
 use App\Models\Evaluacion;
 use App\Services\Salud\EnvioATierra;
@@ -220,7 +221,14 @@ class Panel extends Component
 
         $envio = app(EnvioATierra::class);
 
+        // Caso abierto del tripulante actual (el crítico primero): misma Orientacion cacheada que usa el flotante.
+        $caso = $astronauta
+            ? CasoClinico::abiertos()->where('astronauta_id', $astronauta->id)->orderByRaw("severidad = 'critico' desc")->orderByDesc('id')->first()
+            : null;
+
         return view('livewire.panel', [
+            'caso' => $caso,
+            'orientacionCaso' => $caso ? MedicoFlotante::orientacionDe($caso) : null,
             'astronauta' => $astronauta,
             'resumen' => $resumen,
             'indicadores' => $indicadores->values()->all(),

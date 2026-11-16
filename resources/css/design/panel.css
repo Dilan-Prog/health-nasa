@@ -235,3 +235,13 @@
 .panel-modo-b:focus-visible { outline: 3px solid oklch(0.64 0.22 33); outline-offset: 2px; }
 .panel-modo-b:disabled { cursor: not-allowed; opacity: .65; }
 .panel-modo-pronto { font-size: 10px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); }
+
+/* Tarjeta del caso del Médico de vuelo (IA local simulada), encima de las tarjetas de "Qué hacer ahora". */
+.panel-caso { --c: var(--warn); --t: var(--warn-text); --s: var(--warn-faint); display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radius); border: 1px solid var(--c); border-left-width: 4px; background: var(--s); }
+.panel-caso[data-sev="critico"] { --c: var(--crit); --t: var(--crit-text); --s: var(--crit-faint); }
+.panel-caso-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.panel-caso-ic { font-size: 22px; color: var(--t); }
+.panel-caso-t { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.panel-caso-txt { margin: 0; font-size: 14px; line-height: 1.5; }
+.panel-caso-pasos { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.45; }
+.panel-caso-sim { margin: 0; font-size: 12px; color: var(--muted-2); }

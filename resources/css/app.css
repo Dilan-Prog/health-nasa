@@ -27,6 +27,7 @@
 @import './simulacion.css';
 @import './login.css';
 @import './design/proximamente.css';
+@import './medico-flotante.css';
 
 @tailwind base;
 @tailwind components;
