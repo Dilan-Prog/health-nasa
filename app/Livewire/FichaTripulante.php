@@ -3,7 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\Astronauta;
+use App\Models\ExamenAscan;
+use App\Models\LineaBase;
+use App\Models\Mision;
 use App\Services\Salud\DatosIndicador;
+use App\Services\Salud\DesviacionBase;
 use App\Services\Tripulacion\AltaTripulante;
 use App\Support\TripulanteActual;
 use Illuminate\Support\Carbon;
@@ -12,7 +16,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /**
- * Ficha de expediente (solo lectura) de un tripulante: cabecera, línea base personal frente al último valor medido,
+ * Ficha de expediente de un tripulante (lectura; solo se editan línea base pre-vuelo y ficha ASCAN): cabecera, línea base personal frente al último valor medido,
  * biometría y listas del expediente. La edición aún no está disponible. Orienta, no diagnostica.
  * El tripulante debe pertenecer a la misión actual (si no, 404).
  */
@@ -34,10 +38,145 @@ class FichaTripulante extends Component
 
     public int $astronautaId;
 
+    /** Formulario de línea base pre-vuelo: métrica => [valor, unidad, desde, hasta, fuente] (texto). */
+    public array $lb = [];
+
+    /** Formulario ASCAN: clave de prueba => [resultado, fecha, estado]. */
+    public array $asc = [];
+
+    public ?string $okLb = null;
+
+    public ?string $okAsc = null;
+
     public function mount(Astronauta $astronauta): void
     {
         abort_unless(TripulanteActual::tripulacion()->contains('id', $astronauta->id), 404);
         $this->astronautaId = $astronauta->id;
+        $this->cargarFormularios($astronauta);
+    }
+
+    private function cargarFormularios(Astronauta $a): void
+    {
+        $inicio = $a->mision_id ? Mision::find($a->mision_id)?->inicio_en : null;
+        $v = config('linea_base.ventana');
+        $desde = $inicio?->copy()->subDays($v['desde_dias'])->toDateString() ?? '';
+        $hasta = $inicio?->copy()->subDays($v['hasta_dias'])->toDateString() ?? '';
+
+        $filas = LineaBase::where('astronauta_id', $a->id)->get()->keyBy('metrica');
+        $this->lb = [];
+        foreach (config('linea_base.metricas') as $k => $cfg) {
+            $f = $filas->get($k);
+            $this->lb[$k] = [
+                'valor' => $f ? (string) (float) $f->valor : '',
+                'unidad' => $f ? (string) $f->unidad : $cfg['unidad'],
+                'desde' => $f?->ventana_desde?->toDateString() ?? $desde,
+                'hasta' => $f?->ventana_hasta?->toDateString() ?? $hasta,
+                'fuente' => $f ? (string) $f->fuente : '',
+            ];
+        }
+
+        $examenes = ExamenAscan::where('astronauta_id', $a->id)->get()->keyBy('prueba');
+        $this->asc = [];
+        foreach (array_keys($this->pruebasAscan()) as $k) {
+            $e = $examenes->get($k);
+            $this->asc[$k] = [
+                'resultado' => $e ? (string) $e->resultado : '',
+                'fecha' => $e?->fecha?->toDateString() ?? '',
+                'estado' => $e->estado ?? 'pendiente',
+            ];
+        }
+    }
+
+    /** @return array<string, string> clave => nombre */
+    private function pruebasAscan(): array
+    {
+        return collect(config('ascan.grupos'))->flatMap(fn ($g) => $g['pruebas'])->all();
+    }
+
+    /** Guarda la línea base pre-vuelo. Valor vacío = sin base para esa métrica (se elimina la fila si existía). */
+    public function guardarLineaBase(): void
+    {
+        $this->okLb = null;
+        $metricas = config('linea_base.metricas');
+        $reglas = [];
+        foreach (array_keys($metricas) as $k) {
+            $this->lb[$k]['valor'] = str_replace(',', '.', trim((string) ($this->lb[$k]['valor'] ?? '')));
+            $reglas["lb.$k.valor"] = 'nullable|numeric|min:0|max:99999';
+            $reglas["lb.$k.unidad"] = 'nullable|string|max:20';
+            $reglas["lb.$k.fuente"] = 'nullable|string|max:120';
+            $reglas["lb.$k.desde"] = 'nullable|date';
+            $reglas["lb.$k.hasta"] = "nullable|date|after_or_equal:lb.$k.desde";
+        }
+        $this->validate($reglas, [
+            'lb.*.valor.numeric' => 'El valor debe ser un número.',
+            'lb.*.valor.min' => 'El valor no puede ser negativo.',
+            'lb.*.valor.max' => 'El valor es demasiado grande.',
+            'lb.*.unidad.max' => 'La unidad admite hasta 20 caracteres.',
+            'lb.*.fuente.max' => 'La fuente admite hasta 120 caracteres.',
+            'lb.*.desde.date' => 'Fecha no válida.',
+            'lb.*.hasta.date' => 'Fecha no válida.',
+            'lb.*.hasta.after_or_equal' => 'La ventana debe terminar el mismo día o después de empezar.',
+        ]);
+
+        $a = $this->tripulante();
+        foreach (array_keys($metricas) as $k) {
+            $f = $this->lb[$k];
+            if ($f['valor'] === '') {
+                LineaBase::where('astronauta_id', $a->id)->where('metrica', $k)->delete();
+
+                continue;
+            }
+            LineaBase::updateOrCreate(['astronauta_id' => $a->id, 'metrica' => $k], [
+                'valor' => (float) $f['valor'],
+                'unidad' => filled($f['unidad']) ? $f['unidad'] : null,
+                'ventana_desde' => filled($f['desde']) ? $f['desde'] : null,
+                'ventana_hasta' => filled($f['hasta']) ? $f['hasta'] : null,
+                'fuente' => filled($f['fuente']) ? $f['fuente'] : null,
+            ]);
+        }
+        $this->okLb = 'Línea base guardada.';
+    }
+
+    /** Guarda la ficha ASCAN. Solo registra: sin cálculo ni interpretación. */
+    public function guardarAscan(): void
+    {
+        $this->okAsc = null;
+        $reglas = [];
+        foreach (array_keys($this->pruebasAscan()) as $k) {
+            $reglas["asc.$k.resultado"] = 'nullable|string|max:255';
+            $reglas["asc.$k.fecha"] = 'nullable|date';
+            $reglas["asc.$k.estado"] = 'required|in:'.implode(',', ExamenAscan::ESTADOS);
+        }
+        $this->validate($reglas, [
+            'asc.*.resultado.max' => 'El resultado admite hasta 255 caracteres.',
+            'asc.*.fecha.date' => 'Fecha no válida.',
+            'asc.*.estado.in' => 'Estado no válido.',
+            'asc.*.estado.required' => 'Elige un estado.',
+        ]);
+
+        $a = $this->tripulante();
+        foreach (array_keys($this->pruebasAscan()) as $k) {
+            $f = $this->asc[$k];
+            if (blank($f['resultado']) && blank($f['fecha']) && $f['estado'] === 'pendiente') {
+                ExamenAscan::where('astronauta_id', $a->id)->where('prueba', $k)->delete();
+
+                continue;
+            }
+            ExamenAscan::updateOrCreate(['astronauta_id' => $a->id, 'prueba' => $k], [
+                'resultado' => filled($f['resultado']) ? $f['resultado'] : null,
+                'fecha' => filled($f['fecha']) ? $f['fecha'] : null,
+                'estado' => $f['estado'],
+            ]);
+        }
+        $this->okAsc = 'Ficha ASCAN guardada.';
+    }
+
+    private function tripulante(): Astronauta
+    {
+        $a = Astronauta::findOrFail($this->astronautaId);
+        abort_unless(TripulanteActual::tripulacion()->contains('id', $a->id), 404);
+
+        return $a;
     }
 
     public function render()
@@ -55,6 +194,9 @@ class FichaTripulante extends Component
             'restriccion' => $e && $e->aptitud_vuelo === 'apto_restricciones' && filled($e->restricciones) ? $e->restricciones : null,
             'comp' => app(AltaTripulante::class)->completitud($a),
             'linea' => $this->lineaBase($a),
+            'lbMetricas' => $this->metricasBase($a),
+            'ascGrupos' => config('ascan.grupos'),
+            'ascEstados' => ['pendiente' => 'Pendiente', 'normal' => 'Normal', 'anormal' => 'Anormal'],
             'bio' => $this->biometria($a),
             'listas' => $this->listas($a),
         ]);
@@ -129,6 +271,38 @@ class FichaTripulante extends Component
         }
 
         return $filas;
+    }
+
+    /**
+     * Valor actual y desviación % de cada métrica de línea base con indicador asociado y medición real.
+     *
+     * @return array<string, array{actual:?string, desv:?string, base:?string}>
+     */
+    private function metricasBase(Astronauta $a): array
+    {
+        $porMetrica = array_flip(config('linea_base.indicador_metrica', []));
+        $out = [];
+        foreach (array_keys(config('linea_base.metricas')) as $k) {
+            $out[$k] = ['actual' => null, 'desv' => null, 'base' => null];
+            $ind = $porMetrica[$k] ?? null;
+            if ($ind === null) {
+                continue;
+            }
+            $m = DB::table('mediciones')->where('astronauta_id', $a->id)->where('indicador', $ind)->orderByDesc('medido_en')->orderByDesc('id')->first();
+            $actual = $m ? (json_decode($m->valores, true)['valor'] ?? null) : null;
+            if ($actual === null) {
+                continue;
+            }
+            $dec = (int) config("indicadores.marcadores.$ind.dec", 1);
+            $out[$k]['actual'] = $this->num((float) $actual, $dec).' '.config("indicadores.marcadores.$ind.unit", '');
+            $pct = DesviacionBase::porcentaje($a, $k, (float) $actual);
+            if ($pct !== null) {
+                $r = round($pct, 1);
+                $out[$k]['desv'] = ($r > 0 ? '+' : ($r < 0 ? self::MENOS : '')).number_format(abs($r), 1, '.', '').' %';
+            }
+        }
+
+        return $out;
     }
 
     private function num(float $v, int $dec): string

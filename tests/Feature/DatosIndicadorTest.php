@@ -25,8 +25,8 @@ class DatosIndicadorTest extends TestCase
     /** Estados de la maqueta (S0) para Dilan. */
     private const S0 = [
         'presion_arterial' => 'warn', 'frecuencia_cardiaca' => 'ok', 'saturacion_o2' => 'ok', 'glucosa' => 'ok', 'temperatura' => 'ok',
-        'imc' => 'ok', 'hidratacion' => 'warn', 'perdida_osea' => 'crit', 'masa_muscular' => 'crit', 'radiacion_diaria' => 'crit',
-        'dosis_acumulada' => 'warn', 'sueno' => 'crit', 'estres_cognitivo' => 'ok', 'vision_sans' => 'warn',
+        'imc' => 'ok', 'hidratacion' => 'warn', 'perdida_osea' => 'crit', 'masa_muscular' => 'crit', 'radiacion_diaria' => 'ok',
+        'dosis_acumulada' => 'ok', 'sueno' => 'crit', 'estres_cognitivo' => 'ok', 'vision_sans' => 'warn',
     ];
 
     private function tripulacion()
@@ -52,7 +52,7 @@ class DatosIndicadorTest extends TestCase
         DB::flushQueryLog();
         DB::enableQueryLog();
         DatosIndicador::para($dilan);
-        $this->assertLessThanOrEqual(3, count(DB::getQueryLog()));
+        $this->assertLessThanOrEqual(4, count(DB::getQueryLog())); // 3 + 1 de línea base (temperatura)
     }
 
     private function comprobarForma(array $p): void
@@ -115,7 +115,7 @@ class DatosIndicadorTest extends TestCase
 
         // El Panel sigue mostrando los mismos valores y estados del diseño.
         $r = ResumenTripulante::make()->de($dilan);
-        $this->assertSame(['crit' => 3, 'warn' => 2, 'ok' => 5], $r['conteo']);
+        $this->assertSame(['crit' => 2, 'warn' => 1, 'ok' => 7], $r['conteo']); // Nivel 2: radiación y dosis pasan a normal
         $this->assertSame('128/84', $r['indicadores'][0]['valor']);
         $this->assertTrue($r['medido_hoy']);
         $this->assertSame('07:31', $r['ultima_medicion']->utc()->format('H:i'));
@@ -124,7 +124,7 @@ class DatosIndicadorTest extends TestCase
     private function comprobarTripulacion($trip): void
     {
         $this->assertCount(5, $trip);
-        $esperado = ['presion_arterial' => ['warn', 'ok', 'crit', 'ok', 'warn'], 'sueno' => ['crit', 'ok', 'warn', 'ok', 'warn'], 'dosis_acumulada' => ['warn', 'warn', 'ok', 'ok', 'ok']];
+        $esperado = ['presion_arterial' => ['warn', 'ok', 'crit', 'ok', 'warn'], 'sueno' => ['crit', 'ok', 'warn', 'ok', 'warn'], 'dosis_acumulada' => ['ok', 'ok', 'ok', 'ok', 'ok']];
 
         foreach ($trip as $i => $a) {
             $p = DatosIndicador::para($a);

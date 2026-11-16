@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\DB;
  * }
  *
  * Reglas:
- *  - Solo 3 consultas (misión, mediciones de la misión de los 14 marcadores y estado de las últimas).
+ *  - Solo 3 consultas (misión, mediciones de la misión de los 14 marcadores y estado de las últimas), más 1 por cada
+ *    marcador con medición y métrica de línea base asociada (config linea_base.indicador_metrica; hoy solo temperatura).
+ *  - `desv` (opcional, solo si hay medición y base): {metrica, base, pct}; pct = (val − base) / base × 100, 1 decimal.
  *  - Huecos interpolados linealmente; los extremos sin dato toman el vecino conocido más cercano.
  *    Un marcador sin ningún dato usa su base (estado 'ok').
  *  - Dosis acumulada: la serie nunca decrece (máximo acumulado).
@@ -103,6 +105,10 @@ class DatosIndicador
                 'estado' => $estado,
                 'loss' => (bool) ($cfg['loss'] ?? false), 'cum' => (bool) ($cfg['cum'] ?? false), 'signo' => (bool) ($cfg['signo'] ?? false),
             ];
+            // Desviación frente a la línea base pre-vuelo: solo con medición real y base (si no, la clave no aparece).
+            if ($mediciones->isNotEmpty() && ($desv = DesviacionBase::paraIndicador($astronauta, $clave, (float) $val)) !== null) {
+                $lista[array_key_last($lista)]['desv'] = $desv;
+            }
             $diaria[$clave] = $dia;
             $horaria[$clave] = $hora;
         }

@@ -89,3 +89,27 @@
     .ficha-cabecera { padding: 14px; }
     .ficha-avatar { width: 52px; height: 52px; font-size: 18px; }
 }
+
+/* Formularios: línea base pre-vuelo y ficha ASCAN. */
+.ficha-form { display: flex; flex-direction: column; gap: 12px; }
+.ficha-campos { margin: 0; padding: 10px 12px 12px; min-width: 0; border: 1px solid var(--border-soft); border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px 12px; }
+.ficha-legend { padding: 0 6px; font-size: 15px; font-weight: 600; }
+.ficha-campo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ficha-campo > span { font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+.ficha-campo--ancho { grid-column: span 2; }
+.ficha-campo input, .ficha-campo select { font: inherit; font-size: 15px; min-height: 44px; padding: 0 10px; width: 100%; box-sizing: border-box; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.ficha-campo input:focus-visible, .ficha-campo select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.ficha-campo input[aria-invalid="true"], .ficha-campo select[aria-invalid="true"] { border-color: var(--crit); }
+.ficha-error { grid-column: 1 / -1; font-size: 14px; color: var(--crit-text); }
+.ficha-desv { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--muted-2); }
+.ficha-form-pie { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ficha-ok { font-size: 14px; color: var(--ok-text); }
+.ficha-campos--asc { grid-template-columns: 1fr; }
+.ficha-asc-fila { display: grid; grid-template-columns: minmax(160px, 1.2fr) repeat(3, minmax(120px, 1fr)); gap: 6px 12px; align-items: end; padding: 6px 0; border-top: 1px solid var(--border-soft); }
+.ficha-asc-fila:first-of-type { border-top: 0; }
+.ficha-asc-nombre { font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+    .ficha-asc-fila { grid-template-columns: 1fr 1fr; }
+    .ficha-asc-nombre { grid-column: 1 / -1; }
+    .ficha-campo--ancho { grid-column: 1 / -1; }
+}

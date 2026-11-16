@@ -367,6 +367,7 @@
                                     </span>
                                 </div>
                                 <span class="ind-res-ref mono">REFERENCIA <span x-text="vals.sum.range"></span></span>
+                                <span class="ind-res-ref mono" x-show="vals.sum.desv">DESVIACIÓN <span x-text="vals.sum.desv"></span></span>
                             </div>
                             <div class="ind-res-stats">
                                 <template x-for="s in vals.sum.stats" :key="s.k">

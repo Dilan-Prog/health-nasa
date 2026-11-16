@@ -86,6 +86,84 @@
             </div>
         </section>
 
+        <section class="ficha-tarjeta" aria-labelledby="ficha-lbp">
+            <div class="ficha-tarjeta-cab">
+                <h2 class="ficha-h2" id="ficha-lbp">Línea base pre-vuelo</h2>
+                <p class="ficha-nota">Valor de partida medido antes de la misión (ventana por defecto: de L-180 a L-30 días respecto al inicio). Si una métrica queda vacía, se usa el valor del expediente cuando exista. Los números son de ejemplo, no validados.</p>
+            </div>
+            <form class="ficha-form" wire:submit="guardarLineaBase" novalidate>
+                @foreach (config('linea_base.metricas') as $k => $cfg)
+                    <fieldset class="ficha-campos" wire:key="lbp-{{ $k }}">
+                        <legend class="ficha-legend">{{ $cfg['label'] }}</legend>
+                        <label class="ficha-campo"><span class="mono">VALOR</span>
+                            <input type="text" inputmode="decimal" wire:model="lb.{{ $k }}.valor" aria-invalid="{{ $errors->has("lb.$k.valor") ? 'true' : 'false' }}">
+                        </label>
+                        <label class="ficha-campo"><span class="mono">UNIDAD</span>
+                            <input type="text" maxlength="20" wire:model="lb.{{ $k }}.unidad" aria-invalid="{{ $errors->has("lb.$k.unidad") ? 'true' : 'false' }}">
+                        </label>
+                        <label class="ficha-campo"><span class="mono">VENTANA DESDE</span>
+                            <input type="date" wire:model="lb.{{ $k }}.desde" aria-invalid="{{ $errors->has("lb.$k.desde") ? 'true' : 'false' }}">
+                        </label>
+                        <label class="ficha-campo"><span class="mono">VENTANA HASTA</span>
+                            <input type="date" wire:model="lb.{{ $k }}.hasta" aria-invalid="{{ $errors->has("lb.$k.hasta") ? 'true' : 'false' }}">
+                        </label>
+                        <label class="ficha-campo ficha-campo--ancho"><span class="mono">FUENTE</span>
+                            <input type="text" maxlength="120" wire:model="lb.{{ $k }}.fuente" aria-invalid="{{ $errors->has("lb.$k.fuente") ? 'true' : 'false' }}">
+                        </label>
+                        @foreach (['valor', 'unidad', 'desde', 'hasta', 'fuente'] as $campo)
+                            @error("lb.$k.$campo") <span class="ficha-error" role="alert">{{ $message }}</span> @enderror
+                        @endforeach
+                        @if ($lbMetricas[$k]['actual'] !== null)
+                            <p class="ficha-desv mono">Actual: {{ $lbMetricas[$k]['actual'] }}
+                                @if ($lbMetricas[$k]['desv'] !== null) · Desviación: <strong>{{ $lbMetricas[$k]['desv'] }}</strong> frente a la base @else · Sin base para comparar @endif
+                            </p>
+                        @endif
+                    </fieldset>
+                @endforeach
+                <div class="ficha-form-pie">
+                    <button type="submit" class="ficha-btn ficha-btn--primario"><span class="icono" aria-hidden="true">save</span>Guardar línea base</button>
+                    @if ($okLb)<span class="ficha-ok" role="status">{{ $okLb }}</span>@endif
+                </div>
+            </form>
+        </section>
+
+        <section class="ficha-tarjeta" aria-labelledby="ficha-asc">
+            <div class="ficha-tarjeta-cab">
+                <h2 class="ficha-h2" id="ficha-asc">Ficha ASCAN · primer examen anual</h2>
+                <p class="ficha-nota">Registro, no interpretación. Anota resultado, fecha y estado de cada prueba; la app no los calcula ni los valora.</p>
+            </div>
+            <form class="ficha-form" wire:submit="guardarAscan" novalidate>
+                @foreach ($ascGrupos as $gi => $g)
+                    <fieldset class="ficha-campos ficha-campos--asc" wire:key="asc-g-{{ $gi }}">
+                        <legend class="ficha-legend">{{ $g['titulo'] }}</legend>
+                        @foreach ($g['pruebas'] as $k => $nombre)
+                            <div class="ficha-asc-fila" wire:key="asc-{{ $k }}">
+                                <span class="ficha-asc-nombre">{{ $nombre }}</span>
+                                <label class="ficha-campo"><span class="mono">RESULTADO</span>
+                                    <input type="text" maxlength="255" wire:model="asc.{{ $k }}.resultado" aria-label="Resultado: {{ $nombre }}" aria-invalid="{{ $errors->has("asc.$k.resultado") ? 'true' : 'false' }}">
+                                </label>
+                                <label class="ficha-campo"><span class="mono">FECHA</span>
+                                    <input type="date" wire:model="asc.{{ $k }}.fecha" aria-label="Fecha: {{ $nombre }}" aria-invalid="{{ $errors->has("asc.$k.fecha") ? 'true' : 'false' }}">
+                                </label>
+                                <label class="ficha-campo"><span class="mono">ESTADO</span>
+                                    <select wire:model="asc.{{ $k }}.estado" aria-label="Estado: {{ $nombre }}" aria-invalid="{{ $errors->has("asc.$k.estado") ? 'true' : 'false' }}">
+                                        @foreach ($ascEstados as $v => $et)<option value="{{ $v }}">{{ $et }}</option>@endforeach
+                                    </select>
+                                </label>
+                                @foreach (['resultado', 'fecha', 'estado'] as $campo)
+                                    @error("asc.$k.$campo") <span class="ficha-error" role="alert">{{ $message }}</span> @enderror
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </fieldset>
+                @endforeach
+                <div class="ficha-form-pie">
+                    <button type="submit" class="ficha-btn ficha-btn--primario"><span class="icono" aria-hidden="true">save</span>Guardar ficha ASCAN</button>
+                    @if ($okAsc)<span class="ficha-ok" role="status">{{ $okAsc }}</span>@endif
+                </div>
+            </form>
+        </section>
+
         <div class="ficha-rejilla">
             <section class="ficha-tarjeta" aria-labelledby="ficha-bio">
                 <h2 class="ficha-h2 ficha-h2--ic" id="ficha-bio"><span class="icono ficha-ic" aria-hidden="true">monitor_heart</span>Biometría</h2>
