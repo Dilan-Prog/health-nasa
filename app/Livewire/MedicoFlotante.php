@@ -126,23 +126,48 @@ class MedicoFlotante extends Component
         }
     }
 
-    /** Puntos "x,y" de una minigráfica (viewBox 100×28). */
-    public static function puntosSerie(array $serie): string
+    /**
+     * Minigráfica (viewBox 120×32): x = i*20, y escalado a 4–28 (con 10 % de holgura) sobre la serie y la base.
+     *
+     * @return array{puntos:string, yBase:?float}
+     */
+    public static function minigrafica(array $serie, mixed $base = null): array
     {
         $v = array_values(array_map('floatval', $serie));
         if (! $v) {
-            return '';
+            return ['puntos' => '', 'yBase' => null];
         }
-        $lo = min($v);
-        $hi = max($v);
-        $n = max(count($v) - 1, 1);
+        $b = is_numeric($base) ? (float) $base : null;
+        $todos = $b === null ? $v : [...$v, $b];
+        $lo = min($todos);
+        $hi = max($todos);
+        $y = fn (float $x): float => round($hi === $lo ? 16 : 28 - (0.1 + 0.8 * ($x - $lo) / ($hi - $lo)) * 24, 1);
         $pts = [];
         foreach ($v as $i => $x) {
-            $y = $hi === $lo ? 14 : 25 - ($x - $lo) / ($hi - $lo) * 22;
-            $pts[] = round($i * 100 / $n, 1).','.round($y, 1);
+            $pts[] = ($i * 20).','.$y($x);
         }
 
-        return implode(' ', $pts);
+        return ['puntos' => implode(' ', $pts), 'yBase' => $b === null ? null : $y($b)];
+    }
+
+    /** Puntos "x,y" de una serie (compatibilidad). */
+    public static function puntosSerie(array $serie): string
+    {
+        return self::minigrafica($serie)['puntos'];
+    }
+
+    /** Normaliza un elemento de expediente/tratamientos (string o array posicional/asociativo) a etiqueta/texto/nota. */
+    public static function item(mixed $x): array
+    {
+        if (! is_array($x)) {
+            return ['etiqueta' => null, 'texto' => (string) $x, 'nota' => null];
+        }
+
+        return [
+            'etiqueta' => $x['etiqueta'] ?? $x[0] ?? null,
+            'texto' => (string) ($x['texto'] ?? $x[1] ?? ''),
+            'nota' => $x['nota'] ?? $x[2] ?? null,
+        ];
     }
 
     public function render()
@@ -163,7 +188,7 @@ class MedicoFlotante extends Component
                     'caso' => $caso,
                     'o' => $o,
                     'abierto' => $caso->estado === 'abierto',
-                    'avisado' => (bool) ($e['avisados'][$caso->id] ?? false),
+                    'avisado' => (bool) ($e['avisados'][$caso->id] ?? false) || ($caso->severidad === 'critico' && $o->escaladoEn),
                     'sinLeer' => $caso->estado === 'abierto' && ($e['leidos'][$caso->id] ?? null) !== $caso->severidad,
                 ];
             }
@@ -171,10 +196,13 @@ class MedicoFlotante extends Component
         $abiertos = array_filter($mensajes, fn ($m) => $m['abierto']);
         $sinLeer = array_values(array_filter($abiertos, fn ($m) => $m['sinLeer']));
 
+        $critico = (bool) array_filter($abiertos, fn ($m) => $m['caso']->severidad === 'critico');
+
         return view('livewire.medico-flotante', [
             'astronauta' => $a,
             'mensajes' => $mensajes,
-            'critico' => (bool) array_filter($abiertos, fn ($m) => $m['caso']->severidad === 'critico'),
+            'etiquetaCirculo' => 'Médico de vuelo'.($sinLeer ? ', '.count($sinLeer).' sin leer' : '').($critico ? ', caso crítico' : ''),
+            'critico' => $critico,
             'nSinLeer' => count($sinLeer),
             'anuncio' => $sinLeer ? 'Médico de vuelo: '.implode('; ', array_map(fn ($m) => $m['o']->titulo.($m['caso']->severidad === 'critico' ? ' (crítico)' : ''), $sinLeer)).'.' : '',
             'aviso' => (string) config('ia.aviso', self::AVISO),

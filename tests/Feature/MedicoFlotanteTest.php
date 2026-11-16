@@ -38,18 +38,21 @@ class MedicoFlotanteTest extends TestCase
         {
             public int $llamadas = 0;
 
+            /** Campos de Orientacion que cada prueba sobrescribe (nombres del constructor). */
+            public array $extra = [];
+
             public function orientar(CasoClinico $caso): Orientacion
             {
                 $this->llamadas++;
 
-                return new Orientacion(
-                    casoId: $caso->id, astronautaId: $caso->astronauta_id, patron: $caso->patron, severidad: $caso->severidad,
-                    titulo: 'Posible patrón '.$caso->patron.' #'.$caso->astronauta_id, hallazgo: 'Los valores podrían sugerir un patrón de prueba.',
-                    acciones: [['texto' => 'Descansa y repite la medición', 'fuente' => ['tipo' => 'norma', 'etiqueta' => 'Norma de prueba', 'texto' => 'x']]],
-                    historial7d: [['indicador' => 'spo2', 'etiqueta' => 'SpO₂', 'unidad' => '%', 'serie' => [98, 97, 96, 95, 94, 93, 92], 'actual' => '92', 'base' => '98']],
-                    expedienteRelevante: ['Sin antecedentes relacionados'], tratamientos: ['Sin tratamientos registrados'],
-                    fuentes: [['etiqueta' => 'Ficha de prueba', 'texto' => 'texto']], confianza: 70,
-                );
+                return new Orientacion(...array_merge([
+                    'casoId' => $caso->id, 'astronautaId' => $caso->astronauta_id, 'patron' => $caso->patron, 'severidad' => $caso->severidad,
+                    'titulo' => 'Posible patrón '.$caso->patron.' #'.$caso->astronauta_id, 'hallazgo' => 'Los valores podrían sugerir un patrón de prueba.',
+                    'acciones' => [['texto' => 'Descansa y repite la medición', 'fuente' => ['tipo' => 'norma', 'etiqueta' => 'Norma de prueba', 'texto' => 'x']]],
+                    'historial7d' => [['indicador' => 'spo2', 'etiqueta' => 'SpO₂', 'unidad' => '%', 'serie' => [98, 97, 96, 95, 94, 93, 92], 'actual' => '92', 'base' => '98']],
+                    'expedienteRelevante' => [], 'tratamientos' => [],
+                    'fuentes' => [['etiqueta' => 'Ficha de prueba', 'texto' => 'texto']], 'confianza' => 78,
+                ], $this->extra));
             }
         };
         $this->app->instance(Orientador::class, $this->fake);
@@ -74,14 +77,96 @@ class MedicoFlotanteTest extends TestCase
         $this->caso($this->a, 'critico');
         Livewire::test(MedicoFlotante::class)
             ->assertSee('Médico de vuelo · IA local (simulada)')
-            ->assertSee('Simulado')
-            ->assertSee('IA local y n8n: Próximamente')
+            ->assertSee('SIMULADO')
+            ->assertSee('IA LOCAL Y N8N: PRÓXIMAMENTE')
+            ->assertSee('PARA '.mb_strtoupper($this->a->nombre).' · ORIENTA, NO DIAGNOSTICA')
             ->assertSee(config('ia.aviso', MedicoFlotante::AVISO))
             ->assertSee('Posible patrón hipoxia')
-            ->assertSee('Qué hacer')
-            ->assertSee('Historial de 7 días')
-            ->assertSee('Confianza simulada: 70 %')
+            ->assertSee('aria-label="Posible patrón hipoxia #'.$this->a->id.', CRÍTICO"', false)
+            ->assertSee('QUÉ HACER')
+            ->assertSee('FUENTE · Norma de prueba')
+            ->assertSee('HISTORIAL 7 DÍAS')
+            ->assertSee('AHORA 92 %', false)
+            ->assertSee('CONFIANZA DE LA REGLA · SIMULADA')
             ->assertSee('Entendido')->assertSee('Avisar a tierra')->assertSee('Abrir Médico de vuelo');
+    }
+
+    public function test_circulo_etiqueta_accesible_e_insignia(): void
+    {
+        $this->caso($this->a, 'critico');
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('aria-label="Médico de vuelo, 1 sin leer, caso crítico"', false)
+            ->assertSee('data-pulso', false)
+            ->assertSee('aria-controls="mf-dialogo"', false);
+    }
+
+    public function test_banda_de_escalado_empeoro_y_evidencia(): void
+    {
+        $this->fake->extra = ['detectadoEn' => '10:42', 'escaladoEn' => '10:43', 'empeoro' => true, 'evidencia' => 'SpO₂ 89 (CRÍTICO) · VENTANA 10 MIN', 'icono' => 'air'];
+        $this->caso($this->a, 'critico');
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('DETECTADO 10:42 UTC')->assertSee('EMPEORÓ')
+            ->assertSee('Escalado a tierra automáticamente por la ruta de alertas · 10:43 UTC')
+            ->assertSee('EVIDENCIA · SpO₂ 89 (CRÍTICO) · VENTANA 10 MIN')
+            ->assertSee('Aviso enviado a tierra');
+    }
+
+    public function test_sin_banda_ni_empeoro_si_no_hay_datos_o_es_precaucion(): void
+    {
+        $this->fake->extra = ['escaladoEn' => '10:43'];
+        $this->caso($this->a, 'precaucion');
+        Livewire::test(MedicoFlotante::class)->assertDontSee('Escalado a tierra automáticamente')->assertDontSee('EMPEORÓ')->assertDontSee('EVIDENCIA ·')->assertSee('Avisar a tierra');
+    }
+
+    public function test_bloque_de_detalle_colapsable_abierto_solo_en_el_mas_reciente(): void
+    {
+        $viejo = $this->caso($this->a);
+        $nuevo = $this->caso($this->a, 'critico');
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('id="mf-detalle-'.$nuevo->id.'"', false)
+            ->assertSee('aria-controls="mf-detalle-'.$viejo->id.'"', false)
+            ->assertSee('x-data="{ det: true }"', false)
+            ->assertSee('x-data="{ det: false }"', false)
+            ->assertSee('Ocultar detalle')->assertSee('Ver detalle');
+    }
+
+    public function test_expediente_vacio_y_con_auditoria(): void
+    {
+        $primero = $this->caso($this->a);
+        Livewire::test(MedicoFlotante::class)->assertSee('Sin antecedentes relacionados')->assertSee('Sin tratamientos registrados')->assertDontSee('Acceso al expediente registrado');
+
+        $primero->delete();
+        $this->fake->extra = ['auditadoEn' => '10:42', 'expedienteRelevante' => [['ALERGIA', 'Penicilina'], 'Asma en la infancia']];
+        $this->caso($this->a, 'critico');
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('ALERGIA')->assertSee('Penicilina')->assertSee('Asma en la infancia')
+            ->assertSee('Acceso al expediente registrado en auditoría · 10:42 UTC')
+            ->assertDontSee('Sin antecedentes relacionados');
+    }
+
+    public function test_tratamientos_con_nota_y_matiz_y_confianza_con_coma(): void
+    {
+        $this->fake->extra = [
+            'tratamientos' => [['CONSULTA A TIERRA · 3 NOV', 'Presión arterial por encima de tu rango', 'Marcaste «me ayudó»'], ['etiqueta' => 'MEDICACIÓN REGISTRADA', 'texto' => 'Suplemento de vitamina D']],
+            'matiz' => 'La última vez avisaste a tierra y te ayudó.',
+        ];
+        $this->caso($this->a);
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('CONSULTA A TIERRA · 3 NOV')->assertSee('Marcaste «me ayudó»')->assertSee('MEDICACIÓN REGISTRADA')
+            ->assertSee('La última vez avisaste a tierra y te ayudó.')
+            ->assertSee('0,78')->assertSee('FUENTES · REVISIÓN MÉDICA: PENDIENTE')->assertSee('Ficha de prueba')->assertSee('help');
+    }
+
+    public function test_el_boton_de_aviso_cambia_a_enviado_y_queda_deshabilitado(): void
+    {
+        $caso = $this->caso($this->a);
+        $c = Livewire::test(MedicoFlotante::class)->assertSee('Avisar a tierra')->assertDontSee('Aviso enviado a tierra');
+        $c->call('avisarATierra', $caso->id)->assertSee('Aviso enviado a tierra')->assertSeeHtml('disabled');
+    }
+
+    public function test_vacio_con_tripulante(): void
+    {
+        Livewire::test(MedicoFlotante::class)->assertSee('Sin casos abiertos para '.$this->a->nombre)->assertSee('check_circle');
     }
 
     public function test_sin_caso_no_abre_ni_hay_insignia(): void
@@ -155,7 +240,7 @@ class MedicoFlotanteTest extends TestCase
     public function test_avisar_a_tierra_reutiliza_la_consulta_existente(): void
     {
         $caso = $this->caso($this->a, 'critico');
-        Livewire::test(MedicoFlotante::class)->call('avisarATierra', $caso->id)->assertSee('Aviso en cola a tierra');
+        Livewire::test(MedicoFlotante::class)->call('avisarATierra', $caso->id)->assertSee('Aviso enviado a tierra');
         $this->assertDatabaseHas('consultas_tierra', ['astronauta_id' => $this->a->id, 'tipo' => 'msg']);
     }
 

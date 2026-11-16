@@ -1,7 +1,8 @@
 @php
     $sev = ['critico' => ['Crítico', 'error'], 'precaucion' => ['Precaución', 'warning']];
+    $item = fn ($x) => \App\Livewire\MedicoFlotante::item($x);
 @endphp
-<div class="mf" data-critico="{{ $critico ? '1' : '0' }}" wire:poll.10s="comprobar"
+<div class="mf" id="medico-flotante" data-critico="{{ $critico ? '1' : '0' }}" wire:poll.10s="comprobar"
      x-data="{
         open: false,
         abrir(auto = false, d = null) {
@@ -10,7 +11,7 @@
                 if (d && d.casoId) { const m = document.getElementById('mf-caso-' + d.casoId); if (m) m.scrollIntoView({ block: 'nearest' }); }
                 const a = document.activeElement;
                 const escribiendo = a && a !== document.body && a.matches && a.matches('input, textarea, select, [contenteditable]');
-                if (! auto || ! escribiendo) this.$refs.panel.focus({ preventScroll: true });
+                if (! auto || ! escribiendo) this.$refs.titulo.focus({ preventScroll: true });
             });
             $wire.marcarLeidos();
         },
@@ -22,92 +23,147 @@
      x-on:keydown.escape.window="if (open) cerrar()"
      x-bind:class="{ 'is-abierto': open }">
 
-    <button type="button" class="mf-circulo" x-ref="circulo" aria-label="Médico de vuelo" aria-haspopup="dialog"
-            x-bind:aria-expanded="open ? 'true' : 'false'" aria-controls="mf-panel"
+    <button type="button" class="mf-circulo" id="mf-circulo" x-ref="circulo" title="Médico de vuelo" aria-label="{{ $etiquetaCirculo }}" aria-haspopup="dialog"
+            x-bind:aria-expanded="open ? 'true' : 'false'" aria-controls="mf-dialogo"
             x-on:click="open ? cerrar() : abrir(false)">
-        <span class="icono" aria-hidden="true">stethoscope</span>
-        @if ($nSinLeer > 0)
-            <span class="mf-insignia mono" aria-label="{{ $nSinLeer }} sin leer">{{ $nSinLeer }}</span>
-        @endif
+        @if ($critico)<span class="mf-pulso" data-pulso aria-hidden="true"></span>@endif
+        <span class="icono mf-circulo-ic" aria-hidden="true">stethoscope</span>
+        @if ($nSinLeer > 0)<span class="mf-insignia mono" aria-hidden="true">{{ $nSinLeer }}</span>@endif
     </button>
 
-    {{-- Anuncio para lector de pantalla: cortés; asertivo solo si hay un caso crítico. --}}
-    <div class="mf-sr" role="status" aria-live="{{ $critico ? 'assertive' : 'polite' }}" aria-atomic="true">{{ $anuncio }}</div>
+    {{-- Anuncio para lector de pantalla con el rectángulo cerrado; abierto lo cubre el aria-live de la lista. --}}
+    <div class="mf-sr" role="status" aria-live="{{ $critico ? 'assertive' : 'polite' }}" aria-atomic="true" x-show="! open">{{ $anuncio }}</div>
 
-    <section id="mf-panel" class="mf-panel" role="dialog" aria-modal="false" aria-labelledby="mf-titulo" tabindex="-1"
-             x-ref="panel" x-show="open" x-cloak>
+    <section id="mf-dialogo" class="mf-dialogo" role="dialog" aria-modal="false" aria-labelledby="mf-titulo" x-show="open" x-cloak>
         <header class="mf-cab">
-            <div class="mf-cab-t">
-                <h2 id="mf-titulo" class="mf-titulo"><span class="icono" aria-hidden="true">stethoscope</span>Médico de vuelo · IA local (simulada)</h2>
-                <div class="mf-etqs">
-                    <span class="mf-etq mono">Simulado</span>
-                    <span class="mf-etq mf-etq--pronto mono">{{ config('ia.etiquetas.proximamente', 'IA local y n8n: Próximamente') }}</span>
+            <div class="mf-cab-f">
+                <span class="mf-avatar icono" aria-hidden="true">stethoscope</span>
+                <div class="mf-cab-t">
+                    <h2 id="mf-titulo" class="mf-titulo" tabindex="-1" x-ref="titulo">Médico de vuelo · IA local (simulada)</h2>
+                    <span class="mf-para mono">{{ $astronauta ? 'PARA '.mb_strtoupper($astronauta->nombre).' · ' : '' }}ORIENTA, NO DIAGNOSTICA</span>
                 </div>
+                <button type="button" class="mf-cerrar" id="mf-cerrar" aria-label="Cerrar Médico de vuelo" x-on:click="cerrar()"><span class="icono" aria-hidden="true">close</span></button>
             </div>
-            <button type="button" class="mf-cerrar" aria-label="Cerrar Médico de vuelo" x-on:click="cerrar()"><span class="icono" aria-hidden="true">close</span></button>
+            <div class="mf-etqs">
+                <span class="mf-etq mono"><span class="icono" aria-hidden="true">science</span>SIMULADO</span>
+                <span class="mf-etq mf-etq--pronto mono"><span class="icono" aria-hidden="true">schedule</span>{{ mb_strtoupper(config('ia.etiquetas.proximamente', 'IA local y n8n: Próximamente')) }}</span>
+            </div>
         </header>
 
-        <div class="mf-lista">
+        <div class="mf-lista" aria-live="{{ $critico ? 'assertive' : 'polite' }}">
             @if (! $astronauta)
-                <p class="mf-vacio">Elige un tripulante.</p>
+                <p class="mf-vacio">Elige un tripulante</p>
             @elseif (! $mensajes)
-                <p class="mf-vacio">Sin casos abiertos para {{ $astronauta->nombre }}. Todo en rango según el detector simulado.</p>
+                <p class="mf-vacio"><span class="icono" aria-hidden="true">check_circle</span>Sin casos abiertos para {{ $astronauta->nombre }}</p>
             @endif
 
             @foreach ($mensajes as $m)
                 @php($c = $m['caso'])
                 @php($o = $m['o'])
-                <article id="mf-caso-{{ $c->id }}" class="mf-msg" data-sev="{{ $c->severidad }}" data-estado="{{ $c->estado }}" wire:key="mf-{{ $astronauta->id }}-{{ $c->id }}-{{ $c->severidad }}">
+                @php($esCritico = $c->severidad === 'critico')
+                @php($hora = $o->detectadoEn ?: $c->detectado_en?->copy()->utc()->format('H:i'))
+                <article id="mf-caso-{{ $c->id }}" class="mf-msg" data-sev="{{ $c->severidad }}" data-estado="{{ $c->estado }}"
+                         aria-label="{{ $o->titulo }}, {{ $esCritico ? 'CRÍTICO' : 'PRECAUCIÓN' }}"
+                         wire:key="mf-{{ $astronauta->id }}-{{ $c->id }}-{{ $c->severidad }}"
+                         x-data="{ det: {{ $loop->first ? 'true' : 'false' }} }">
                     <div class="mf-msg-cab">
-                        <span class="mf-sev mono"><span class="icono" aria-hidden="true">{{ $sev[$c->severidad][1] ?? 'warning' }}</span>{{ $sev[$c->severidad][0] ?? ucfirst($c->severidad) }}</span>
-                        @unless ($m['abierto'])<span class="mf-sev mf-sev--cerrado mono">Resuelto</span>@endunless
-                        <span class="mf-hora mono">{{ $c->detectado_en?->copy()->utc()->format('H:i') }} UTC</span>
+                        <span class="icono mf-msg-ic" aria-hidden="true">{{ $o->icono ?: 'stethoscope' }}</span>
+                        <span class="mf-msg-t">{{ $o->titulo }}</span>
+                        <span class="mf-sev mono"><span class="icono" aria-hidden="true">{{ $sev[$c->severidad][1] ?? 'warning' }}</span>{{ mb_strtoupper($sev[$c->severidad][0] ?? $c->severidad) }}</span>
+                        @if ($hora || $o->empeoro || ! $m['abierto'])
+                            <span class="mf-hora mono">
+                                @if ($hora)DETECTADO {{ $hora }} UTC @endif
+                                @if ($o->empeoro)@if ($hora) · @endif<span class="mf-empeoro">EMPEORÓ</span>@endif
+                                @unless ($m['abierto']) · RESUELTO @endunless
+                            </span>
+                        @endif
                     </div>
-                    <h3 class="mf-msg-t">{{ $o->titulo }}</h3>
+
+                    @if ($esCritico && $o->escaladoEn)
+                        <div class="mf-banda"><span class="icono" aria-hidden="true">satellite_alt</span>Escalado a tierra automáticamente por la ruta de alertas · {{ $o->escaladoEn }} UTC</div>
+                    @endif
+
                     <p class="mf-hallazgo">{{ $o->hallazgo }}</p>
+                    @if ($o->evidencia)<span class="mf-evid mono">EVIDENCIA · {{ $o->evidencia }}</span>@endif
 
-                    @if ($o->acciones)
-                        <h4 class="mf-sub">Qué hacer</h4>
-                        <ol class="mf-pasos">
-                            @foreach ($o->acciones as $ac)
-                                <li>
-                                    <span>{{ $ac['texto'] }}</span>
-                                    @if (! empty($ac['fuente']))
-                                        <x-fuente-chip :tipo="$ac['fuente']['tipo'] ?? 'ficha'" :revision="$ac['fuente']['revision'] ?? null" :validado="(bool) ($ac['fuente']['validado'] ?? true)" :label="$ac['fuente']['etiqueta'] ?? null" :title="$ac['fuente']['texto'] ?? null" />
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ol>
-                    @endif
+                    <div id="mf-detalle-{{ $c->id }}" class="mf-detalle" x-show="det">
+                        @if ($o->acciones)
+                            <section class="mf-sec">
+                                <h3 class="mf-h3">QUÉ HACER</h3>
+                                <ol class="mf-pasos">
+                                    @foreach ($o->acciones as $ac)
+                                        <li>
+                                            <span class="mf-n mono" aria-hidden="true">{{ $loop->iteration }}</span>
+                                            <span class="mf-paso">
+                                                <span>{{ $ac['texto'] }}</span>
+                                                @if (! empty($ac['fuente']['etiqueta']))
+                                                    <span class="mf-fuente-t mono" title="{{ $ac['fuente']['texto'] ?? '' }}">FUENTE · {{ $ac['fuente']['etiqueta'] }}@if (isset($ac['fuente']['validado']) && ! $ac['fuente']['validado']) · VALOR DE EJEMPLO @endif</span>
+                                                @endif
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ol>
+                            </section>
+                        @endif
 
-                    @if ($o->historial7d)
-                        <h4 class="mf-sub">Historial de 7 días</h4>
-                        <x-caso-historial :o="$o" />
-                    @endif
+                        @if ($o->historial7d)
+                            <section class="mf-sec">
+                                <h3 class="mf-h3">HISTORIAL 7 DÍAS</h3>
+                                <x-caso-historial :o="$o" />
+                            </section>
+                        @endif
 
-                    <h4 class="mf-sub">Expediente relevante</h4>
-                    <ul class="mf-lis">@foreach ($o->expedienteRelevante as $x)<li>{{ $x }}</li>@endforeach</ul>
+                        <section class="mf-sec">
+                            <h3 class="mf-h3">EXPEDIENTE RELEVANTE</h3>
+                            @forelse ($o->expedienteRelevante as $x)
+                                @php($i = $item($x))
+                                <div class="mf-it">@if ($i['etiqueta'])<span class="mf-it-e mono">{{ $i['etiqueta'] }}</span>@endif<span class="mf-it-t">{{ $i['texto'] }}</span>@if ($i['nota'])<span class="mf-it-n">{{ $i['nota'] }}</span>@endif</div>
+                            @empty
+                                <span class="mf-it-t">Sin antecedentes relacionados</span>
+                            @endforelse
+                            @if ($o->auditadoEn)
+                                <span class="mf-audit mono"><span class="icono" aria-hidden="true">lock</span>Acceso al expediente registrado en auditoría · {{ $o->auditadoEn }} UTC</span>
+                            @endif
+                        </section>
 
-                    <h4 class="mf-sub">Historial de tratamientos</h4>
-                    <ul class="mf-lis">@foreach ($o->tratamientos as $x)<li>{{ $x }}</li>@endforeach</ul>
+                        <section class="mf-sec">
+                            <h3 class="mf-h3">HISTORIAL DE TRATAMIENTOS</h3>
+                            @forelse ($o->tratamientos as $x)
+                                @php($i = $item($x))
+                                <div class="mf-it">@if ($i['etiqueta'])<span class="mf-it-e mono">{{ $i['etiqueta'] }}</span>@endif<span class="mf-it-t">{{ $i['texto'] }}</span>@if ($i['nota'])<span class="mf-it-n">{{ $i['nota'] }}</span>@endif</div>
+                            @empty
+                                <span class="mf-it-t">Sin tratamientos registrados</span>
+                            @endforelse
+                            @if ($o->matiz)<p class="mf-matiz">{{ $o->matiz }}</p>@endif
+                        </section>
 
-                    @if ($o->fuentes)
-                        <h4 class="mf-sub">Fuentes</h4>
-                        <div class="fuente-chips">
-                            @foreach ($o->fuentes as $f)
-                                <x-fuente-chip tipo="ficha" :validado="true" :label="$f['etiqueta']" :title="$f['texto'] ?? null" />
-                            @endforeach
+                        @if ($o->fuentes)
+                            @php($pendiente = $o->revisionMedica === 'pendiente')
+                            <section class="mf-sec">
+                                <h3 class="mf-h3">FUENTES · REVISIÓN MÉDICA: {{ mb_strtoupper($o->revisionMedica) }}</h3>
+                                <div class="mf-chips">
+                                    @foreach ($o->fuentes as $f)
+                                        <span class="mf-fuente mono" data-pendiente="{{ $pendiente ? '1' : '0' }}" title="{{ $f['texto'] ?? '' }}"><span class="icono" aria-hidden="true">{{ $pendiente ? 'help' : 'description' }}</span>{{ $f['etiqueta'] }}</span>
+                                    @endforeach
+                                </div>
+                            </section>
+                        @endif
+
+                        <div class="mf-conf">
+                            <div class="mf-conf-f mono"><span>CONFIANZA DE LA REGLA · SIMULADA</span><strong>{{ number_format($o->confianza / 100, 2, ',', '') }}</strong></div>
+                            <div class="mf-barra" aria-hidden="true"><div class="mf-barra-v" style="width: {{ max(0, min(100, $o->confianza)) }}%"></div></div>
                         </div>
-                    @endif
-
-                    <p class="mf-conf mono">Confianza simulada: {{ $o->confianza }} % · origen {{ $o->origen }}</p>
+                    </div>
 
                     <div class="mf-botones">
-                        <button type="button" class="mf-btn" wire:click="entender({{ $c->id }})"><span class="icono" aria-hidden="true">done</span>Entendido</button>
-                        <button type="button" class="mf-btn mf-btn--aviso" wire:click="avisarATierra({{ $c->id }})" @disabled($m['avisado'])>
-                            <span class="icono" aria-hidden="true">{{ $m['avisado'] ? 'check' : 'campaign' }}</span>{{ $m['avisado'] ? 'Aviso en cola a tierra' : 'Avisar a tierra' }}
+                        <button type="button" class="mf-btn mf-btn--txt" x-bind:aria-expanded="det ? 'true' : 'false'" aria-controls="mf-detalle-{{ $c->id }}" x-on:click="det = ! det">
+                            <span class="icono" aria-hidden="true" x-text="det ? 'expand_less' : 'expand_more'">{{ $loop->first ? 'expand_less' : 'expand_more' }}</span><span x-text="det ? 'Ocultar detalle' : 'Ver detalle'">{{ $loop->first ? 'Ocultar detalle' : 'Ver detalle' }}</span>
                         </button>
-                        <a class="mf-btn" href="{{ route('medico') }}"><span class="icono" aria-hidden="true">open_in_new</span>Abrir Médico de vuelo</a>
+                        <button type="button" class="mf-btn" wire:click="entender({{ $c->id }})"><span class="icono" aria-hidden="true">check</span>Entendido</button>
+                        <button type="button" class="mf-btn mf-btn--aviso" wire:click="avisarATierra({{ $c->id }})" @disabled($m['avisado']) data-enviado="{{ $m['avisado'] ? '1' : '0' }}">
+                            <span class="icono" aria-hidden="true">{{ $m['avisado'] ? 'check' : 'campaign' }}</span>{{ $m['avisado'] ? 'Aviso enviado a tierra' : 'Avisar a tierra' }}
+                        </button>
+                        <a class="mf-btn mf-btn--abrir" href="{{ route('medico') }}"><span class="icono" aria-hidden="true">open_in_new</span>Abrir Médico de vuelo</a>
                     </div>
                 </article>
             @endforeach

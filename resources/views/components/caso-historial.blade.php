@@ -1,17 +1,20 @@
 @props(['o'])
-{{-- Historial de 7 días de una Orientacion: minigráfica SVG simple por indicador + valores (compartido por el flotante y el Panel). --}}
-<ul class="mf-hist">
+{{-- Historial de 7 días de una Orientacion: minigráfica SVG 112×32 por indicador (base discontinua + línea del color de severidad). Compartido por el flotante y el Panel. --}}
+<ul class="mf-hist" data-sev="{{ $o->severidad }}">
     @foreach ($o->historial7d as $h)
-        @php($pts = \App\Livewire\MedicoFlotante::puntosSerie($h['serie'] ?? []))
+        @php($g = \App\Livewire\MedicoFlotante::minigrafica($h['serie'] ?? [], $h['base'] ?? null))
         <li class="mf-hist-i">
             <span class="mf-hist-et">{{ $h['etiqueta'] }}</span>
-            @if ($pts)
-                <svg class="mf-hist-svg" viewBox="0 0 100 28" preserveAspectRatio="none" role="img"
-                     aria-label="Últimos 7 días de {{ $h['etiqueta'] }}: valor actual {{ $h['actual'] }} {{ $h['unidad'] }}">
-                    <polyline points="{{ $pts }}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+            <span class="mf-hist-v mono">AHORA {{ $h['actual'] }} {{ $h['unidad'] }}@if (! empty($h['base'])) · BASE {{ $h['base'] }} {{ $h['unidad'] }}@endif</span>
+            @if ($g['puntos'])
+                <svg class="mf-hist-svg" viewBox="0 0 120 32" preserveAspectRatio="none" role="img"
+                     aria-label="{{ $h['etiqueta'] }}: 7 días, ahora {{ $h['actual'] }} {{ $h['unidad'] }}@if (! empty($h['base'])), tu base {{ $h['base'] }}@endif">
+                    @if ($g['yBase'] !== null)
+                        <line class="mf-hist-base" x1="0" x2="120" y1="{{ $g['yBase'] }}" y2="{{ $g['yBase'] }}" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"></line>
+                    @endif
+                    <polyline class="mf-hist-linea" points="{{ $g['puntos'] }}" fill="none" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
                 </svg>
             @endif
-            <span class="mf-hist-v mono">{{ $h['actual'] }} {{ $h['unidad'] }}@if (! empty($h['base'])) <span class="mf-hist-b">· base {{ $h['base'] }}</span>@endif</span>
         </li>
     @endforeach
 </ul>
