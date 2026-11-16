@@ -61,7 +61,7 @@ class DatosIndicadorTest extends TestCase
         $this->assertSame(['hoy', 'dias', 'sistemas', 'marcadores', 'diaria', 'horaria'], array_keys($p));
         $this->assertSame(now('UTC')->toDateString(), $p['hoy']);
         $this->assertSame(142, $p['dias']);
-        $this->assertCount(5, $p['sistemas']);
+        $this->assertCount(count(config('sistemas.grupos')), $p['sistemas']); // fuente única: config/sistemas.php
         $this->assertSame(['Cardiovascular', 'cardiology'], $p['sistemas'][0]);
         $this->assertSame(self::IDS, array_column($p['marcadores'], 'id'));
         $this->assertSame(self::IDS, array_keys($p['diaria']));
@@ -82,7 +82,8 @@ class DatosIndicadorTest extends TestCase
         $this->assertSame("\u{2212}1.6", $por['perdida_osea']['disp']);
         $this->assertSame('+0.6', $por['vision_sans']['disp']);
         $this->assertSame('76.7', $por['dosis_acumulada']['disp']);
-        $this->assertSame([0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4], array_column($p['marcadores'], 'sys'));
+        // sys = posición del grupo en config/sistemas.php (se deriva de ahí; no se fija a mano)
+        $this->assertSame([0, 0, 1, 9, 9, 9, 9, 2, 2, 10, 10, 8, 7, 4], array_column($p['marcadores'], 'sys'));
     }
 
     private function comprobarSeries(array $p): void

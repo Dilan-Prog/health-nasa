@@ -37,3 +37,7 @@
 @media (prefers-reduced-motion: reduce) {
     .sis-fila { transition: none; }
 }
+
+/* Sistema del documento sin ningún indicador todavía: neutro y con borde discontinuo (no es "normal"). */
+.sis-tarjeta[data-estado="sin"] { border-top-style: dashed; }
+.sis-pendiente { margin: 0; font-size: 14px; color: var(--muted); }

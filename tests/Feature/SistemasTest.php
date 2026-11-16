@@ -24,15 +24,16 @@ class SistemasTest extends TestCase
         TripulanteActual::fijar(Astronauta::where('mision_id', $mision->id)->firstOrFail()->id);
     }
 
-    public function test_muestra_cinco_tarjetas_con_titulo_y_aviso(): void
+    public function test_muestra_una_tarjeta_por_sistema_con_titulo_y_aviso(): void
     {
         $this->fijarTripulante();
         Livewire::test(Sistemas::class)
             ->assertSee('Sistemas corporales')
-            ->assertSee('Cardiorrespiratorio')
-            ->assertSee('Neuro y visión')
+            ->assertSee('Cardiovascular')
+            ->assertSee('Sensorial y vestibular')
+            ->assertSee('Sin cobertura todavía')
             ->assertSee('Orienta, no diagnostica')
-            ->assertViewHas('tarjetas', fn ($t) => count($t) === 5);
+            ->assertViewHas('tarjetas', fn ($t) => count($t) === 11);
     }
 
     public function test_cada_marcador_del_catalogo_esta_en_un_solo_grupo(): void
@@ -46,6 +47,9 @@ class SistemasTest extends TestCase
         $this->fijarTripulante();
         Livewire::test(Sistemas::class)->assertViewHas('tarjetas', function ($tarjetas) {
             foreach ($tarjetas as $t) {
+                if ($t['sin_cobertura']) {
+                    continue; // sin indicadores: no hay "peor estado" (se prueba en SistemasFuenteUnicaTest)
+                }
                 $orden = collect($t['filas'])->pluck('estado')->map(fn ($e) => Sistemas::ESTADOS[$e][2]);
                 $peor = array_search($orden->min(), array_column(Sistemas::ESTADOS, 2), true);
                 if ($t['estado'] !== array_keys(Sistemas::ESTADOS)[$peor] || $t['estado_txt'] !== Sistemas::ESTADOS[$t['estado']][0]) {

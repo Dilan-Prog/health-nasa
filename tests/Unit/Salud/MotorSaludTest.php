@@ -193,7 +193,7 @@ class MotorSaludTest extends TestCase
         $this->assertSame(Estado::Precaucion, $i['cardiovascular']['estado']);
         $this->assertSame(Estado::Critico, $i['metabolico']['estado']);
         $this->assertLessThanOrEqual(40, $i['metabolico']['puntaje']);
-        $this->assertNull($i['oseo']['puntaje'], 'sin datos');
+        $this->assertNull($i['musculoesqueletico']['puntaje'], 'sin datos');
     }
 
     public function test_un_critico_no_se_oculta_por_el_promedio(): void

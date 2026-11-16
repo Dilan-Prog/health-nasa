@@ -67,10 +67,14 @@ class Sistemas extends Component
                     $peor = $m['estado'];
                 }
             }
+            // Un sistema sin ningún indicador configurado no está "normal": no tiene cobertura todavía.
+            $sinCobertura = ($g['marcadores'] ?? []) === [];
             $out[] = [
                 'indice' => $i, 'titulo' => $g['titulo'], 'ic' => $g['ic'], 'filas' => $filas,
-                'estado' => $peor ?? 'ok',
-                'estado_txt' => self::ESTADOS[$peor ?? 'ok'][0], 'estado_ic' => self::ESTADOS[$peor ?? 'ok'][1],
+                'sin_cobertura' => $sinCobertura, 'pendiente' => $g['pendiente'] ?? null,
+                'estado' => $sinCobertura ? 'sin' : ($peor ?? 'ok'),
+                'estado_txt' => $sinCobertura ? 'SIN COBERTURA' : self::ESTADOS[$peor ?? 'ok'][0],
+                'estado_ic' => $sinCobertura ? 'block' : self::ESTADOS[$peor ?? 'ok'][1],
             ];
         }
 

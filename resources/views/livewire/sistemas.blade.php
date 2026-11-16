@@ -37,6 +37,9 @@
                                 </li>
                             @endforeach
                         </ul>
+                        @if ($t['sin_cobertura'])
+                            <p class="sis-pendiente">Sin cobertura todavía.@if ($t['pendiente']) Falta medir: {{ $t['pendiente'] }}@endif</p>
+                        @endif
                     </section>
                 @endforeach
             </div>

@@ -25,12 +25,13 @@ $gcrMinimo = min($radLimites = ['espacio_libre' => 1.3, 'superficie' => 0.9]);
 $margenRad = 0.8;      // supuesto del proyecto, no de la norma
 $dosisCarrera = 600;   // mSv de carrera (dato del encargo del Nivel 2, valor de ejemplo)
 
-return [
+$grupos = (require __DIR__.'/sistemas.php')['grupos'];
+
+$umbrales = [
     'indicadores' => [
         'presion_arterial' => [
             'nombre' => 'Presión arterial',
             'unidad' => 'mmHg',
-            'sistema' => 'cardiovascular',
             'riesgos' => ['gravedad_alterada', 'radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -45,7 +46,6 @@ return [
         'frecuencia_cardiaca' => [
             'nombre' => 'Frecuencia cardíaca',
             'unidad' => 'lpm',
-            'sistema' => 'cardiovascular',
             'riesgos' => ['gravedad_alterada', 'radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -55,7 +55,6 @@ return [
         'saturacion_o2' => [
             'nombre' => 'Saturación de O₂',
             'unidad' => '%',
-            'sistema' => 'cardiovascular',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -65,7 +64,6 @@ return [
         'glucosa' => [
             'nombre' => 'Glucosa en sangre',
             'unidad' => 'mg/dL',
-            'sistema' => 'metabolico',
             'riesgos' => ['entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -75,7 +73,6 @@ return [
         'temperatura' => [
             'nombre' => 'Temperatura corporal',
             'unidad' => '°C',
-            'sistema' => 'inmune',
             'riesgos' => ['radiacion', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -89,7 +86,6 @@ return [
         'imc' => [
             'nombre' => 'Índice de masa corporal',
             'unidad' => 'kg/m²',
-            'sistema' => 'metabolico',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -99,7 +95,6 @@ return [
         'perdida_osea' => [
             'nombre' => 'Pérdida ósea (cadera)',
             'unidad' => '%/mes',
-            'sistema' => 'oseo',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'semanal',
             'componentes' => [
@@ -109,7 +104,6 @@ return [
         'masa_muscular' => [
             'nombre' => 'Masa muscular',
             'unidad' => '% misión',
-            'sistema' => 'oseo',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'semanal',
             'componentes' => [
@@ -119,7 +113,6 @@ return [
         'radiacion_diaria' => [
             'nombre' => 'Radiación diaria',
             'unidad' => 'mSv/día',
-            'sistema' => 'inmune',
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -130,7 +123,6 @@ return [
         'dosis_acumulada' => [
             'nombre' => 'Dosis acumulada',
             'unidad' => 'mSv',
-            'sistema' => 'inmune',
             'riesgos' => ['radiacion'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -140,7 +132,6 @@ return [
         'hidratacion' => [
             'nombre' => 'Hidratación',
             'unidad' => 'L/día',
-            'sistema' => 'metabolico',
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -150,7 +141,6 @@ return [
         'sueno' => [
             'nombre' => 'Sueño',
             'unidad' => 'h',
-            'sistema' => 'mental',
             'riesgos' => ['aislamiento', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -160,7 +150,6 @@ return [
         'estres_cognitivo' => [
             'nombre' => 'Estrés / cognitivo',
             'unidad' => '/100',
-            'sistema' => 'mental',
             'riesgos' => ['aislamiento', 'entorno_cerrado'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -170,7 +159,6 @@ return [
         'vision_sans' => [
             'nombre' => 'Visión (SANS)',
             'unidad' => 'D',
-            'sistema' => 'mental',
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -181,7 +169,6 @@ return [
             'nombre' => 'Estado de ánimo',
             // Escala analógica visual (VAS) 0-100, 100 = muy bien. Cortes de ejemplo (equivalen a los de la antigua escala 1-5): pendientes de revisión médica.
             'unidad' => 'VAS 0-100',
-            'sistema' => 'mental',
             'riesgos' => ['aislamiento'],
             'frecuencia' => 'diaria',
             'componentes' => [
@@ -246,7 +233,6 @@ return [
         'entorno_cerrado' => 'Entornos cerrados y hostiles',
     ],
 
-    'sistemas' => ['cardiovascular', 'oseo', 'inmune', 'mental', 'metabolico'],
 
     // Retardo de comunicación (minutos, un trayecto) por entorno de misión.
     'retardo_min' => [
@@ -256,3 +242,15 @@ return [
         'base_marciana' => 20,
     ],
 ];
+
+// `sistema` de cada indicador y lista `sistemas`: derivados de config/sistemas.php (fuente única).
+foreach ($grupos as $g) {
+    foreach (array_merge($g['marcadores'], $g['extra'] ?? []) as $clave) {
+        if (isset($umbrales['indicadores'][$clave])) {
+            $umbrales['indicadores'][$clave]['sistema'] = $g['clave'];
+        }
+    }
+}
+$umbrales['sistemas'] = array_column($grupos, 'clave');
+
+return $umbrales;
