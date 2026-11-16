@@ -97,6 +97,13 @@
                             </div>
                         @endif
 
+                        @if (! empty($c['ventana']))
+                            @php $w = $c['ventana']; @endphp
+                            <p class="mv-pend" data-regla-ventana="{{ $w['nombre'] }}"><span class="icono" aria-hidden="true">date_range</span><span><strong>Regla de ventana · {{ $w['etiqueta'] }}:</strong> {{ $w['texto'] }}
+                                @if (! empty($w['requisito']))<br>Requisito (guía «Datos médicos»): {{ $w['requisito']['texto'] }}.@endif
+                                <br>Supuesto del proyecto, no de la norma: el estándar no publica horas de sueño. Orienta, no diagnostica.</span></p>
+                        @endif
+
                         <div class="mv-pasos">
                             <span class="mono mv-et">{{ $em ? 'QUÉ HACER AHORA · PROTOCOLO FIJO' : ($ai ? 'SUGERENCIA' : 'QUÉ HACER') }}</span>
                             <ol class="mv-ol">

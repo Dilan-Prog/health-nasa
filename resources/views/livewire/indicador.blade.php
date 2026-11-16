@@ -366,6 +366,10 @@
                                         <span class="icono" aria-hidden="true" x-text="vals.sum.trIc"></span><span x-text="vals.sum.tr"></span>
                                     </span>
                                 </div>
+                                <span class="ind-pildora ind-pildora--g ind-pildora--neutra mono" x-show="vals.sum.sospechoso">
+                                    <span class="icono" aria-hidden="true">sensors_off</span>Dato sospechoso
+                                </span>
+                                <span class="ind-res-ref" x-show="vals.sum.sospechoso" x-text="vals.sum.sospechoso"></span>
                                 <span class="ind-res-ref mono">REFERENCIA <span x-text="vals.sum.range"></span></span>
                                 <span class="ind-res-ref mono" x-show="vals.sum.desv">DESVIACIÓN <span x-text="vals.sum.desv"></span></span>
                             </div>

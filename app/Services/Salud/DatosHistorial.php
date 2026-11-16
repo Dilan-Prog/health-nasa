@@ -98,6 +98,9 @@ class DatosHistorial
             'aria' => "{$cfg['label']}, días {$desde} a {$hasta}, gráfica de ".mb_strtolower($tipoDef[2]),
             'rangeTxt' => self::rangoNormalTxt($cfg),
             'n' => $n, 'vacio' => $n === 0,
+            // Dato sospechoso: si algún punto del periodo lo es, se avisa (con el motivo del más reciente). El estado no se oculta.
+            'sospechosos' => count(array_filter($puntos, fn ($p) => $p['sospechoso'] !== null)),
+            'sospechosoMotivo' => collect($puntos)->pluck('sospechoso')->filter()->last(),
         ];
         if ($n === 0) {
             return $base + [
@@ -182,7 +185,7 @@ class DatosHistorial
     /**
      * Un punto por día de misión con dato (último del día UTC) entre $desde y $hasta.
      *
-     * @return array<int, array{v: float, estado: string}>
+     * @return array<int, array{v: float, estado: string, sospechoso: ?string}>
      */
     private static function puntos(Astronauta $a, string $id, int $total, int $desde, int $hasta): array
     {
@@ -192,7 +195,7 @@ class DatosHistorial
         $fin = $dia1->copy()->addDays($hasta); // exclusivo
 
         $filas = DB::table('mediciones')
-            ->select('id', 'valores', 'medido_en')
+            ->select('id', 'valores', 'medido_en', 'calidad', 'calidad_motivo')
             ->where('astronauta_id', $a->id)->where('indicador', $id)
             ->where('medido_en', '>=', $ini->toDateTimeString())->where('medido_en', '<', $fin->toDateTimeString())
             ->orderBy('medido_en')->orderBy('id')
@@ -215,7 +218,8 @@ class DatosHistorial
             $valores = json_decode($f->valores, true);
             $v = (float) ($valores['valor'] ?? $valores['sistolica']);
             $e = $evaluaciones[$f->id] ?? $evaluador->evaluar($id, $valores)->value;
-            $out[] = ['v' => $loss ? abs($v) : $v, 'estado' => self::ESTADO_UI[$e] ?? 'ok'];
+            $out[] = ['v' => $loss ? abs($v) : $v, 'estado' => self::ESTADO_UI[$e] ?? 'ok',
+                'sospechoso' => ($f->calidad ?? 'ok') === 'sospechosa' ? ($f->calidad_motivo ?: 'Lectura dudosa del sensor.') : null];
         }
 
         return $out;

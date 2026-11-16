@@ -84,6 +84,11 @@
                                 Sin mediciones de {{ mb_strtolower($c['label']) }} en este periodo.
                             </div>
                         @else
+                            @if (! empty($c['sospechosos']))
+                                <span class="hist-msg" role="status" data-estado="warn">
+                                    <span class="icono" aria-hidden="true">sensors_off</span><strong>Dato sospechoso</strong>&nbsp;({{ $c['sospechosos'] }}): {{ $c['sospechosoMotivo'] }}
+                                </span>
+                            @endif
                             <div class="hist-stats">
                                 @foreach ($c['stats'] as $s)
                                     <div class="hist-stat">

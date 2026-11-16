@@ -6,7 +6,10 @@ use App\Models\Astronauta;
 use App\Models\ConsultaTierra;
 use App\Services\Salud\ConsultasTierra;
 use App\Services\Salud\EnvioATierra;
+use App\Services\Salud\Estado;
+use App\Services\Salud\EvaluadorVentanas;
 use App\Services\Salud\OrientacionAlertas;
+use App\Services\Salud\ResolvedorRequisito;
 use App\Support\TripulanteActual;
 use InvalidArgumentException;
 use Livewire\Attributes\Layout;
@@ -56,6 +59,7 @@ class MedicoVuelo extends Component
     public function mount(): void
     {
         $this->adjuntosSel = ['0', '1', '2'];
+        \App\Services\Auditoria::registrar('ver', 'medico_vuelo', null, TripulanteActual::obtener()?->id);
     }
 
     #[On('tripulante-cambiado')]
@@ -189,10 +193,55 @@ class MedicoVuelo extends Component
         return $ids;
     }
 
+    /**
+     * Un indicador con regla de ventana (sueño) puede no estar en el panel: si la regla se cumple y todavía no hay
+     * tarjeta de ese indicador, se añade una de «regla fija» con los pasos de config/ventanas.php.
+     */
+    private function conTarjetasDeVentana(Astronauta $a, EvaluadorVentanas $ventanas, array $tarjetas): array
+    {
+        $ids = array_column($tarjetas, 'id');
+        foreach ($ventanas->indicadores() as $clave) {
+            $v = in_array($clave, $ids, true) ? null : $ventanas->evaluarActual($a, $clave);
+            if (! $v) {
+                continue;
+            }
+            $def = config("umbrales.indicadores.$clave");
+            $valor = (float) ($v['ultima']['valores']['valor'] ?? 0);
+            $tarjetas[] = [
+                'id' => $clave,
+                'sev' => $v['estado'] === Estado::Critico ? 'crit' : 'warn',
+                'time' => (isset($v['ultima']['en']) ? $v['ultima']['en']->copy()->utc() : now('UTC'))->format('H:i').' UTC',
+                'etiqueta' => $def['nombre'] ?? $clave,
+                'valor' => $valor.' '.($def['unidad'] ?? ''),
+                'icono' => 'bedtime',
+                'fuente' => ResolvedorRequisito::fuente($ventanas->requisito($v)),
+                'referencia' => null,
+                'banda' => null,
+                'kind' => 'rule', 'rule' => 'V-1',
+                'finding' => $v['texto'],
+                'steps' => $v['pasos'] ?: ['Comenta este patrón con el médico de vuelo en la próxima ventana.'],
+                'pend' => null, 'conf' => null, 'safe' => 'none',
+                'src' => [['l' => 'Regla de ventana: '.$v['nombre'], 't' => 'Se activa al repetirse el valor bajo el umbral en lecturas diarias seguidas. Supuesto del proyecto, no de la norma.', 'ic' => 'date_range']],
+            ];
+        }
+
+        return $tarjetas;
+    }
+
     public function render()
     {
         $a = TripulanteActual::obtener();
         $tarjetas = $a ? OrientacionAlertas::para($a) : [];
+        // Regla de ventana que sostiene la tarjeta (p. ej. sueño corto sostenido), con su fila de la guía.
+        $ventanas = new EvaluadorVentanas();
+        $tarjetas = $a ? $this->conTarjetasDeVentana($a, $ventanas, $tarjetas) : $tarjetas;
+        foreach ($tarjetas as $i => $t) {
+            $v = $a && $ventanas->aplicaA($t['id']) ? $ventanas->evaluarActual($a, $t['id']) : null;
+            $tarjetas[$i]['ventana'] = $v ? [
+                'nombre' => $v['nombre'], 'texto' => $v['texto'], 'etiqueta' => $v['etiqueta'],
+                'requisito' => ResolvedorRequisito::fuente($ventanas->requisito($v)),
+            ] : null;
+        }
         $comp = $a ? $this->compartibles($a) : [];
         foreach ($comp as $s) {
             $this->marcados[$s['id']] ??= $s['locked'] || $s['sev'] === 'crit';

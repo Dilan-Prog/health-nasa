@@ -32,6 +32,7 @@ function normalizarMarcador(raw) {
     sys: Math.max(0, Math.round(num(raw.sys))), val, disp: raw.disp != null ? String(raw.disp) : val.toFixed(dec),
     lo, hi, base: num(raw.base, val), dec, rec: String(raw.rec ?? ''),
     estado: ST[raw.estado] ? raw.estado : 'ok', loss: !!raw.loss, cum: !!raw.cum, signo: !!raw.signo,
+    sospechoso: raw.sospechoso ? String(raw.sospechoso) : '',
     desv: raw.desv && Number.isFinite(+raw.desv.pct) && Number.isFinite(+raw.desv.base) ? { base: +raw.desv.base, pct: +raw.desv.pct } : null,
   };
 }
@@ -368,6 +369,7 @@ export function crearModelo(payload) {
         stats: [['MÍN', sv.length ? Math.min(...sv) : 0], ['MÁX', sv.length ? Math.max(...sv) : 0], ['PROMEDIO', avg]].map(([k, v]) => ({ k, v: sv.length ? fmt(m, v) : '—', u: m.unit })),
         // Desviación frente a la línea base pre-vuelo (solo si el servidor la envió).
         desv: m.desv ? `${m.desv.pct > 0 ? '+' : m.desv.pct < 0 ? '−' : ''}${Math.abs(m.desv.pct).toFixed(1)} % vs base pre-vuelo (${fmt(m, m.desv.base)} ${m.unit})` : '',
+        sospechoso: m.sospechoso || '',
         rec: m.rec,
         regUrl,
         onReg: e => { if (e && e.preventDefault) e.preventDefault(); if (typeof window !== 'undefined' && window.location && typeof window.location.assign === 'function') window.location.assign(regUrl); },

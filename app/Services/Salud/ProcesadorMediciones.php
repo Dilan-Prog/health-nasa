@@ -59,24 +59,49 @@ class ProcesadorMediciones
                 $errores[] = 'Medición duplicada: ya se registró el mismo valor hace menos de un minuto.';
             }
         }
+        // Datos dudosos: no se rechazan. Una lectura automática fuera del rango posible (sensor roto) se guarda como sospechosa.
+        $fueraDeRango = false;
+        if ($errores !== [] && $origen === 'simulado' && config('calidad.aceptar_fuera_de_rango_automatico')
+            && count(array_filter($errores, fn ($e) => ! str_contains($e, 'es imposible'))) === 0) {
+            $errores = [];
+            $fueraDeRango = true;
+        }
         if ($errores !== []) {
             throw ValidationException::withMessages(['valores' => $errores]);
         }
 
-        $historial = $astronauta->mediciones()->where('indicador', $clave)
+        $filas = $astronauta->mediciones()->where('indicador', $clave)
             ->where('medido_en', '<', $instante)
-            ->orderByDesc('medido_en')->limit(30)->get()->reverse()->values()
-            ->map(fn (Medicion $m) => $this->principal($m->valores))->all();
+            ->orderByDesc('medido_en')->limit(30)->get()->reverse()->values();
+        // La línea base, la tendencia y el contexto solo usan lecturas buenas: una sospechosa no los contamina.
+        $historial = $filas->where('calidad', '!=', CalidadSenal::SOSPECHOSA)
+            ->map(fn (Medicion $m) => $this->principal($m->valores))->values()->all();
         $actual = $this->principal($valores);
+        $calidad = $fueraDeRango
+            ? ['calidad' => CalidadSenal::SOSPECHOSA, 'motivo' => 'Valor fuera del rango posible: probable fallo del sensor.']
+            : CalidadSenal::make()->evaluar($clave, $actual, $instante->timestamp, $filas
+                ->map(fn (Medicion $m) => ['instante' => $m->medido_en->timestamp, 'valor' => $this->principal($m->valores), 'calidad' => $m->calidad ?? CalidadSenal::OK])
+                ->all());
+        $sospechosa = $calidad['calidad'] === CalidadSenal::SOSPECHOSA;
 
         $contexto = $this->contexto($astronauta, $clave, $historial, $actual, $instante);
         $estado = $this->evaluador->evaluar($clave, $valores, $contexto);
-        if ($usarLineaBase) { // se desactiva al sembrar datos de ejemplo con estados fijos
+        if ($usarLineaBase && ! $sospechosa) { // se desactiva al sembrar datos de ejemplo con estados fijos
             $estado = $this->lineaBase->ajustar($estado, $this->lineaBase->calcular($historial, $actual));
+        }
+        // Reglas de ventana (config/ventanas.php): solo para indicadores que tienen una; una lectura sospechosa no cuenta.
+        $ventanas = new EvaluadorVentanas();
+        $ventana = ! $sospechosa && $ventanas->aplicaA($clave) ? $ventanas->evaluar($astronauta, $clave, $valores, $instante) : null;
+        if ($ventana) {
+            $estado = $estado->peor($ventana['estado']);
         }
         $tendencia = $this->evaluador->tendencia(array_slice([...$historial, $actual], -8));
         $careLevel = (int) ($astronauta->misionDeVuelo?->care_level ?? 3);
         $decision = $this->reglas->decidir($estado, $tendencia, $astronauta->retardoMin(), $careLevel);
+        // Una lectura sospechosa no genera aviso a tierra por sí sola; si además es crítica, el aviso se mantiene (no se oculta riesgo).
+        if ($sospechosa && $estado !== Estado::Critico) {
+            $decision['encolar_tierra'] = false;
+        }
 
         $banda = $this->evaluador->banda($clave, $valores);
         $requisito = ResolvedorRequisito::para($clave, array_filter([
@@ -84,11 +109,16 @@ class ProcesadorMediciones
             'banda' => $this->evaluador->claveBandaPresion($clave, $valores),
             'fase' => $astronauta->misionDeVuelo?->mission_phase,
         ], fn ($v) => $v !== null));
+        $requisito = ($ventana ? $ventanas->requisito($ventana) : null) ?? $requisito; // la regla de ventana cita su propia fila de la guía
         $fuente = ResolvedorRequisito::fuente($requisito);
+        $recomendacion = $ventana && $estado !== Estado::Critico && $ventana['recomendacion']
+            ? $ventana['recomendacion']
+            : $this->catalogo->para($clave, $estado, $banda);
 
-        $evaluacion = DB::transaction(function () use ($astronauta, $clave, $valores, $origen, $instante, $estado, $tendencia, $decision, $banda, $requisito, $fuente) {
+        $evaluacion = DB::transaction(function () use ($astronauta, $clave, $valores, $origen, $calidad, $instante, $estado, $tendencia, $decision, $banda, $requisito, $fuente, $recomendacion) {
             $medicion = $astronauta->mediciones()->create([
                 'indicador' => $clave, 'valores' => $valores, 'medido_en' => $instante, 'origen' => $origen,
+                'calidad' => $calidad['calidad'], 'calidad_motivo' => $calidad['motivo'],
             ]);
             $evaluacion = Evaluacion::create([
                 'medicion_id' => $medicion->id,
@@ -96,7 +126,7 @@ class ProcesadorMediciones
                 'tendencia' => $tendencia,
                 'accion' => $decision['accion'],
                 'requisito_id' => $requisito?->id,
-                'recomendacion' => $this->catalogo->para($clave, $estado, $banda),
+                'recomendacion' => $recomendacion,
             ]);
             if ($decision['encolar_tierra'] && ! ($origen === 'simulado' && $this->alertaReciente($astronauta, $clave))) {
                 AlertaSaliente::create([
@@ -111,6 +141,7 @@ class ProcesadorMediciones
                         'requisito' => $fuente ? ($fuente['codigo'] ?? $fuente['texto']) : null,
                         'revision' => $fuente['revision'] ?? null,
                         'tipo_fuente' => $fuente['tipo'] ?? null,
+                        ...($calidad['motivo'] ? ['dato_sospechoso' => $calidad['motivo']] : []),
                         'medido_en' => $instante->toIso8601String(),
                     ],
                 ]);

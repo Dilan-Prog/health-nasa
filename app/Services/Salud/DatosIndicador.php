@@ -69,7 +69,7 @@ class DatosIndicador
         $desde = $hoy->copy()->subDays($dias - 1);
 
         $filas = DB::table('mediciones')
-            ->select('id', 'indicador', 'valores', 'medido_en')
+            ->select('id', 'indicador', 'valores', 'medido_en', 'calidad', 'calidad_motivo')
             ->where('astronauta_id', $astronauta->id)
             ->whereIn('indicador', array_keys($this->marcadores))
             ->where('medido_en', '>=', $desde->toDateTimeString())
@@ -92,8 +92,12 @@ class DatosIndicador
             $val = $dia[$dias - 1];
 
             $estado = 'ok';
+            $sospechoso = null;
             if ($mediciones->isNotEmpty()) {
                 $ultima = $mediciones->last();
+                if (($ultima->calidad ?? 'ok') === 'sospechosa') {
+                    $sospechoso = $ultima->calidad_motivo ?: 'Lectura dudosa del sensor.';
+                }
                 $e = $estados[$ultima->id] ?? $this->evaluador->evaluar($clave, json_decode($ultima->valores, true))->value;
                 $estado = self::ESTADO_UI[$e];
             }
@@ -105,6 +109,9 @@ class DatosIndicador
                 'estado' => $estado,
                 'loss' => (bool) ($cfg['loss'] ?? false), 'cum' => (bool) ($cfg['cum'] ?? false), 'signo' => (bool) ($cfg['signo'] ?? false),
             ];
+            if ($sospechoso !== null) { // dato sospechoso: no se oculta el estado, solo se avisa de que la lectura es dudosa
+                $lista[array_key_last($lista)]['sospechoso'] = $sospechoso;
+            }
             // Desviación frente a la línea base pre-vuelo: solo con medición real y base (si no, la clave no aparece).
             if ($mediciones->isNotEmpty() && ($desv = DesviacionBase::paraIndicador($astronauta, $clave, (float) $val)) !== null) {
                 $lista[array_key_last($lista)]['desv'] = $desv;

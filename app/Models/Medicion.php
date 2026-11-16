@@ -11,7 +11,7 @@ class Medicion extends Model
 {
     protected $table = 'mediciones';
 
-    protected $fillable = ['astronauta_id', 'indicador', 'valores', 'medido_en', 'origen'];
+    protected $fillable = ['astronauta_id', 'indicador', 'valores', 'medido_en', 'origen', 'calidad', 'calidad_motivo'];
 
     protected $casts = ['valores' => 'array', 'medido_en' => 'datetime'];
 
