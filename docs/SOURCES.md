@@ -32,9 +32,11 @@ This project is an **educational prototype with simulated data**. It is **not af
 - Sleep in space (ANMDE Colombia) — https://anmdecolombia.org.co/dormir-en-el-espacio-exterior
 - Vital signs reference (MedlinePlus) — https://medlineplus.gov/ency/article/002341.htm
 
+The Word version of the standard-versus-HRP comparison is kept as [`NASA_STD_3001_limites_operativos_vs_HRP.docx`](NASA_STD_3001_limites_operativos_vs_HRP.docx) (Spanish).
+
 ## Project reference documents (`docs/fuentes/`)
 
-Plain-text extracts of the reference documents the team used. They are in **Spanish** and are kept as development material, not as application content.
+Plain-text extracts of the reference documents the team used. The Spanish originals are kept here because the application and the knowledge sheets cite them; **English translations are in [`docs/fuentes/en/`](fuentes/en/README.md)**. They are development material, not application content.
 
 | File | Content |
 |---|---|

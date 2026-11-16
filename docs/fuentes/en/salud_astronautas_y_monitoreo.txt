@@ -1,0 +1,222 @@
+[6 pages]
+Astronaut Health and Biomedical Monitoring Page 1 
+ 
+ Main hazards of spaceflight 
+NASA's Human Research Program groups the main hazards of spaceflight into five categories. They do not act 
+in isolation: they can combine and increase their effects on health and performance. 
+Hazard Description 
+Space Radiation 
+High-energy particles and radiation that can damage cells, DNA, and electronic components. 
+Isolation and Confinement 
+Prolonged stays in confined spaces can affect sleep, mental health, and interpersonal relations. 
+Distance from Earth Hinders communication, resupply, and immediate medical care. 
+Gravity Fields 
+Microgravity changes the function of bones, muscles, the cardiovascular system, balance, and orientation. 
+Hostile/Closed Environments 
+Pressure, temperature, oxygen, carbon dioxide, noise, and microorganisms must be controlled. 
+1. Risks to the body systems 
+1.1 Cardiovascular and circulatory system 
+In microgravity, body fluids shift toward the chest and head, because the gravitational gradient to which the body is accustomed 
+no longer acts in the same way. 
+• Redistribution of blood and other body fluids; facial swelling. 
+• Changes in plasma volume and in blood pressure regulation. 
+• Changes in the function of the heart and blood vessels. 
+• Possible orthostatic intolerance on return to Earth's gravity.• The risk of venous flow disorders and 
+thrombosis is under investigation. 
+ 
+1.2 Musculoskeletal system: bones and muscles 
+Bones and muscles receive less mechanical loading in microgravity. As the work they do to support the body decreases, 
+they can lose mass, strength, and density. 
+• Decrease in bone mineral density and loss of minerals such as calcium and phosphorus. 
+• Greater bone fragility and risk of fractures. 
+• Loss of muscle mass and strength, especially in postural muscles. 
+• Expansion of the intervertebral discs and temporary lengthening of the spine, which can be accompanied by back pain. 
+• Increased urinary excretion of calcium, which can contribute to the risk of kidney stones. 
+ 
+
+=== PAGE ===
+Astronaut Health and Biomedical Monitoring Page 2 
+1.3 Nervous and sensory system 
+The vestibular system of the inner ear contributes to balance and orientation. In microgravity, the brain receives signals different 
+from the usual ones and needs to adapt. 
+• Space motion sickness, nausea, and disorientation. 
+• Impaired hand-eye coordination and gait. 
+• Changes in the perception of motion and spatial orientation. 
+• Temporary difficulty moving around or controlling vehicles and tools. 
+ 
+1.4 Visual and ocular system: SANS 
+Spaceflight Associated Neuro-ocular Syndrome (SANS) comprises changes in structures of the eye and the visual system that 
+have been observed in some astronauts, especially on long-duration missions. 
+• Changes in the shape of the eyeball and in the back of the eye. 
+• Alterations of the optic nerve and of retinal structures. 
+• Changes in focusing ability and in visual refraction. 
+• Blurred vision or difficulty focusing on nearby objects. 
+ 
+1.5 Immune system 
+Microgravity, radiation, physical and psychological stress, and sleep changes can modify the immune response. 
+• Changes in the activity of white blood cells, T lymphocytes, and NK cells. 
+• Alterations in the regulation of inflammatory substances. 
+• Possible greater susceptibility to certain infections. 
+• Reactivation of latent viruses, including some viruses of the herpes group. 
+ 
+1.6 Respiratory system and oxygenation 
+The spacecraft and spacesuits must maintain a breathable mixture and control pressure, oxygen, and carbon dioxide. 
+• Hypoxia: decrease in the oxygen available to the tissues. 
+• Hypercapnia: excessive increase of carbon dioxide in the body. 
+• Changes in ventilation and gas exchange. 
+• Fatigue, headache, and decreased concentration when oxygenation or ventilation is inadequate. 
+ 
+1.7 Blood and hematologic system 
+Spaceflight can modify plasma volume and some blood cell indicators. 
+• Changes in plasma volume and in red blood cell mass. 
+• Variations in hemoglobin and in oxygen transport. 
+• Changes in indicators of inflammation and immune response. 
+
+=== PAGE ===
+Astronaut Health and Biomedical Monitoring Page 3 
+ 
+1.8 Mental health and behavior 
+Isolation, confinement, distance from family, workload, and uncertainty can produce psychological stress. 
+• Anxiety, irritability, and prolonged stress. 
+• Difficulties with concentration, memory, and decision-making. 
+• Mental fatigue and interpersonal conflicts. 
+• Risk of errors when attention is impaired. 
+. 
+1.9 Sleep and circadian rhythm 
+The circadian rhythm is the biological clock that regulates sleep-wake cycles. Changes in lighting and schedules can make it difficult to 
+synchronize. 
+• Alterations in sleep duration and quality. 
+• Changes in alertness and daytime sleepiness. 
+• Fatigue, reduced concentration, and possible operational errors. 
+ 
+2. Space radiation: a priority risk 
+Space radiation consists of high-energy particles. Some can pass through shielding materials and deposit 
+energy in tissues. Its effects depend on the dose, the type of particle, the duration of exposure, solar activity, and 
+individual characteristics. 
+Source Description 
+Galactic Cosmic Rays 
+(GCR) 
+High-energy particles originating from outside the solar system; some are associated with phenomena such as 
+supernovae. 
+Solar Particle Events 
+(SPE) Episodes of solar activity that can increase exposure to energetic particles. 
+Coronal Mass Ejections 
+(CME) Expulsions of plasma and magnetic fields from the Sun that can modify the space environment. 
+Possible health effects 
+• DNA damage and cellular alterations. 
+• Increased long-term cancer risk. 
+• Increased risk of cataracts. 
+• Possible cardiovascular and neurological effects that remain under investigation. 
+ 
+
+=== PAGE ===
+Astronaut Health and Biomedical Monitoring Page 4 
+ 
+3. Effects of the space environment on electronic devices 
+Equipment that works correctly on Earth will not necessarily work the same way in space. Electronic components 
+must be designed and tested considering radiation, temperature, microgravity, interference, pressure, power, and communications. 
+3.1 Space radiation 
+Energetic particles can interact with semiconductors and circuits, causing transient errors or cumulative degradation. 
+• SEU (Single Event Upset): a particle changes a logic state in memory and can alter a data value. 
+• SET (Single Event Transient): a momentary electrical disturbance appears that can produce an erroneous reading. 
+• SEL (Single Event Latch-up): an unwanted electrical path is activated, with a possible increase in current and damage. 
+• TID (Total Ionizing Dose): the accumulated ionizing dose progressively degrades certain components. 
+Implication and prevention: Monitoring may involve corrupted data, resets, loss of measurements, or false alarms. Suitable 
+components, error correction, redundancy, and radiation testing are required. 
+3.2 Extreme temperatures 
+The temperature of the equipment depends on its location, orientation, solar illumination, and the spacecraft's thermal control. 
+• Overheating of circuits. 
+• Changes in sensor accuracy. 
+• Variation in battery performance. 
+• Deterioration of connections and reduced service life. 
+Implication and prevention: The design must include selection of suitable components, thermal control, and temperature compensation 
+in the sensors. 
+3.3 Microgravity 
+Microgravity does not by itself keep an electronic circuit from working, but it changes the physical handling of the equipment and of 
+fluids. 
+• Loose devices or cables can drift. 
+• Connectors can come loose if they are not secured. 
+• Fluids do not behave as they do on Earth. 
+• Heat dissipation and ventilation must be designed without relying on natural terrestrial convection. 
+Implication and prevention: The equipment must be secured, use secure connectors, and maintain reliable contact between sensors and skin. 
+3.4 Electromagnetic interference 
+Electronic equipment can generate or receive interference that manifests as electrical noise. 
+• Noise in ECG and other signals. 
+• Loss or distortion of data. 
+• Interference among sensors, processors, and communications. 
+Implication and prevention: Electromagnetic compatibility, filtering, circuit design, and appropriate wiring are required. 
+
+=== PAGE ===
+Astronaut Health and Biomedical Monitoring Page 5 
+3.5 Pressure and environmental conditions 
+Equipment inside the spacecraft operates in a controlled atmosphere; equipment used outside needs protection against vacuum and 
+extreme conditions. 
+• Stress on seals, materials, and encapsulation. 
+• Heat dissipation problems. 
+• Risk of condensation under specific conditions. 
+• Deterioration of components exposed to the environment. 
+Implication and prevention: The design must clearly specify whether the device will operate inside the spacecraft, inside the suit, or 
+outside. 
+3.6 Batteries and electrical power 
+Continuous operation depends on a reliable power source and efficient management. 
+• Changes in capacity due to temperature and aging. 
+• Power interruption. 
+• Data loss during shutdowns. 
+• Errors when estimating the charge level. 
+Implication and prevention: Power management, low-battery alerts, and storage that preserves data during 
+interruptions are recommended. 
+3.7 Communication and data transmission 
+On distant missions, distance can cause significant delays in communication with Earth. 
+• Transmission delay. 
+• Packet loss. 
+• Temporary interruptions. 
+• Delay in receiving instructions from the ground medical team. 
+ 
+4. Treatments 
+ 
+ 
+Before each mission, astronauts undergo a series of medical tests to establish a pre-flight baseline, 
+using key health parameters such as aerobic capacity, agility, strength, and endurance. These pre-flight measurements 
+and routine health monitoring aboard the space station help NASA's astronaut strength, conditioning, and rehabilitation specialists 
+(ASCR) personalize and adjust the astronauts' exercise plans to optimize their performance. 
+ 
+Recovery begins on the first day back on Earth with medical evaluations and a progression through exercises that improve 
+mobility, balance, flexibility, aerobic conditioning, strength, endurance, and the body's ability to sense its 
+position and movement. Returning astronauts undergo the same pre-flight tests to assess their health status. 
+These results serve as the basis for a personalized reconditioning program that seeks to restore their physical performance 
+safely and progressively until they reach their pre-flight level. The ASCR adapt each rehabilitation plan according to the astronaut's condition, 
+test results, and medical status. As crew members progress through the program 
+
+=== PAGE ===
+Astronaut Health and Biomedical Monitoring Page 6 
+post-flight, each aspect of their functional recovery is carefully monitored and addressed to ensure a smooth transition 
+to daily life and prepare them for future missions. 
+ 
+Post-flight reconditioning is unique to each astronaut and varies from person to person. Although most crew members 
+reach their pre-flight fitness level within the first 45 days after returning to Earth, it is not uncommon 
+for NASA to extend reconditioning programs to meet each astronaut's specific needs and recovery 
+pace. 
+What medical follow-up do astronauts receive on return? 
+After landing, astronauts go through a recovery program that generally includes: 
+Initial medical evaluation: general review of their health status. 
+Physical tests: assessment of strength, balance, coordination, and endurance. 
+Laboratory studies: analyses to detect possible abnormalities. 
+Physical rehabilitation: exercises to recover muscular and cardiovascular capacities. 
+Psychological follow-up: support for readjusting to life on Earth. 
+Long-term surveillance: checkups to detect possible consequences of radiation exposure and time spent in space. 
+ 
+ 
+ 
+ 
+5. Reference sources and recommended reading 
+• NASA – Five Hazards of Human Spaceflight: https://www.nasa.gov/hrp/hazards/ 
+• NASA – Human Research Program: https://www.nasa.gov/hrp/ 
+• NASA – Human Research Roadmap: https://humanresearchroadmap.nasa.gov/ 
+• NASA – Space Radiation: https://www.nasa.gov/hrp/space-radiation/ 
+• NASA – Spaceflight Associated Neuro-ocular Syndrome (SANS):https://www.nasa.gov/hrp/spaceflight-associated-neuro-ocular-syndrome-sans/ 
+• NASA – Cardiovascular risks and research: https://www.nasa.gov/hrp/ 
+• NASA – Bone and muscle risks: https://www.nasa.gov/hrp/ 
+• NASA – Sleep and circadian rhythms: https://www.nasa.gov/hrp/ 
+• NASA – Spacecraft electronics and radiation effects (NASA NEPP): https://nepp.nasa.gov/ 
+• MedlinePlus – Vital Signs: https://medlineplus.gov/ency/article/002341.htm 
+ 

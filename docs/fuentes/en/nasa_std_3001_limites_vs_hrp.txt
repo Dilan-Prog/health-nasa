@@ -1,0 +1,258 @@
+[docx]
+
+
+
+    Official operational limits and current clinical thresholds
+
+    NASA-STD-3001 Volume 1, Revision C · Comparison with the figures published by the NASA Human Research Program · 14 Nov 2026
+
+    
+
+    
+    1. What each source is and why both matter
+
+    The HRP describes risks and publishes observed data; the NASA-STD-3001 standard turns them into requirements that flight programs must meet. They are documents with different purposes, and the software must treat their figures differently: those in the standard are operational thresholds, those from the HRP are reference baselines.
+
+    Main normative document: NASA-STD-3001, Volume 1, Revision C, NASA Spaceflight Human-System Standard: Crew Health, approved on 15 Sep 2023. Supersedes Revision B of 2022.
+
+    Link: https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
+
+    
+
+    
+    
+    2. Radiation
+
+    Career limit. Total career effective dose from space radiation exposure must be less than 600 mSv, universal for all ages and sexes. It is calculated with the 2012 NASA cancer model using the parameters of a 35-year-old woman, and seeks to keep each crew member below a 3% average risk of cancer mortality over the unexposed baseline.
+
+    Organ or tissue
+ | 30 days
+ | 1 year
+ | Career
+ | Lens
+ | 1,000 mGy-Eq
+ | 2,000 mGy-Eq
+ | 4,000 mGy-Eq
+ | Skin
+ | 1,500 mGy-Eq
+ | 3,000 mGy-Eq
+ | 6,000 mGy-Eq
+ | Blood-forming organs
+ | 250 mGy-Eq
+ | 500 mGy-Eq
+ | Not applicable
+ | Circulatory system
+ | 250 mGy-Eq
+ | 500 mGy-Eq
+ | 1,000 mGy-Eq
+ | Central nervous system
+ | 500 mGy
+ | 1,000 mGy
+ | 1,500 mGy
+ | 
+    In addition, for particles with Z ≥ 10: 100 mGy per year and 250 mGy career.
+
+    Solar particle event. Protection against the reference spectrum (sum of the October 1989 events) at less than 250 mSv effective dose.
+
+    Galactic cosmic rays. For habitable systems of more than 60 days: less than 1.3 mSv/day in free space and less than 0.9 mSv/day on a planetary surface.
+
+    Nuclear technologies. Less than 20 mSv per mission year, prorated.
+
+    What the HRP says. It does not publish any of these limits; it only describes the cancer risk and the uncertainties. Here the standard is the only source of thresholds.
+
+    
+
+    
+    
+    3. Bone
+
+    In-mission requirement. Countermeasures must keep hip and spine bone mineral density at or above 95% of pre-mission values, and at or above 90% for the femoral neck.
+
+    Pre-mission requirement. The total hip and lumbar spine (L1-L4) T-scores by DXA must be consistent with a population matched for age, sex, gender and ethnicity.
+
+    Standard context. With ARED, cycle ergometer and treadmill, most crew members return with less than 10% deficit at the femoral neck and less than 5% at the total hip or spine on 6-month ISS missions. With bisphosphonates combined with exercise, the loss drops to about 0%.
+
+    What the HRP says. It publishes the observed rate of 1% to 1.5% per month in weight-bearing bones. It is not a limit, it is an observation.
+
+    
+
+    
+    
+    4. Aerobic fitness
+
+    Requirement
+ | Value
+ | In-mission VO2max, EVA in microgravity
+ | ≥ 32.9 ml/min/kg
+ | In-mission VO2max, EVA on an extraterrestrial surface
+ | ≥ 36.5 ml/min/kg
+ | In-mission aerobic capacity relative to pre-mission
+ | ≥ 80%
+ | Pre-mission recommendation (assumed 15% drop)
+ | 38.7 ml/min/kg
+ | Pre-mission recommendation (assumed 25% drop)
+ | 43.8 ml/min/kg
+ | 
+    What the HRP says. It reports mean losses of 10% to 12% and that 12% to 38% of the crew lose more than 20%. The standard is stricter: it sets the ceiling of acceptable loss at 20%.
+
+    
+
+    
+    
+    5. Muscle strength
+
+    In-mission requirement. Maintain skeletal strength at or above 80% of baseline values.
+
+    Pre-mission requirement, in multiples of body weight:
+
+    Exercise
+ | EVA in microgravity
+ | EVA on a surface
+ | Unassisted ground egress
+ | Deadlift
+ | 1.0
+ | 1.3
+ | 1.6
+ | Bench press
+ | 0.7
+ | 0.8
+ | 1.0
+ | 
+    What the HRP says. It describes strength loss without setting a threshold. The standard is the operational source.
+
+    
+
+    
+    
+    6. Nutrition
+
+    Requirement. Each crew member must receive 100% of their calculated nutrient and energy requirements, according to age, sex, body mass, height and activity factor.
+
+    What the HRP says. It mentions more than 200 foods on board. That figure is not a requirement; the requirement is 100% individual nutritional coverage.
+
+    
+
+    
+    
+    7. Sleep, workload and behavioral health
+
+    Requirement. The planned number of hours for critical tasks, workday, physical activity and planned sleep period must have established limits. Behavioral and cognitive status must be within clinically accepted values in all phases.
+
+    Hematologic and immunologic requirement. Values must remain outside critical values, defined as the level that represents a significant system failure and is associated with specific clinical morbidity.
+
+    Tools the standard names: Bedford scale and NASA Task Load Index to assess workload.
+
+    What the HRP says. Crew members sleep an average of 6 to 6.5 hours per night and NASA allots about 8.5 hours. Important note: the standard requires that limits exist, but does not publish the number of hours; that value is in program documents.
+
+    
+
+    
+    
+    8. Sensorimotor
+
+    Requirement. Pre-mission function must be within normal clinical values for age and sex. The performance limits for each metric must be operationally defined, with task-specific metrics.
+
+    What the HRP says. It describes dizziness, disorientation and impaired postural and manual control. The standard gives no figures because it requires defining them per mission and per task.
+
+    
+
+    
+    
+    9. Other operational requirements
+
+    Two Crew Medical Officers (CMO) minimum per vehicle or platform.
+
+    Electronic medical record with encryption and data protection, medical inventory control, and pressurized or refrigerated storage.
+
+    Monitoring and trending of vital signs and of physiological and behavioral health, plus ancillary tests: cardiac, vascular and ocular imaging, laboratory and electrocardiography.
+
+    Periodic monitoring of SANS, of vascular motility and of patency of the venous drainage of the neck and deep veins of the lower limbs.
+
+    Standardized longitudinal post-mission monitoring of health, behavioral health and well-being.
+
+    Vitamin D supplementation and bone density assessment every three years in the pre-mission phase.
+
+    
+
+    
+    
+    10. Summary comparison: standard versus HRP
+
+    Domain
+ | Operational limit (NASA-STD-3001)
+ | HRP figure
+ | Use in the software
+ | Radiation
+ | 600 mSv career; per-organ limits; 250 mSv per solar event
+ | No published limits
+ | Alert threshold
+ | Bone
+ | ≥ 95% hip and spine; ≥ 90% femoral neck
+ | 1–1.5% loss per month
+ | Threshold vs. projection model
+ | Aerobic
+ | ≥ 80% of pre-mission capacity
+ | Mean loss 10–12%
+ | Threshold vs. reference
+ | Strength
+ | ≥ 80% of baseline values
+ | No threshold
+ | Threshold
+ | Nutrition
+ | 100% of requirements
+ | More than 200 foods
+ | Requirement vs. context
+ | Sleep
+ | Defined limits must exist
+ | 6–6.5 h average
+ | The software defines and audits
+ | Behavior
+ | Clinically accepted values
+ | Qualitative description
+ | Clinical validation requirement
+ | Sensorimotor
+ | Normal clinical values; per-task limits
+ | Qualitative description
+ | The software defines and audits
+ | 
+    
+
+    
+    
+    11. How to bring it into the software
+
+    Two data layers, not one. One table of requirements (NASA-STD-3001, with identifiers such as V1 4027, V1 4030) and another of observations (HRP). Alert thresholds come from the first; projections and context, from the second.
+
+    Every alert must cite its requirement. If the system warns of bone density loss, it must point to V1 4027 and to the 95% or 90% threshold, not to the 1% monthly rate.
+
+    Radiation with multiple simultaneous limits. Evaluate career, annual limit, per-organ limit, solar event and GCR rate at once; the standard treats them as independent requirements.
+
+    Thresholds that are not numbers are also requirements. In sleep, sensorimotor and behavior, the standard requires that operationally defined limits exist; the software can be the system that defines, documents and audits them.
+
+    Version traceability. Store the revision of the standard with each threshold so that an update does not invalidate the history.
+
+    
+
+    
+    
+    12. Sources
+
+    NASA-STD-3001, Volume 1, Revision C, NASA Spaceflight Human-System Standard: Crew Health, 15 Sep 2023: https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
+
+    NASA Human Research Program, hazards index: https://www.nasa.gov/hrp/hazards/
+
+    NASA Human Research Program, risks index: https://www.nasa.gov/hrp/risks/
+
+    Human Research Roadmap: https://humanresearchroadmap.nasa.gov/Risks/
+
+    Human System Risk Board: https://www.nasa.gov/hhp/human-system-risks/
+
+    Notice. The standard's values are current requirements per Revision C; those of the HRP are research baselines. Verify the current revision of the standard before using it in a real system.
+
+    
+    
+      
+      
+    
+  
+

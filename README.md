@@ -35,6 +35,32 @@ An offline-first web tool that lets a crew member assess their own health during
 
 Full architecture, modules, screens, commands and data model: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Operational limits versus HRP data
+
+The project keeps two separate data layers, because the two NASA sources have different purposes: **NASA-STD-3001 Vol. 1 Rev. C** turns risks into requirements that flight programs must meet (operational thresholds), while the **NASA Human Research Program (HRP)** publishes observed data and risks (reference baselines and projections, not limits). The comparison below summarizes the project's reference document, *Operational limits and current clinical thresholds* (dated 14 Nov 2026; Word file in [docs/](docs/NASA_STD_3001_limites_operativos_vs_HRP.docx), English text in [docs/fuentes/en/](docs/fuentes/en/README.md)). It is **paraphrased from the project's reference document, not a verbatim quote of the standard**; check the current revision of the standard before using any value in a real system.
+
+| Domain | Operational limit (NASA-STD-3001) | HRP figure | Use in the software |
+|---|---|---|---|
+| Radiation | 600 mSv career; per-organ limits; 250 mSv per solar particle event | No limits published | Alert threshold |
+| Bone | At least 95% of pre-mission BMD at hip and spine; at least 90% at femoral neck | 1–1.5% loss per month | Threshold versus projection model |
+| Aerobic fitness | At least 80% of pre-mission capacity | Mean loss 10–12% | Threshold versus reference |
+| Muscle strength | At least 80% of baseline values | No threshold | Threshold |
+| Nutrition | 100% of calculated requirements | 200+ foods on board | Requirement versus context |
+| Sleep | Limits must be defined | 6–6.5 h average | Software defines and audits |
+| Behavior | Clinically accepted values | Qualitative description | Clinical validation requirement |
+| Sensorimotor | Normal clinical values; task-specific limits | Qualitative description | Software defines and audits |
+
+Radiation has several simultaneous limits: career (under 600 mSv effective dose), galactic cosmic rays for habitable systems of more than 60 days (under 1.3 mSv/day in free space and under 0.9 mSv/day on a planetary surface), solar particle events (under 250 mSv), nuclear technologies (under 20 mSv per mission year, prorated), and limits per organ or tissue at 30 days, 1 year and career.
+
+**How this is applied in the project**
+
+- **Two layers, not one.** A requirements table (standard) and observations (HRP). Alert thresholds come from the first; projections and context from the second. Bone-loss rates are shown as "Projection (HRP)", never as a requirement.
+- **Every alert cites its requirement,** with its revision and type, and an "example value" label until a medical professional validates it.
+- **Standard revision is stored with each requirement,** so a standard update does not invalidate history.
+- **Implemented:** career dose and the galactic cosmic ray daily limit by environment (free space for station and spacecraft, planetary surface for lunar and Mars bases), blood pressure bands, temperature jump over a personal baseline, and multi-day sleep rules.
+- **Prepared but not fed with data yet:** the solar particle event rule (250 mSv) and the baseline rules for bone density, aerobic fitness and retina, which need biomarkers that are marked "Coming soon". Per-organ and per-year radiation limits need organ-level dose data that the system does not have, so they are not implemented.
+- **Non-numeric requirements** (sleep, sensorimotor, behavior) are tracked as requirements that the software can help define, document and audit.
+
 ## NASA data and resources used
 
 - NASA-STD-3001, Volume 1, Revision C — https://www.nasa.gov/wp-content/uploads/2023/11/nasa-std-3001-vol-1-rev-c-with-signature.pdf
@@ -101,6 +127,7 @@ php artisan i18n:audit        # language audit of the interface
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, technology, modules, screens, commands.
 - [docs/SOURCES.md](docs/SOURCES.md): sources, references, licenses and AI disclosure.
 - [docs/GLOSSARY_EN.md](docs/GLOSSARY_EN.md): English terminology and style guide.
+- [docs/fuentes/en/](docs/fuentes/en/README.md): English translations of the reference source documents (Spanish originals in `docs/fuentes/`).
 - `docs/` also contains the original requirements and technical plan (Spanish PDFs) and the Space Apps presentation material.
 
 Spanish version of this README: [README_ES.md](README_ES.md). Project based on Laravel, MIT license.

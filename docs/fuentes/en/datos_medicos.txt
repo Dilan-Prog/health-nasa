@@ -1,0 +1,283 @@
+[7 pages]
+Architecture and Clinical Specification: Health
+Monitoring Software for Astronauts
+Biomedical engineering guide, biomarkers, alert thresholds, and countermeasures validated by
+NASA (NASA-STD-3001, OCHMO, and HRP Standards)
+Official Reference Documents: NASA-STD-3001 Vol. 1 (Crew Health), OCHMO-TB-031 (Exercise Overview),
+OCHMO-TB-006 (Pharmaceutical Care), Human Research Program (HRP Risks), and
+ASCR Reconditioning Protocols.
+1. General System Architecture
+For the software to be viable in space environments (International Space Station, Artemis lunar missions,
+or transit to Mars), it must operate under a hybrid Offline-First (Autonomous) architecture divided into four
+functional layers:
+Ingestion and Telemetry Layer: Captures continuous data from wearable devices (ECG, actigraphy), telemetry
+from exercise machines (ARED, T2, CEVIS), medical diagnostic equipment (portable ultrasound, OCT), and
+manual entries on a tablet.
+Baseline Engine: Stores the individual pre-flight physiological profile (L-180 to L-30
+days) of each crew member. All deviations are calculated as percentages relative to the crew member's own baseline.
+Clinical Rules and Triage Engine (CDSS): Evaluates biomarkers in real time against NASA's mandatory
+limits and classifies anomalies into severity levels (Green, Amber, Red).
+Intervention and Countermeasures Module: Generates dynamic exercise prescriptions, nutritional adjustments,
+pharmacological suggestions from the authorized medical kit, and step-by-step guides for medical
+emergencies without communication with Earth.
+2. Biomarkers and Telemetry Module (Inputs)
+The system must structure its database around six critical physiological domains identified by the
+Human Research Program (HRP):
+•
+•
+•
+•
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 1 of 7
+
+=== PAGE ===
+Domain Parameters / Biomarkers Source / Hardware Capture
+Frequency
+Cardiovascular and
+Fluids
+Heart rate (HR), systolic/diastolic blood
+pressure, ECG, internal jugular vein flow,
+plasma volume.
+Biometric sensors,
+blood pressure cuff,
+portable Doppler ultrasound.
+Continuous (HR) /
+Weekly or monthly
+(ultrasound and blood pressure).
+Musculoskeletal Bone mineral density (BMD at hip and spine), isometric/
+dynamic strength, VO₂ max, muscle
+volume.
+Telemetry from
+ARED (strength), T2 (treadmill), and
+CEVIS (bicycle) machines; pre/
+post-flight DXA.
+Daily during
+exercise sessions
+(2.5 h/day).
+Neuro-ocular
+(SANS)
+Intraocular pressure (IOP), retinal nerve
+fiber layer thickness,
+optic disc edema, visual
+acuity.
+Optical coherence tomography
+(OCT), ocular ultrasound, tonometer, visual
+acuity chart.
+Every 30 days in
+mission or upon visual
+symptoms.
+Radiation and Cabin Cumulative effective dose (mSv), rate
+from solar particle events (SPE), partial
+pressure of CO₂, O₂, and relative
+humidity.
+Active/passive personal
+dosimeters and spacecraft
+environmental sensors.
+Real time / Continuous
+reading of environmental
+telemetry.
+Metabolism and
+Nutrition
+Caloric intake (kcal), hydration
+(ml), glucose, vitamin D, urinary
+calcium, electrolytes, body mass.
+Nutrition diary app on
+tablet, portable blood/urine
+analyzer, inertial
+scale.
+Daily (calories/water) /
+Biweekly (biochemical
+analysis).
+Neurobehavioral and
+Sleep
+Sleep duration and stages, latency,
+psychomotor reaction time,
+salivary cortisol levels, mood.
+Wrist actigraphy, 3-5 min
+Psychomotor Vigilance Test
+(PVT),
+questionnaires.
+Daily (sleep) /
+Weekly (PVT and
+cognitive surveys).
+3. Rules Engine and Alert Thresholds (NASA-STD-3001)
+The software must run automated assessments applying the following mandatory clinical limits:
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 2 of 7
+
+=== PAGE ===
+Clinical Risk Trigger Condition (NASA Threshold) Severity Automated Software Action
+Aerobic
+Deconditioning
+VO₂ max falls below 80 % of
+the pre-flight baseline or is less than 32.9
+ml/kg/min.
+AMBER Increase the frequency and
+intensity of intervals on
+CEVIS and the T2 treadmill.
+Muscle Atrophy and
+Bone Loss
+Muscle strength < 80 % of baseline or
+estimated bone loss > 1.0 % - 1.5 %
+per month (T-score limit -2.0).
+AMBER Recalibrate ARED loads
+(up to 272 kg) and verify
+supplementation of
+Vitamin D and bisphosphonates.
+Radiation Exposure
+(SPE / Career)
+Solar event projects a dose > 250 mSv in the
+short term, or cumulative dose approaches the
+career limit of 600 mSv.
+RED Immediate audible alarm;
+direct crew to the shielded
+radiation shelter area.
+Caloric Deficit and
+Hydration
+Daily caloric intake < 90 % of the
+metabolic requirement for 3 consecutive
+days, or hydration < 2.0 L/day.
+AMBER Notify the crew member and the
+flight surgeon; adjust
+the daily ration plan.
+Spaceflight Associated Neuro-
+ocular Syndrome (SANS)
+Increase in peripapillary retinal thickness >
+20 µm relative to baseline or
+hyperopic refractive change > +0.50 D.
+AMBER Schedule sessions with a
+lower body negative pressure device (LBNP) and
+B-complex.
+Venous Thrombosis
+(VTE)
+Severe stasis, retrograde flow, or
+detection of a thrombus in the internal jugular
+vein via ultrasound.
+RED Initiate anticoagulation protocol
+(enoxaparin/apixaban) and
+priority teleconsultation.
+Critical Cognitive
+Fatigue
+Increase in lapses (> 500 ms) on the
+PVT or effective sleep < 6 hours/day for
+more than 48 hours.
+PREVENTIVE Block critical tasks
+(EVA/robotics); recommend
+sleep hygiene or a
+hypnotic drug.
+4. Treatments and Countermeasures Module (Outputs)
+For each alert state or mission phase, the software deploys standardized protocols divided into
+four operational areas:
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 3 of 7
+
+=== PAGE ===
+A. Dynamic Exercise Prescription (OCHMO-TB-031 Standard)
+Mandatory Daily Load: 2.5 hours per day (6 to 7 days per week), including warm-up,
+cool-down, and equipment setup.
+Resistive Training (ARED): Multi-joint exercises (squats, deadlift, bench press,
+heel raises) with simulated loads of up to 600 lbs (272 kg) to stimulate osteogenesis.
+Cardiovascular Training (T2 and CEVIS): 30- to 45-minute sessions alternating continuous
+resistance and high-intensity interval training (HIIT) with axial-load harnesses on the treadmill.
+B. Pharmacological Database (ISS Medical Kit - OCHMO-TB-006)
+The support module for the Crew Medical Officer (CMO) must include real-time inventory, dosage,
+contraindications, and radiation-accelerated expiration of the following groups:
+Space Adaptation Sickness (SAS): Promethazine (oral/IM), meclizine, ondansetron.
+Sleep Disorders and Fatigue: Melatonin, zolpidem, zaleplon (sleep inducers); modafinil,
+caffeine (wakefulness promoters).
+Analgesia and Inflammation: Ibuprofen, acetaminophen, aspirin, ketorolac.
+Antimicrobials and Antivirals: Amoxicillin/clavulanate, azithromycin, ciprofloxacin, valacyclovir (for
+reactivation of latent viruses due to immunosuppression).
+Emergencies and Life Support: Epinephrine (anaphylaxis), 100 % oxygen (decompression
+sickness), enoxaparin (thrombosis).
+C. Post-Flight Reconditioning Protocol (45 Days)
+Upon detecting the landing event (G-load > 1.0 G sustained), the software automatically switches to
+ground rehabilitation mode:
+Day 0 (Landing): Continuous monitoring of orthostatic intolerance, intravenous/oral rehydration, and
+activation of anti-gravity compression suits.
+Days 1 to 14 (Neurovestibular and Mobility Phase): 2 hours per day of physical therapy focused on balance,
+basic gait, and flexibility. Strict block on impact exercises (running or jumping).
+Days 15 to 45 (Strength and Power Phase): Gradual progression of functional loads, proprioception, and
+aerobic reconditioning until 100 % of baseline values are restored.
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 4 of 7
+
+=== PAGE ===
+5. Autonomy Levels by Mission Type
+The software design must allow the mission profile to be configured according to NASA's levels of
+medical care:
+Care Level 3 (Low Earth Orbit / ISS): Periodic synchronization with servers on Earth (Mission Control in
+Houston), synchronous telemedicine with Flight Surgeons, and medical resupply every 3-6 months.
+Care Levels 4 and 5 (Artemis Missions to the Moon and Transit to Mars > 30 to 210+ days): Communication delay
+of up to 20 minutes each way. Requires a local autonomous triage engine, visual/interactive guides for
+emergency surgical or dental procedures, and predictive algorithms for inventory consumption.
+6. Suggested Data Model (JSON Schema for API/Database)
+Recommended base structure for storing daily readings, evaluating thresholds, and recording alerts in the
+system backend:
+•
+•
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 5 of 7
+
+=== PAGE ===
+{
+  "astronaut_id": "AST-042",
+  "mission_phase": "ORBIT_FLIGHT_DAY_114",
+  "care_level": 4,
+  "baseline_metrics": {
+    "vo2_max_ml_kg_min": 48.5,
+    "hip_bmd_g_cm2": 1.045,
+    "retinal_thickness_um": 98.0,
+    "daily_caloric_target_kcal": 2850
+  },
+  "current_telemetry": {
+    "timestamp_utc": "2026-11-15T14:30:00Z",
+    "heart_rate_bpm": 64,
+    "blood_pressure_mmhg": "118/76",
+    "estimated_vo2_max": 38.2,
+    "retinal_thickness_um": 121.0,
+    "cumulative_radiation_msv": 142.5,
+    "caloric_intake_24h": 2410,
+    "sleep_duration_hours": 5.4,
+    "ared_session_completed": true
+  },
+  "automated_alerts": [
+    {
+      "alert_id": "ALT-901",
+      "domain": "NEURO_OCULAR_SANS",
+      "severity": "AMBER",
+      "trigger_reason": "Retinal thickening (+23.0 um) exceeds the 20 um threshold.",
+      "recommended_countermeasure": "Schedule 30 min LBNP session and verify B-Complex supplementation."
+    },
+    {
+      "alert_id": "ALT-902",
+      "domain": "AEROBIC_CAPACITY",
+      "severity": "AMBER",
+      "trigger_reason": "VO2 max at 78.7% of baseline (minimum threshold 80%).",
+      "recommended_countermeasure": "Adjust CEVIS protocol to 4x4 min HIIT intervals."
+    }
+  ]
+}
+7. Key Non-Functional Requirements for Development
+Offline-First Architecture: Encrypted local database (e.g., SQLite/local PostgreSQL with differential synchronization) capable of operating indefinitely
+without an Internet connection.
+Low Cognitive Load Interface (Space UX): Use of high contrast (dark mode by default for cabin
+lighting), legible typography at a distance, standardized color codes (Green/Amber/Red), and
+quick navigation for emergency situations or use with gloves/touchscreens.
+Medical Security and Privacy: End-to-end encryption (AES-256) and role-based access control
+(Crew Member, Crew Medical Officer, Flight Surgeon on the ground) complying with space medical
+confidentiality regulations.
+•
+•
+•
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 6 of 7
+
+=== PAGE ===
+This is for informational purposes only. For medical advice or diagnosis, consult a professional. AI responses may include mistakes.
+Space Health Architecture | Based on NASA-STD-3001 & OCHMO Page 7 of 7

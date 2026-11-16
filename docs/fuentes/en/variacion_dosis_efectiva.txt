@@ -1,0 +1,180 @@
+[7 pages]
+Effective dose variation
+1.3 msv/day for free-space systems and less than 0.9 msc/
+is calculated using the Badhwar-O'Neill GCR model spectrum corresponding to the 2009 solar minimum
+and taking into account the estimated time the crew spends in lightly shielded and more heavily
+shielded locations throughout the habitable space system.
+For these missions, vehicle and habitat systems must be designed to provide
+sufficient shielding to reduce exposure to galactic cosmic rays (GCR) by at least
+15% in free space and by at least 10% on the lunar surface. The 60-day minimum is
+designated to protect crew members beyond the initial short-duration
+missions
+During solar minimum, vehicle shielding can effectively reduce the effective dose rate
+of galactic cosmic rays (GCR) in unshielded free space, from 1.5 mSv/day, by
+approximately 15%, down to 1.3 mSv/day or even less, depending on the vehicle
+materials and the shielding incorporated into its design.
+https://www-nasa-gov.translate.goog/reference/4-0-human-performance/?
+_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=sge#hds-sidebar-nav-2
+Blood pressure:
+Blood pressure ranges (in mmHg)
+• Normal: Less than 120/80 (Systolic <120 and Diastolic <80)
+• Elevated: Systolic 120-129 and Diastolic <80
+• Hypertension stage 1: Systolic 130-139 or Diastolic 80-89
+• Hypertension stage 2: Systolic ≥140 or Diastolic ≥90
+• Hypertensive crisis (Emergency): Greater than 180/120 (requires immediate medical attention,
+especially if accompanied by symptoms such as chest pain, shortness of breath, back
+pain, weakness, or confusion)
+First medical exam:
+CHMO-STD-100.1A, Revision A
+Table 4 - NASA Astronaut Candidate (ASCAN) First Annual Exam
+
+=== PAGE ===
+NASA Astronaut Candidate (ASCAN) First Annual Exam
+ABO Group & Rh Type
+Cytomegalovirus IgG Antibody
+Epstein-Barr Virus IgG Antibody to Nuclear Antigen
+Epstein-Barr Virus IgG Antibody to Viral Capsid Antigen
+Herpes Simplex Virus (HSV) Type 1/2 Combined IgG Antibody
+Toxoplasma gondii IgG Antibody
+VZV IgG Antibody
+Immunocap Mouse Epithelium Antibody
+Immunocap Mouse Urine IgE Antibody
+Lipoprotein (a)
+Measles (Rubeola) IgG Antibody
+Mumps IgG Antibody
+Rubella IgG Antibody
+Helicobacter pylori Breath Test
+Hepatitis A antibody
+Glucose-6-phosphate dehydrogenase (G6PD)
+Serum Protein Electrophoresis (SPE)
+Quantitative Immunoglobulins (IgG, IgA, IgM)
+Calculi Risk Assessment, Urine
+Venous Thromboembolism Panel:
+• Cardiolipin IgG Antibody
+• B2 glycoprotein 1 IgM/IgG Antibody
+• Activated Protein C (APC) Resistance
+• Prothrombin Nucleotide 20210 G/A Gene Mutation (Factor II)
+• Protein C
+• Protein S
+• Anti-Thrombin
+• Anti-phospholipid antibodies
+• Factor V Leiden
+https://www.nasa.gov/wp-content/uploads/2023/04/ochmo-std-100.1a.pdf
+Heart rate.
+The only data collected systematically were the heart rates of the
+commanders. Figure 1 shows the heart rates of each of the five astronauts
+on the Apollo missions during the descent to the lunar surface. The mean heart rate 
+
+=== PAGE ===
+across these missions was approximately 96 beats per minute (bpm; range: 66–
+144).
+Heart rates remained stable until the time of peak G load, when
+some commanders apparently experienced a moderate increase of 10 to 20 bpm;
+however, heart rate did not decrease substantially when G loads were reduced
+(Figure 2). The mean heart rate increased, reaching a peak of nearly 120 bpm near the
+time of lunar landing (range: 94–153).
+During the lunar ascent phase, the mean heart rate of the five Apollo mission astronauts
+was approximately 88 beats per minute (range: 70–109) (Figure 3). Although
+there was an initial increase in heart rate at liftoff, the average
+response did not increase over time. The mean heart rate recorded during
+the ascent phase was similar to that observed during the initial stage of the descent phase (0.3 to
+0.4 G), but turned out to be about 20 beats per minute lower than that recorded during the final part of
+the descent, when G forces were lower. That is, unlike what occurred during
+descent, the heart rate response during ascent did not increase over time.
+Although the initial increase in heart rate (10–20 beats per minute) probably
+included orthostatic and psychological components, the fact that heart rate
+remained stable afterward suggests that, despite the increase in G forces, the effects
+of the stress associated with ascent did not intensify.
+Nearly all crew members reported symptoms resulting from the headward fluid shift
+—such as a sensation of head congestion— during
+adaptation to spaceflight; to treat this, nasal drops were used to
+relieve the congestion until the symptoms resolved. However, most astronauts
+did not experience nausea, vomiting, or disorientation during their mission.
+https://ntrs.nasa.gov/api/citations/20200001709/downloads/20200001709.pdf
+Glucose
+
+
+=== PAGE ===
+https://www.nasa.gov/wp-content/uploads/2023/04/ochmo-std-100.1a.pdf
+Temperature.
+Ranges and behavior in space
+• Usual resting temperature (based on long-duration missions). After about 2.5 months
+in orbit, core temperature gradually rises from the terrestrial 37.0 °C until it stabilizes
+near 38.0 °C. This level persists until they return to Earth.
+• Temperature during exercise. When training in microgravity, body heat rises much
+faster than on Earth. It is common for it to exceed 40.0 °C during physical routines, which on
+Earth would be equivalent to a very high fever.
+
+=== PAGE ===
+• Medical alert criterion. Because their baseline rises, aerospace physicians do not assess
+fever using the fixed terrestrial threshold of 38.0 °C. Instead, they watch for abrupt increases above
+their new space mean or the presence of other infectious symptoms.
+Why "space fever" occurs
+• Lack of convection and slow evaporation. On Earth, hot air rises and sweat evaporates
+quickly to cool us. In space there is no gravity to move the air, and sweat accumulates
+on the skin instead of evaporating easily.
+• Mild inflammatory response. Studies such as the European Space Agency (ESA) Thermolab project
+and research published in Scientific Reports found that the body in space produces
+more inflammation-related proteins (such as interleukin-1), keeping the body
+in an elevated metabolic state.
+https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0026-17422014000400020
+Sleep.
+7 to 9 hours of sleep is established
+for optimal functioning, but the actual average in orbit falls to 6-6.5 hours; this is associated with
+a measurable decrease in psychomotor response speed and an increase in stress
+https://anmdecolombia.org.co/dormir-en-el-espacio-exterior
+Mood.
+Main scales used
+1. POMS (Profile of Mood States)
+- Assesses six dimensions of mood.
+- Tension, depression, anger, vigor, fatigue, and confusion.
+- Allows identification of emotional changes during space missions.
+2. PANAS (Positive and Negative Affect Schedule)
+- Measures positive and negative emotions.
+- For example: enthusiasm, joy, nervousness, fear, and irritability.
+- Helps in understanding the emotional state of astronauts.
+3. AMS (Alertness and Mood Survey)
+- Assesses alertness and mood.
+- Includes aspects such as boredom, stress, sadness, tiredness, and sleep quality.
+- It was designed to study the conditions of astronauts during spaceflight.
+4. VAS (Visual Analog Scales)
+
+=== PAGE ===
+4. VAS (Visual Analog Scales)
+- These are visual scales on which astronauts rate how they feel.
+- They can measure stress, tiredness, energy, and mood.
+- They allow quick assessments
+What are they used for in space?
+- Detecting stress and emotional changes.
+- Identifying symptoms of isolation and sadness.
+- Assessing psychological fatigue.
+- Preventing mental health problems.
+- Improving coexistence and teamwork.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6218582/
+Effects of the 5 hazards.
+Space radiation
+Invisible to the human eye, space radiation is not only stealthy but is considered one of
+the most dangerous aspects of spaceflight.
+ Isolation
+Isolation and confinement
+Behavioral responses occur among groups of people far from Earth who are isolated
+and confined in a small space for a long period of time.
+ An illustration of the Moon and Mars above Earth's horizon.
+Distance from Earth
+Instructions, new supplies, medical care, and more become increasingly
+difficult to receive from Earth as astronauts venture deeper into
+space.
+ Christina Koch
+Gravity fields
+Astronauts' entire bodies (muscles, bones, inner ear, and organs) must
+adapt to the new gravities encountered on the space station or in their spacecraft,
+as well as on the Moon, Mars, and Earth once they return home.
+ closed environment
+Hostile/closed environments
+Maintaining a safe ecosystem inside a spacecraft presents unique challenges, from
+ensuring optimal temperatures, pressures, and lighting to reducing noise, monitoring
+
+=== PAGE ===
+ensuring optimal temperatures, pressures, and lighting to reducing noise, monitoring
+microbial communities, and tracking immune responses.
+https://www.nasa.gov/hrp/hazards/
