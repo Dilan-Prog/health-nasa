@@ -100,7 +100,7 @@ class RutinasTest extends TestCase
     public function test_tarjetas_de_progreso_del_dia(): void
     {
         Livewire::test(Rutinas::class)
-            ->assertSee('EJERCICIO')->assertSee('45')->assertSee('/ 90 min')->assertSee('Faltan 45 min')
+            ->assertSee('EJERCICIO')->assertSee('45')->assertSee('/ 150 min')->assertSee('Faltan 105 min')
             ->assertSee('HIDRATACIÓN')->assertSee('1.4')->assertSee('/ 2.5 L')
             ->assertSee('SUEÑO')->assertSee('6.2')->assertSee('Por debajo de tu meta')
             ->assertSee('MEDICIONES')->assertSee('1/2')->assertSee('1 pendiente');
@@ -110,7 +110,7 @@ class RutinasTest extends TestCase
     {
         $r = $this->rutina('Rutina de fuerza');
         Livewire::test(Rutinas::class)->call('marcar', $r->id)
-            ->assertSee('3 de 8 hechas')->assertSee('Deshacer Rutina de fuerza')->assertSee('Faltan 15 min');
+            ->assertSee('3 de 8 hechas')->assertSee('Deshacer Rutina de fuerza')->assertSee('Faltan 75 min');
 
         $this->assertDatabaseHas('rutina_ejecuciones', ['rutina_id' => $r->id, 'estado' => 'done']);
         $this->assertSame(1, Actividad::where('rutina_id', $r->id)->where('origen', 'recordatorio')->whereDate('inicio_en', '2026-11-15')->count());
@@ -217,7 +217,7 @@ class RutinasTest extends TestCase
         Livewire::test(Rutinas::class)->call('abrirActividad')
             ->set('aTipo', 'Cardio')->set('aCantidad', '30')->set('aHora', '10:00')->set('aInt', 'Alta')->set('aNotas', 'Cicloergómetro')
             ->call('guardarActividad')->assertHasNoErrors()
-            ->assertSee('Faltan 15 min')->assertSee('Cardio · Cicloergómetro');
+            ->assertSee('Faltan 75 min')->assertSee('Cardio · Cicloergómetro');
         $this->assertDatabaseHas('actividades', ['tipo' => 'Cardio', 'intensidad' => 'Alta', 'cantidad' => 30]);
     }
 

@@ -34,8 +34,8 @@ return [
     'dias_largo' => [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIÉRCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SÁBADO', 7 => 'DOMINGO'],
     'meses' => [1 => 'ene', 2 => 'feb', 3 => 'mar', 4 => 'abr', 5 => 'may', 6 => 'jun', 7 => 'jul', 8 => 'ago', 9 => 'sep', 10 => 'oct', 11 => 'nov', 12 => 'dic'],
 
-    /** Metas diarias de ejemplo. */
-    'metas' => ['ejercicio_min' => 90, 'agua_ml' => 2500, 'sueno_h' => 8],
+    /** Metas diarias de ejemplo. Ejercicio: 150 min/día (2.5 h), 6 a 7 días por semana (guía interna; valor de ejemplo). */
+    'metas' => ['ejercicio_min' => 150, 'ejercicio_dias_semana' => [6, 7], 'agua_ml' => 2500, 'sueno_h' => 8],
 
     /** Intensidad al registrar actividad. */
     'intensidades' => ['Baja', 'Media', 'Alta'],

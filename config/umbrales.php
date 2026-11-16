@@ -129,7 +129,7 @@ return [
             'riesgos' => ['entorno_cerrado', 'gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [0, 10], 'normal' => [2.5, 3.0], 'precaucion' => [2.05, 3.45], 'decimales' => 1],
+                'valor' => ['valido' => [0, 10], 'normal' => [2.5, 3.0], 'precaucion' => [2.0, 3.45], 'decimales' => 1],
             ],
         ],
         'sueno' => [
@@ -159,17 +159,18 @@ return [
             'riesgos' => ['gravedad_alterada'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [-5, 10], 'normal' => [0, 0.5], 'precaucion' => [-0.15, 0.65], 'decimales' => 1],
+                'valor' => ['valido' => [-5, 10], 'normal' => [0, 0.5], 'precaucion' => [0, 0.65], 'decimales' => 1],
             ],
         ],
         'animo' => [
             'nombre' => 'Estado de ánimo',
-            'unidad' => 'escala 1-5',
+            // Escala analógica visual (VAS) 0-100, 100 = muy bien. Cortes de ejemplo (equivalen a los de la antigua escala 1-5): pendientes de revisión médica.
+            'unidad' => 'VAS 0-100',
             'sistema' => 'mental',
             'riesgos' => ['aislamiento'],
             'frecuencia' => 'diaria',
             'componentes' => [
-                'valor' => ['valido' => [1, 5], 'normal' => [3, 5], 'precaucion' => [2, 5]],
+                'valor' => ['valido' => [0, 100], 'normal' => [50, 100], 'precaucion' => [25, 100]],
             ],
         ],
     ],
