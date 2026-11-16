@@ -1,0 +1,8 @@
+# i18n audit allowlist. Format: path-or-glob | pattern | reason
+# pattern: `*` = everything in the file, /regex/ = regular expression, anything else = substring of the finding.
+# Only add entries for legitimate Spanish: stored keys, Spanish symptom synonyms, proper names, detector fixtures.
+app/Services/I18n/SpanishDetector.php | * | detector word lists are Spanish by definition
+app/Console/Commands/I18nAudit.php | * | the audit command itself
+tests/Feature/I18nAuditTest.php | * | synthetic Spanish fixtures for the detector
+config/sintomas.php | * | Spanish synonyms of the symptom lexicon (secondary on purpose)
+conocimiento/sintomas/** | * | Spanish synonyms of the symptom lexicon (secondary on purpose)
