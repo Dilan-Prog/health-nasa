@@ -41,3 +41,13 @@ if (class_exists(\App\Livewire\NuevoTripulante::class)) {
 if (class_exists(\App\Livewire\FichaTripulante::class)) {
     Route::get('/tripulacion/{astronauta}/expediente', \App\Livewire\FichaTripulante::class)->name('tripulacion.ficha');
 }
+
+if (class_exists(\App\Livewire\Botiquin::class)) {
+    Route::get('/botiquin', \App\Livewire\Botiquin::class)->name('botiquin');
+}
+if (class_exists(\App\Livewire\AvisoLegal::class)) {
+    Route::get('/aviso-legal', \App\Livewire\AvisoLegal::class)->name('aviso-legal');
+}
+if (class_exists(\App\Livewire\ColaTierra::class)) {
+    Route::get('/cola-a-tierra', \App\Livewire\ColaTierra::class)->name('cola-tierra');
+}

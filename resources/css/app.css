@@ -13,6 +13,10 @@
 @import './alertas.css';
 @import './historial.css';
 @import './sistemas.css';
+@import './fuente-chip.css';
+@import './peligros.css';
+@import './botiquin.css';
+@import './paginas.css';
 @import './nuevo-tripulante.css';
 @import './nuevo-tripulante-campos.css';
 @import './nuevo-tripulante-listas.css';

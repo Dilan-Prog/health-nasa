@@ -24,11 +24,12 @@
         ['t' => 'Estación y Tierra', 'links' => [
             ['t' => 'Tripulación', 'ic' => 'groups', 'ruta' => 'tripulacion', 'href' => '/tripulacion'],
             ...(app()->environment('production') ? [] : [['t' => 'Simulación', 'ic' => 'model_training', 'ruta' => 'simulacion', 'href' => '/simulacion']]),
-            ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt'],
+            ['t' => 'Cola a Tierra', 'ic' => 'satellite_alt', 'ruta' => 'cola-tierra', 'href' => '/cola-a-tierra'],
+            ['t' => 'Botiquín', 'ic' => 'medication', 'ruta' => 'botiquin', 'href' => '/botiquin'],
             ['t' => 'Flight surgeon', 'ic' => 'stethoscope'],
         ]],
         ['t' => 'Apoyo', 'links' => [
-            ['t' => 'Aviso legal', 'ic' => 'gavel'],
+            ['t' => 'Aviso legal', 'ic' => 'gavel', 'ruta' => 'aviso-legal', 'href' => '/aviso-legal'],
             ['t' => 'Acceso', 'ic' => 'login'],
         ]],
     ];
@@ -40,6 +41,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Monitor de salud · Astronautas</title>
     <meta name="theme-color" content="#0B3D91">
+    <meta name="color-scheme" content="dark light">
+    {{-- Tema antes del primer pintado: elección guardada (oscuro | claro | hc); sin ella, prefers-contrast / prefers-color-scheme; por defecto oscuro. --}}
+    <script>
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('tema'); } catch (e) {}
+            if (t !== 'dark' && t !== 'light' && t !== 'hc') {
+                t = 'dark';
+                try {
+                    if (window.matchMedia('(prefers-contrast: more)').matches) t = 'hc';
+                    else if (window.matchMedia('(prefers-color-scheme: light)').matches) t = 'light';
+                } catch (e) {}
+            }
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -77,6 +94,14 @@
                 </div>
             @endforeach
         </nav>
+        <div class="tema-grupo">
+            <span class="tema-et">Tema</span>
+            <div class="tema" role="group" aria-label="Tema de color">
+                <button type="button" class="tema-op" data-tema="dark" aria-pressed="false" title="Oscuro"><span class="icono" aria-hidden="true">dark_mode</span><span class="tema-txt">Oscuro</span></button>
+                <button type="button" class="tema-op" data-tema="light" aria-pressed="false" title="Claro"><span class="icono" aria-hidden="true">light_mode</span><span class="tema-txt">Claro</span></button>
+                <button type="button" class="tema-op" data-tema="hc" aria-pressed="false" title="Alto contraste"><span class="icono" aria-hidden="true">contrast</span><span class="tema-txt">Alto</span></button>
+            </div>
+        </div>
     </aside>
 
     <div class="shell-columna">
@@ -86,6 +111,9 @@
                 <span class="shell-marca-nombre shell-marca-nombre--sm">{{ $nombreEstacion }}</span>
             </div>
             <livewire:selector-tripulante variante="compacta" />
+            <button type="button" class="tema-ciclo" data-tema-ciclo title="Cambiar tema (oscuro, claro, alto contraste)" aria-label="Cambiar tema de color">
+                <span class="icono" aria-hidden="true">contrast</span>
+            </button>
         </div>
         {{ $slot }}
     </div>
