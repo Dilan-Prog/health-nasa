@@ -336,7 +336,7 @@ class OrientadorSimuladoTest extends TestCase
 
     public function test_config_ia_tiene_el_aviso_fijo_y_la_etiqueta(): void
     {
-        $this->assertSame('Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes.', config('ia.aviso'));
+        $this->assertSame('Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. No es consejo médico real.', config('ia.aviso'));
         $this->assertSame('IA local y n8n: Próximamente', config('ia.etiquetas.proximamente'));
     }
 }

@@ -20,6 +20,7 @@
      x-init="if (@js($abrirAlCargar)) abrir(true)"
      x-on:medico-flotante-abrir.window="abrir(true, Array.isArray($event.detail) ? $event.detail[0] : $event.detail)"
      x-on:abrir-medico-flotante.window="abrir(false, Array.isArray($event.detail) ? $event.detail[0] : $event.detail)"
+     x-on:mf-respuesta.window="open = true; $nextTick(() => { const t = document.getElementById('mf-resp-titulo'); if (t) { t.scrollIntoView({ block: 'nearest' }); t.focus({ preventScroll: true }); } })"
      x-on:keydown.escape.window="if (open) cerrar()"
      x-bind:class="{ 'is-abierto': open }">
 
@@ -55,6 +56,10 @@
                 <p class="mf-vacio">Elige un tripulante</p>
             @elseif (! $mensajes)
                 <p class="mf-vacio"><span class="icono" aria-hidden="true">check_circle</span>Sin casos abiertos para {{ $astronauta->nombre }}</p>
+            @endif
+
+            @if ($consulta)
+                @include('livewire.mf.consulta')
             @endif
 
             @foreach ($mensajes as $m)
@@ -168,6 +173,35 @@
                 </article>
             @endforeach
         </div>
+
+        @if ($astronauta)
+            <form class="mf-comp" id="mf-comp" wire:submit="enviar" x-data="{ n: 0 }" x-init="n = $refs.texto.value.length"
+                  x-on:mf-respuesta.window="$nextTick(() => { n = $refs.texto.value.length })" aria-labelledby="mf-comp-t">
+                <label id="mf-comp-t" for="mf-texto" class="mf-h3">CUÉNTAME CÓMO TE SIENTES</label>
+                <div class="mf-atajos" role="group" aria-label="Atajos">
+                    @foreach (config('orientador.atajos', []) as [$etq, $fill])
+                        <button type="button" class="mf-atajo" x-on:click="$refs.texto.value = @js($fill); $refs.texto.dispatchEvent(new Event('input', { bubbles: true })); $refs.texto.focus()">{{ $etq }}</button>
+                    @endforeach
+                </div>
+                @if ($zonasDolor->isNotEmpty())
+                    <div class="mf-atajos" role="group" aria-label="Zonas de dolor que ya registraste">
+                        <span class="mf-it-e mono">TUS ZONAS REGISTRADAS</span>
+                        @foreach ($zonasDolor as $z)
+                            <button type="button" class="mf-atajo mf-atajo--zona" wire:click="usarZona({{ $z->id }})">{{ \App\Models\ZonaDolor::nombre($z->musculo) }} · {{ $z->intensidad }}/10</button>
+                        @endforeach
+                    </div>
+                @endif
+                <textarea id="mf-texto" class="mf-texto" x-ref="texto" wire:model="texto" rows="2" maxlength="{{ $maxCaracteres }}" placeholder="Por ejemplo: me siento mareado desde hace una hora"
+                          aria-describedby="mf-cuenta @error('texto') mf-texto-err @enderror" @error('texto') aria-invalid="true" @enderror
+                          x-on:input="n = $el.value.length" x-on:keydown.ctrl.enter.prevent="$el.form.requestSubmit()"></textarea>
+                @error('texto')<p id="mf-texto-err" class="mf-err" role="alert">{{ $message }}</p>@enderror
+                <div class="mf-comp-f">
+                    <span id="mf-cuenta" class="mf-cuenta mono" x-bind:data-limite="n >= {{ $maxCaracteres }} ? '1' : '0'"><span x-text="n">{{ mb_strlen($texto) }}</span> / {{ $maxCaracteres }}</span>
+                    <span class="mf-estado" role="status"><span wire:loading wire:target="enviar,quitarSintoma,anadirSintoma,reevaluar"><span class="icono" aria-hidden="true">hourglass_top</span>Analizando…</span></span>
+                    <button type="submit" class="mf-btn mf-btn--enviar" wire:loading.attr="disabled" wire:target="enviar"><span class="icono" aria-hidden="true">send</span>Enviar</button>
+                </div>
+            </form>
+        @endif
 
         <footer class="mf-aviso" role="note"><span class="icono" aria-hidden="true">info</span><span>{{ $aviso }}</span></footer>
     </section>

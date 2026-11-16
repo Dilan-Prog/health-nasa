@@ -6,6 +6,11 @@ use App\Contracts\Orientador;
 use App\Livewire\MedicoFlotante;
 use App\Models\Astronauta;
 use App\Models\CasoClinico;
+use App\Models\ConsultaSintomas;
+use App\Models\RegistroSalud;
+use App\Models\ZonaDolor;
+use App\Services\Ia\OrientadorConversacional;
+use Illuminate\Support\Facades\DB;
 use App\Models\Mision;
 use App\Services\Ia\Orientacion;
 use App\Support\TripulanteActual;
@@ -248,5 +253,181 @@ class MedicoFlotanteTest extends TestCase
     {
         Astronauta::query()->delete();
         Livewire::test(MedicoFlotante::class)->assertSee('Elige un tripulante');
+    }
+
+    // ---------- Orientador conversacional (texto libre) ----------
+
+    /** Enlaza un OrientadorConversacional con colaboradores falsos: la respuesta y las entidades las fija cada prueba. */
+    private function fakeConversacional(array $respuesta = [], ?array $sintomas = null): void
+    {
+        $sintomas ??= [['clave' => 'mareo', 'etiqueta' => 'Mareo', 'region' => null, 'lado' => null, 'calidad' => null, 'intensidad' => null, 'duracion_min' => null, 'confianza' => 90]];
+        $analisis = ['entendido' => $sintomas !== [], 'confianza' => 88, 'sintomas' => $sintomas, 'negados' => ['fiebre'], 'banderas_rojas' => []];
+        $base = [
+            'urgencia' => 'autocuidado', 'alcance' => true, 'conclusion' => 'Posible mareo por adaptación.',
+            'hipotesis' => [['titulo' => 'Posible mareo por adaptación espacial', 'confianza' => 72, 'por_que' => ['Llevas 3 días en órbita'], 'sintomas' => ['mareo'], 'ficha' => 'mareo', 'origen' => 'documento']],
+            'acciones' => [['id' => 'x1', 'texto' => 'Reposa unos minutos con la cabeza quieta', 'fuente' => ['etiqueta' => 'Ficha mareo', 'texto' => 't', 'origen' => 'ejemplo_simulado']]],
+            'panel_vigente' => true,
+            'botiquin_opciones' => [['id' => 7, 'nombre' => 'Antiemético de prueba', 'grupo' => 'Mareo por adaptación', 'nota' => 'Consúltalo', 'contraindicaciones' => null, 'aviso_medicacion' => null]],
+            'seguimiento' => [['texto' => 'Vuelve a medir tu pulso', 'indicador' => 'frecuencia_cardiaca']],
+            'escalar_si' => ['Si aparece dolor en el pecho'], 'escalar_ahora' => false, 'medidas_inmediatas' => [],
+            'eva_proxima' => null, 'datos_usados' => [['etiqueta' => 'Indicadores', 'detalle' => 'Pulso de las últimas 24 h']],
+            'fuentes' => [['etiqueta' => 'NASA-STD de prueba', 'texto' => 'x', 'origen' => 'documento']],
+        ];
+        $this->app->bind(OrientadorConversacional::class, fn () => new OrientadorConversacional([
+            'analizar' => fn (string $t) => $analisis + ['texto' => $t],
+            'desdeEntidades' => fn (array $s) => ['sintomas' => $s, 'entendido' => $s !== []] + $analisis,
+            'contexto' => fn () => [],
+            'accionesPanel' => fn () => ['p1'],
+            'razonar' => fn () => $respuesta + $base,
+        ]));
+    }
+
+    public function test_enviar_texto_muestra_la_respuesta_completa(): void
+    {
+        $this->fakeConversacional();
+        Livewire::test(MedicoFlotante::class)
+            ->set('texto', 'Estoy mareado')->call('enviar')
+            ->assertSet('texto', '')
+            ->assertSee('Orientación sobre lo que describes')
+            ->assertSee('1 · ENTENDÍ')->assertSee('Estoy mareado')->assertSee('aria-label="Quitar Mareo"', false)->assertSee('NEGADOS · Fiebre')
+            ->assertSee('Urgencia: AUTOCUIDADO')
+            ->assertSee('3 · HIPÓTESIS A DESCARTAR')->assertSee('Posible mareo por adaptación espacial')->assertSee('0,72')->assertSee('Llevas 3 días en órbita')
+            ->assertSee('4 · QUÉ HACER AHORA')->assertSee('Lo del Panel sigue vigente')->assertSee('adicional a lo que ya ves en el Panel')
+            ->assertSee('Reposa unos minutos con la cabeza quieta')
+            ->assertSee('5 · DEL BOTIQUÍN')->assertSee('Opciones del botiquín para consultar con el médico de vuelo. Contraindicaciones sin verificar. Sin dosis.')->assertSee('Antiemético de prueba')
+            ->assertSee('6 · SEGUIMIENTO')->assertSee('Registrar medición')->assertSee(route('registrar', ['indicador' => 'frecuencia_cardiaca']), false)
+            ->assertSee('7 · CUÁNDO ESCALAR')->assertSee('Si aparece dolor en el pecho')
+            ->assertSee('8 · DATOS QUE USÉ')->assertSee('Pulso de las últimas 24 h')
+            ->assertSee('9 · FUENTES')->assertSee('Documento · NASA-STD de prueba')
+            ->assertSee('Me ayudó')->assertSee('No me ayudó')->assertSee('Guardar en mi registro')->assertSee('Sigue igual')->assertSee('Empeoró')
+            ->assertSee('Avisar a tierra')->assertDontSee('Avisar a tierra ahora')
+            ->assertSee(config('ia.aviso', MedicoFlotante::AVISO));
+        $this->assertDatabaseHas('consultas_sintomas', ['astronauta_id' => $this->a->id, 'urgencia' => 'autocuidado']);
+    }
+
+    public function test_emergencia_muestra_avisar_ahora_y_oculta_el_botiquin(): void
+    {
+        // El razonador devuelve opciones de botiquín por error: la interfaz no las muestra en emergencia.
+        $this->fakeConversacional(['urgencia' => 'emergencia', 'escalar_ahora' => true, 'medidas_inmediatas' => ['Detén la actividad y siéntate']], [['clave' => 'dolor', 'etiqueta' => 'Dolor punzante · pecho izquierdo']]);
+        $c = Livewire::test(MedicoFlotante::class)->set('texto', 'Siento un dolor punzante en el pecho izquierdo')->call('enviar')
+            ->assertSee('Urgencia: EMERGENCIA')->assertSee('Avisar a tierra ahora')->assertSee('Detén la actividad y siéntate')
+            ->assertDontSee('DEL BOTIQUÍN')->assertDontSee('Antiemético de prueba')->assertDontSee('Opciones del botiquín');
+        $c->call('avisarConsulta')->assertSee('Aviso enviado a tierra');
+        $this->assertDatabaseHas('consultas_tierra', ['astronauta_id' => $this->a->id, 'tipo' => 'msg']);
+    }
+
+    public function test_en_emergencia_el_banner_va_antes_que_entendi(): void
+    {
+        $this->fakeConversacional(['urgencia' => 'emergencia', 'escalar_ahora' => true]);
+        $html = Livewire::test(MedicoFlotante::class)->set('texto', 'dolor')->call('enviar')->html();
+        $this->assertLessThan(strpos($html, '1 · ENTENDÍ'), strpos($html, 'Urgencia: EMERGENCIA'));
+    }
+
+    public function test_el_texto_con_html_se_escapa(): void
+    {
+        $this->fakeConversacional();
+        $c = Livewire::test(MedicoFlotante::class)->set('texto', '<script>alert(1)</script> <b>me mareo</b>')->call('enviar');
+        $c->assertDontSee('<script>alert(1)</script>', false)->assertDontSee('<b>me mareo</b>', false)->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
+
+    public function test_marcar_util_se_guarda(): void
+    {
+        $this->fakeConversacional();
+        $c = Livewire::test(MedicoFlotante::class)->set('texto', 'Estoy mareado')->call('enviar')->call('marcarUtil', true);
+        $this->assertTrue(ConsultaSintomas::where('astronauta_id', $this->a->id)->latest('id')->first()->util);
+        $c->call('marcarUtil', false);
+        $this->assertFalse(ConsultaSintomas::where('astronauta_id', $this->a->id)->latest('id')->first()->util);
+    }
+
+    public function test_sin_tripulante_no_hay_caja_ni_se_guarda_nada(): void
+    {
+        $this->fakeConversacional();
+        Astronauta::query()->delete();
+        Livewire::test(MedicoFlotante::class)->assertSee('Elige un tripulante')->assertDontSee('CUÉNTAME CÓMO TE SIENTES')
+            ->set('texto', 'Estoy mareado')->call('enviar')->assertDontSee('Orientación sobre lo que describes');
+        $this->assertSame(0, ConsultaSintomas::count());
+    }
+
+    public function test_limite_de_caracteres_y_contador(): void
+    {
+        $this->fakeConversacional();
+        config(['orientador.max_caracteres' => 30]);
+        Livewire::test(MedicoFlotante::class)
+            ->assertSee('maxlength="30"', false)->assertSee('/ 30')
+            ->set('texto', str_repeat('a', 31))->call('enviar')
+            ->assertHasErrors('texto')->assertSee('El texto supera el límite de 30 caracteres.')
+            ->set('texto', '   ')->call('enviar')->assertHasErrors('texto')->assertSee('Escribe cómo te sientes.');
+        $this->assertSame(0, ConsultaSintomas::count());
+    }
+
+    public function test_texto_cifrado_en_la_bd(): void
+    {
+        $this->fakeConversacional();
+        Livewire::test(MedicoFlotante::class)->set('texto', 'Estoy mareado hoy')->call('enviar');
+        $crudo = DB::table('consultas_sintomas')->where('astronauta_id', $this->a->id)->value('texto');
+        $this->assertStringNotContainsString('mareado', $crudo);
+        $this->assertSame('Estoy mareado hoy', ConsultaSintomas::where('astronauta_id', $this->a->id)->first()->texto);
+    }
+
+    public function test_sin_entender_lo_dice_y_ofrece_reformular(): void
+    {
+        $this->fakeConversacional(['urgencia' => 'observacion'], []);
+        Livewire::test(MedicoFlotante::class)->set('texto', 'asdf qwer')->call('enviar')
+            ->assertSee('No entendí ningún síntoma')->assertSee('No pude interpretar tu mensaje')->assertSee('Añadir síntoma')
+            ->assertDontSee('3 · HIPÓTESIS')->assertDontSee('Sigue igual');
+    }
+
+    public function test_fuera_de_alcance(): void
+    {
+        $this->fakeConversacional(['alcance' => false], []);
+        Livewire::test(MedicoFlotante::class)->set('texto', '¿Quién ganó el partido?')->call('enviar')->assertSee('Solo puedo orientarte sobre síntomas');
+    }
+
+    public function test_quitar_y_anadir_sintomas_vuelve_a_analizar_desde_entidades(): void
+    {
+        $this->fakeConversacional();
+        $c = Livewire::test(MedicoFlotante::class)->set('texto', 'Estoy mareado')->call('enviar');
+        $c->set('nuevoSintoma', 'nauseas')->set('nuevaZona', 'abdomen')->set('nuevoLado', 'derecho')->call('anadirSintoma')
+            ->assertSee('Náuseas · abdomen derecho');
+        $ultima = ConsultaSintomas::where('astronauta_id', $this->a->id)->latest('id')->first();
+        $this->assertCount(2, $ultima->entidades['sintomas']);
+        $this->assertSame('Estoy mareado', $ultima->texto);
+
+        $c->call('quitarSintoma', 0);
+        $ultima = ConsultaSintomas::where('astronauta_id', $this->a->id)->latest('id')->first();
+        $this->assertCount(1, $ultima->entidades['sintomas']);
+        $this->assertSame('nauseas', $ultima->entidades['sintomas'][0]['clave']);
+    }
+
+    public function test_reevaluar_y_guardar_en_registro(): void
+    {
+        $this->fakeConversacional();
+        $c = Livewire::test(MedicoFlotante::class)->set('texto', 'Estoy mareado')->call('enviar')->call('reevaluar', 'empeoro');
+        $this->assertSame(2, ConsultaSintomas::where('astronauta_id', $this->a->id)->count());
+        $c->call('guardarEnRegistro')->assertSee('Guardado en tu registro');
+        $this->assertDatabaseHas('registros_salud', ['astronauta_id' => $this->a->id, 'origen' => 'manual']);
+    }
+
+    public function test_ofrece_las_zonas_de_dolor_registradas_como_contexto(): void
+    {
+        $reg = RegistroSalud::create(['astronauta_id' => $this->a->id, 'origen' => 'manual', 'registrado_en' => now()]);
+        $z = ZonaDolor::create(['registro_id' => $reg->id, 'astronauta_id' => $this->a->id, 'musculo' => 'triceps_der', 'intensidad' => 7, 'tipo' => 'Punzante', 'desde' => 'Hoy']);
+        Livewire::test(MedicoFlotante::class)->assertSee('TUS ZONAS REGISTRADAS')->assertSee('7/10')
+            ->call('usarZona', $z->id)->assertSet('texto', 'Me duele '.mb_strtolower(ZonaDolor::nombre('triceps_der')).', dolor punzante');
+    }
+
+    public function test_no_muestra_ni_actua_sobre_la_consulta_de_otro_tripulante(): void
+    {
+        $this->fakeConversacional();
+        $ajena = ConsultaSintomas::create(['astronauta_id' => $this->otro->id, 'texto' => 'secreto ajeno', 'entidades' => ['sintomas' => []], 'urgencia' => 'observacion', 'respuesta' => []]);
+        Livewire::test(MedicoFlotante::class)->set('consultaId', $ajena->id)->assertDontSee('secreto ajeno')->assertDontSee('Orientación sobre lo que describes')
+            ->call('marcarUtil', true);
+        $this->assertNull($ajena->fresh()->util);
+    }
+
+    public function test_los_casos_siguen_funcionando_junto_a_la_caja_de_texto(): void
+    {
+        $this->caso($this->a, 'critico');
+        Livewire::test(MedicoFlotante::class)->assertSee('Posible patrón hipoxia')->assertSee('CUÉNTAME CÓMO TE SIENTES')->assertSee('Me siento mareado')->assertSee('Me duele…')->assertSee('Me falta el aire');
     }
 }

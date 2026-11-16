@@ -14,7 +14,7 @@ return [
 
     'modos' => ['simulado', 'ia_local'],
 
-    'aviso' => 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes.',
+    'aviso' => 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. No es consejo médico real.',
 
     'etiquetas' => [
         'proximamente' => 'IA local y n8n: Próximamente',

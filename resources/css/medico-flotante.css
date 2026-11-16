@@ -128,3 +128,103 @@
 @media (prefers-reduced-motion: reduce) {
     .mf-pulso { animation: none; opacity: .6; }
 }
+
+/* ---------- Orientador conversacional (texto libre + tarjeta de respuesta). Mismos tokens; sin colores nuevos. ---------- */
+.mf-comp { flex: none; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); }
+.mf-atajos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mf-atajo {
+    min-height: 44px; box-sizing: border-box; padding: 0 12px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600;
+    border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2);
+}
+.mf-atajo:hover { background: var(--hover); }
+.mf-atajo--zona { border-style: dashed; }
+.mf-texto {
+    box-sizing: border-box; width: 100%; min-height: 56px; max-height: 120px; resize: vertical; padding: 10px 12px; font: inherit; font-size: 14px; line-height: 1.4;
+    color: var(--text); background: var(--bg); border: 1px solid var(--border-strong); border-radius: 10px;
+}
+.mf-texto[aria-invalid="true"] { border-color: var(--crit); }
+.mf-err { margin: 0; font-size: 12px; font-weight: 600; color: var(--crit-text); }
+.mf-comp-f { display: flex; align-items: center; gap: 8px; }
+.mf-cuenta { font-size: 11px; color: var(--muted-2); }
+.mf-cuenta[data-limite="1"] { color: var(--crit-text); font-weight: 600; }
+.mf-estado { flex: 1; min-width: 0; font-size: 12px; color: var(--muted-3); }
+.mf-estado .icono { font-size: 16px; vertical-align: middle; margin-right: 4px; }
+.mf-btn--enviar { flex: 0 0 auto; border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
+.mf-btn--enviar:hover { background: var(--primary-dark); }
+.mf-btn--enviar:disabled { opacity: .7; }
+.mf-atajo:focus-visible, .mf-chip-x:focus-visible, .mf-pleg:focus-visible, .mf-texto:focus-visible, .mf-sel:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
+.mf-resp-titulo:focus-visible, #mf-resp-titulo:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; border-radius: 4px; }
+
+/* Tarjeta de respuesta: el borde izquierdo sigue la urgencia (emergencia/urgente = crítico/precaución; el resto, neutro). */
+.mf-resp { --c: var(--muted); --t: var(--text-2); }
+.mf-resp[data-urg="urgente"] { --c: var(--warn); --t: var(--warn-text); }
+.mf-resp[data-urg="emergencia"] { --c: var(--crit); --t: var(--crit-text); }
+.mf-resp[data-urg="autocuidado"], .mf-resp[data-urg="observacion"] { --c: var(--ok); --t: var(--ok-text); }
+.mf-resp #mf-resp-titulo { outline: none; }
+.mf-resp .mf-msg-cab { grid-template-columns: 26px minmax(0, 1fr) 44px; }
+.mf-cerrar--sm { width: 44px; height: 44px; }
+
+.mf-urg { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--c); border-left-width: 4px; background: var(--surface-2); }
+.mf-resp[data-urg="emergencia"] .mf-urg { background: var(--crit-soft); }
+.mf-urg-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.mf-urg-ic { font-size: 22px; color: var(--t); }
+.mf-urg-t { margin: 0; flex: 1; font-size: 14px; font-weight: 700; letter-spacing: .04em; color: var(--t); }
+.mf-urg-evol { font-size: 11px; letter-spacing: .06em; color: var(--muted-2); }
+.mf-urg-txt { margin: 0; font-size: 14px; line-height: 1.45; }
+.mf-btn--emerg { flex: 1 1 100%; min-height: 52px; font-size: 15px; font-weight: 700; border-color: var(--crit-solid); background: var(--crit-solid); color: var(--on-crit); }
+.mf-btn--emerg:hover { background: var(--crit-solid-hover); }
+.mf-btn--emerg:disabled { opacity: .85; cursor: default; }
+
+.mf-lista-pl { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4; }
+.mf-nota { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-2); }
+.mf-nota--fija { padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--border-strong); background: var(--surface-3); font-weight: 600; color: var(--text); }
+.mf-sinent { margin: 0; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--warn-line); font-size: 14px; line-height: 1.45; }
+
+/* Secciones plegables. */
+.mf-h3--btn { margin: 0; }
+.mf-pleg {
+    width: 100%; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 4px; cursor: pointer; text-align: left;
+    font: inherit; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--muted-2); background: transparent; border: 0; border-radius: 8px;
+}
+.mf-pleg:hover { background: var(--hover); }
+.mf-pleg-ic { font-size: 18px; flex: none; }
+.mf-pleg-t { flex: 1; }
+.mf-pleg-flecha { font-size: 20px; flex: none; }
+.mf-plegable { border-top: 1px solid var(--border-faint); padding-top: 2px; }
+.mf-sec-cuerpo { display: flex; flex-direction: column; gap: 8px; padding: 2px 4px 6px; }
+.mf-sec-cuerpo[x-cloak] { display: none; }
+
+/* Entendí: chips editables. */
+.mf-cita { margin: 0; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; background: var(--surface-3); }
+.mf-cita-t { font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+.mf-chips--ed { list-style: none; margin: 0; padding: 0; }
+.mf-chip-ed { display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 2px 0 12px; border-radius: 999px; border: 1px solid var(--primary-line); background: var(--primary-soft); font-size: 13px; max-width: 100%; }
+.mf-chip-et { overflow-wrap: anywhere; }
+.mf-chip-x { flex: none; width: 44px; height: 44px; margin: -4px 0; padding: 0; display: grid; place-items: center; cursor: pointer; border: 0; background: transparent; color: var(--text-2); border-radius: 50%; }
+.mf-chip-x:hover { background: var(--hover); }
+.mf-chip-x .icono { font-size: 18px; }
+.mf-anadir { display: flex; flex-wrap: wrap; gap: 6px; }
+.mf-sel { flex: 1 1 110px; min-height: 44px; box-sizing: border-box; padding: 0 8px; font: inherit; font-size: 13px; color: var(--text); background: var(--bg); border: 1px solid var(--border-strong); border-radius: 10px; }
+
+/* Hipótesis, botiquín, seguimiento. */
+.mf-hip, .mf-bot, .mf-seg { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mf-hip-i { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); }
+.mf-hip-t { font-size: 14px; font-weight: 600; line-height: 1.3; }
+.mf-bot-i { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); }
+.mf-it-n--aviso { color: var(--warn-text); font-weight: 600; }
+.mf-seg-i { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
+.mf-seg-i .mf-btn { flex: 0 0 auto; }
+.mf-it-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.mf-botones--resp { align-items: stretch; }
+.mf-util { display: flex; gap: 6px; flex: 1 1 100%; }
+.mf-util .mf-btn { flex: 1 1 0; }
+.mf-btn[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--text); }
+.mf-botones--evol { align-items: center; }
+.mf-botones--evol .mf-it-e { flex: 1 1 100%; }
+
+/* Estrecho: el compositor ocupa menos para dejar sitio a la respuesta. */
+@media (max-width: 719px) {
+    .mf-texto { min-height: 48px; }
+    .mf-comp { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+}

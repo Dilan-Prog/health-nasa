@@ -4,6 +4,9 @@ namespace App\Livewire;
 
 use App\Contracts\Orientador;
 use App\Models\CasoClinico;
+use App\Models\ConsultaSintomas;
+use App\Models\ZonaDolor;
+use App\Services\Ia\OrientadorConversacional;
 use App\Services\Ia\Orientacion;
 use App\Services\Salud\ConsultasTierra;
 use App\Support\TripulanteActual;
@@ -21,7 +24,7 @@ class MedicoFlotante extends Component
 {
     public const CLAVE = 'medico_flotante';
 
-    public const AVISO = 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. Orienta, no diagnostica.';
+    public const AVISO = 'Esta es una versión simulada de una IA local. Puede cometer errores. Todo es simulado, a partir de la simulación de los tripulantes. Orienta, no diagnostica. No es consejo médico real.';
 
     /** Horas que un caso cerrado sigue visible como mensaje (valor de interfaz, no clínico). */
     public const HORAS_CERRADO = 24;
@@ -34,6 +37,23 @@ class MedicoFlotante extends Component
 
     /** Abrir el rectángulo al cargar la página (caso nuevo o escalado a crítico sin mostrar aún). */
     public bool $abrirAlCargar = false;
+
+    /** Texto libre del tripulante (dato, nunca instrucción: siempre se escapa). */
+    public string $texto = '';
+
+    /** Consulta de síntomas mostrada (la respuesta se lee de la BD en cada render, no viaja en el estado). */
+    public ?int $consultaId = null;
+
+    /** Alta manual de un síntoma en "Entendí". */
+    public string $nuevoSintoma = '';
+
+    public string $nuevaZona = '';
+
+    public string $nuevoLado = '';
+
+    public bool $avisoConsultaEnviado = false;
+
+    public bool $registroGuardado = false;
 
     public function mount(): void
     {
@@ -110,6 +130,131 @@ class MedicoFlotante extends Component
         }
         $e['avisados'][$caso->id] = true;
         $this->guardar($e);
+    }
+
+    /** Envía el texto libre al orientador simulado. */
+    public function enviar(): void
+    {
+        $a = TripulanteActual::obtener();
+        if (! $a) {
+            $this->skipRender();
+
+            return;
+        }
+        $max = (int) config('orientador.max_caracteres', 500);
+        $this->resetErrorBag();
+        $t = trim($this->texto);
+        if ($t === '') {
+            $this->addError('texto', 'Escribe cómo te sientes.');
+
+            return;
+        }
+        if (mb_strlen($t) > $max) {
+            $this->addError('texto', 'El texto supera el límite de '.$max.' caracteres.');
+
+            return;
+        }
+        $r = app(OrientadorConversacional::class)->responder($a, $t);
+        $this->mostrar($r['consulta_id']);
+        $this->texto = '';
+    }
+
+    /** Rellena el texto con una zona de dolor ya registrada (contexto), sin enviar. */
+    public function usarZona(int $zonaId): void
+    {
+        $a = TripulanteActual::obtener();
+        $z = $a ? ZonaDolor::where('astronauta_id', $a->id)->find($zonaId) : null;
+        if ($z) {
+            $this->texto = 'Me duele '.mb_strtolower(ZonaDolor::nombre($z->musculo)).($z->tipo ? ', dolor '.mb_strtolower($z->tipo) : '');
+        }
+    }
+
+    public function quitarSintoma(int $indice): void
+    {
+        $c = $this->consultaActual();
+        if (! $c) {
+            return;
+        }
+        $s = $c->entidades['sintomas'] ?? [];
+        unset($s[$indice]);
+        $this->reanalizar($c, array_values($s));
+    }
+
+    public function anadirSintoma(): void
+    {
+        $c = $this->consultaActual();
+        $sint = (array) config('orientador.sintomas', []);
+        $zonas = (array) config('orientador.zonas', []);
+        if (! $c || ! isset($sint[$this->nuevoSintoma])) {
+            return;
+        }
+        $region = isset($zonas[$this->nuevaZona]) ? $this->nuevaZona : null;
+        $lado = in_array($this->nuevoLado, ['izquierdo', 'derecho'], true) ? $this->nuevoLado : null;
+        $etiqueta = $sint[$this->nuevoSintoma].($region ? ' · '.mb_strtolower($zonas[$region]).($lado ? ' '.$lado : '') : '');
+        $s = $c->entidades['sintomas'] ?? [];
+        $s[] = ['clave' => $this->nuevoSintoma, 'etiqueta' => $etiqueta, 'region' => $region, 'lado' => $lado, 'calidad' => null, 'intensidad' => null, 'duracion_min' => null, 'confianza' => 100];
+        $this->nuevoSintoma = $this->nuevaZona = $this->nuevoLado = '';
+        $this->reanalizar($c, $s);
+    }
+
+    public function reevaluar(string $evolucion): void
+    {
+        $c = $this->consultaActual();
+        if ($c && in_array($evolucion, ['igual', 'empeoro'], true)) {
+            $this->mostrar(app(OrientadorConversacional::class)->reevaluar($c->id, $evolucion)['consulta_id']);
+        }
+    }
+
+    public function marcarUtil(bool $util): void
+    {
+        if ($c = $this->consultaActual()) {
+            app(OrientadorConversacional::class)->marcarUtil($c->id, $util);
+        }
+    }
+
+    public function guardarEnRegistro(): void
+    {
+        $c = $this->consultaActual();
+        if ($c && ! $this->registroGuardado) {
+            app(OrientadorConversacional::class)->guardarEnRegistro($c->id);
+            $this->registroGuardado = true;
+        }
+    }
+
+    public function avisarConsulta(): void
+    {
+        $c = $this->consultaActual();
+        if ($c && ! $this->avisoConsultaEnviado) {
+            $this->avisoConsultaEnviado = app(OrientadorConversacional::class)->avisarATierra($c->id);
+        }
+    }
+
+    public function cerrarConsulta(): void
+    {
+        $this->consultaId = null;
+        $this->avisoConsultaEnviado = $this->registroGuardado = false;
+    }
+
+    private function reanalizar(ConsultaSintomas $c, array $sintomas): void
+    {
+        $a = TripulanteActual::obtener();
+        $r = app(OrientadorConversacional::class)->responderConEntidades($a, (string) $c->texto, $sintomas);
+        $this->mostrar($r['consulta_id']);
+    }
+
+    private function mostrar(int $id): void
+    {
+        $this->consultaId = $id;
+        $this->avisoConsultaEnviado = $this->registroGuardado = false;
+        $this->dispatch('mf-respuesta');
+    }
+
+    /** La consulta mostrada, solo si es del tripulante actual. */
+    private function consultaActual(): ?ConsultaSintomas
+    {
+        $a = TripulanteActual::obtener();
+
+        return $a && $this->consultaId ? ConsultaSintomas::where('astronauta_id', $a->id)->find($this->consultaId) : null;
     }
 
     /** Orientación del caso, cacheada por caso + estado: el Orientador solo se llama para casos nuevos o cambiados. */
@@ -198,7 +343,13 @@ class MedicoFlotante extends Component
 
         $critico = (bool) array_filter($abiertos, fn ($m) => $m['caso']->severidad === 'critico');
 
+        $consulta = $this->consultaActual();
+        $zonas = $a ? ZonaDolor::where('astronauta_id', $a->id)->orderByDesc('id')->limit(12)->get()->unique('musculo')->take(4)->values() : collect();
+
         return view('livewire.medico-flotante', [
+            'consulta' => $consulta,
+            'zonasDolor' => $zonas,
+            'maxCaracteres' => (int) config('orientador.max_caracteres', 500),
             'astronauta' => $a,
             'mensajes' => $mensajes,
             'etiquetaCirculo' => 'Médico de vuelo'.($sinLeer ? ', '.count($sinLeer).' sin leer' : '').($critico ? ', caso crítico' : ''),
