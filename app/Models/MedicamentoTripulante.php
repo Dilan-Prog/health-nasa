@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedFlexible;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,7 +13,10 @@ class MedicamentoTripulante extends Model
 
     protected $fillable = ['astronauta_id', 'nombre', 'dosis_texto', 'frecuencia', 'motivo', 'desde', 'activo'];
 
-    protected $casts = ['desde' => 'date', 'activo' => 'boolean'];
+    protected $casts = [
+        'desde' => 'date', 'activo' => 'boolean',
+        'nombre' => EncryptedFlexible::class, 'dosis_texto' => EncryptedFlexible::class, 'frecuencia' => EncryptedFlexible::class, 'motivo' => EncryptedFlexible::class,
+    ];
 
     public function astronauta(): BelongsTo
     {

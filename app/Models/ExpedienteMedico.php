@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedFlexible;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,6 +28,8 @@ class ExpedienteMedico extends Model
         'dosis_radiacion_previa_msv' => 'float',
         'fumador' => 'boolean',
         'linea_base' => 'array',
+        'restricciones' => EncryptedFlexible::class,
+        'notas' => EncryptedFlexible::class,
     ];
 
     public function astronauta(): BelongsTo

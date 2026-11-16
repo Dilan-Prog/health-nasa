@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedFlexible;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,7 +12,7 @@ class AntecedenteFamiliar extends Model
 
     protected $fillable = ['astronauta_id', 'parentesco', 'condicion', 'edad_aparicion'];
 
-    protected $casts = ['edad_aparicion' => 'integer'];
+    protected $casts = ['edad_aparicion' => 'integer', 'condicion' => EncryptedFlexible::class];
 
     public function astronauta(): BelongsTo
     {
