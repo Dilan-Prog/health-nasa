@@ -154,6 +154,11 @@ class ProcesadorMediciones
             MedicionRegistrada::dispatch($astronauta->id, $clave, $estado->value);
         }
 
+        // Detector de patrones (IA local simulada). No lanza nunca; la carga manual lo llama con 'manual' aunque difiera el evento.
+        if ($emitir || $origen === 'manual') {
+            \App\Services\Ia\DetectorPatrones::alMedir($astronauta, $clave, $estado->value);
+        }
+
         return $evaluacion->load('medicion');
     }
 
