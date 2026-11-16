@@ -10,7 +10,6 @@ use App\Models\Medicion;
 use App\Models\RutinaEjecucion;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Orquesta el motor de reglas: valida, evalúa, guarda, encola la alerta a tierra y emite el evento.
@@ -48,7 +47,7 @@ class ProcesadorMediciones
     ): Evaluacion {
         $instante ??= now();
 
-        $errores = $this->validador->validar($clave, $valores);
+        $errores = $this->validador->validarConCodigos($clave, $valores);
         if ($errores === []) {
             $previas = $astronauta->mediciones()->where('indicador', $clave)
                 ->where('medido_en', '>=', $instante->copy()->subMinute())
@@ -56,18 +55,18 @@ class ProcesadorMediciones
                 ->map(fn (Medicion $m) => ['instante' => $m->medido_en->timestamp, 'valores' => $m->valores])
                 ->all();
             if ($this->validador->esDuplicada($valores, $instante->timestamp, $previas)) {
-                $errores[] = 'Medición duplicada: ya se registró el mismo valor hace menos de un minuto.';
+                $errores[] = ['codigo' => CodigoErrorMedicion::Duplicate, 'mensaje' => 'Duplicate measurement: the same value was already recorded less than a minute ago.'];
             }
         }
         // Datos dudosos: no se rechazan. Una lectura automática fuera del rango posible (sensor roto) se guarda como sospechosa.
         $fueraDeRango = false;
         if ($errores !== [] && $origen === 'simulado' && config('calidad.aceptar_fuera_de_rango_automatico')
-            && count(array_filter($errores, fn ($e) => ! str_contains($e, 'es imposible'))) === 0) {
+            && count(array_filter($errores, fn ($e) => $e['codigo'] !== CodigoErrorMedicion::Impossible)) === 0) {
             $errores = [];
             $fueraDeRango = true;
         }
         if ($errores !== []) {
-            throw ValidationException::withMessages(['valores' => $errores]);
+            throw MedicionInvalidaException::desde($errores);
         }
 
         $filas = $astronauta->mediciones()->where('indicador', $clave)
@@ -78,7 +77,7 @@ class ProcesadorMediciones
             ->map(fn (Medicion $m) => $this->principal($m->valores))->values()->all();
         $actual = $this->principal($valores);
         $calidad = $fueraDeRango
-            ? ['calidad' => CalidadSenal::SOSPECHOSA, 'motivo' => 'Valor fuera del rango posible: probable fallo del sensor.']
+            ? ['calidad' => CalidadSenal::SOSPECHOSA, 'motivo' => 'Value outside the possible range: probable sensor failure.']
             : CalidadSenal::make()->evaluar($clave, $actual, $instante->timestamp, $filas
                 ->map(fn (Medicion $m) => ['instante' => $m->medido_en->timestamp, 'valor' => $this->principal($m->valores), 'calidad' => $m->calidad ?? CalidadSenal::OK])
                 ->all());

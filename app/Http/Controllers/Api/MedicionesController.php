@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use App\Services\Salud\CodigoErrorMedicion;
+use App\Services\Salud\MedicionInvalidaException;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -51,7 +53,7 @@ class MedicionesController extends Controller
             }
         }
         if (! $astronauta) {
-            return response()->json(['mensaje' => 'Token inválido.'], 401);
+            return response()->json(['mensaje' => 'Invalid token.'], 401);
         }
 
         // La firma se comprueba si está exigida o si el dispositivo la envía. El atajo sin token no tiene secreto ni firma.
@@ -80,7 +82,7 @@ class MedicionesController extends Controller
         foreach ($items as $i => $m) {
             $instante = Carbon::parse($m['medido_en']);
             if ($instante->isAfter(now()->addMinutes(5))) {
-                $resultado['rechazadas'][] = ['indice' => $i, 'motivo' => 'La fecha está en el futuro.'];
+                $resultado['rechazadas'][] = ['indice' => $i, 'motivo' => 'The timestamp is in the future.'];
 
                 continue;
             }
@@ -88,8 +90,8 @@ class MedicionesController extends Controller
                 $procesador->registrar($astronauta, $m['indicador'], ['valor' => (float) $m['valor']], 'reloj', $instante);
                 $resultado['guardadas']++;
             } catch (ValidationException $e) {
-                $motivo = implode(' ', $e->errors()['valores'] ?? ['Rechazada.']);
-                if (str_contains($motivo, 'duplicada')) {
+                $motivo = implode(' ', $e->errors()['valores'] ?? ['Rejected.']);
+                if ($e instanceof MedicionInvalidaException && $e->tiene(CodigoErrorMedicion::Duplicate)) {
                     $resultado['duplicadas']++; // reenvío de la cola offline: no es un error
                 } else {
                     $resultado['rechazadas'][] = ['indice' => $i, 'motivo' => $motivo];
@@ -102,7 +104,7 @@ class MedicionesController extends Controller
 
     private function vencido(): JsonResponse
     {
-        return response()->json(['mensaje' => 'Token vencido. Pide un token nuevo (php artisan reloj:token).'], 401);
+        return response()->json(['mensaje' => 'Token expired. Request a new token (php artisan reloj:token).'], 401);
     }
 
     /** Devuelve el motivo del rechazo o null si la firma es válida. Firma = HMAC-SHA256(secreto, marca.cuerpo). */
@@ -111,10 +113,10 @@ class MedicionesController extends Controller
         $firma = (string) $request->header('X-Firma');
         $marca = (string) $request->header('X-Marca-Tiempo');
         if ($firma === '' || $marca === '' || ! ctype_digit($marca)) {
-            return 'Falta la firma o la marca de tiempo (X-Firma, X-Marca-Tiempo).';
+            return 'Missing signature or timestamp (X-Firma, X-Marca-Tiempo).';
         }
         if (abs(time() - (int) $marca) > (int) config('mision.reloj_firma_tolerancia_s', 300)) {
-            return 'Marca de tiempo antigua o fuera de rango.';
+            return 'Timestamp is stale or out of range.';
         }
         try {
             $secreto = $secretoCifrado ? Crypt::decryptString($secretoCifrado) : null;
@@ -122,11 +124,11 @@ class MedicionesController extends Controller
             $secreto = null;
         }
         if (! $secreto) {
-            return 'Este dispositivo no tiene secreto de firma: regenera el token.';
+            return 'This device has no signing secret: regenerate the token.';
         }
         $esperada = 'sha256='.hash_hmac('sha256', $marca.'.'.$request->getContent(), $secreto);
         if (! hash_equals($esperada, strtolower($firma))) {
-            return 'Firma inválida.';
+            return 'Invalid signature.';
         }
 
         return null;

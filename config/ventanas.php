@@ -1,14 +1,15 @@
 <?php
 
 /*
- | Reglas de ventana: miran las últimas N lecturas (o un periodo) de un indicador y pueden ELEVAR el estado de la
- | última lectura. Las evalúa App\Services\Salud\EvaluadorVentanas; solo se consultan los indicadores que tienen
- | una regla activa aquí (el resto no paga ninguna consulta extra).
+ | Window rules: look at the last N readings (or a period) of an indicator and can RAISE the state of the latest
+ | reading. Evaluated by App\Services\Salud\EvaluadorVentanas; only indicators with an active rule here are
+ | queried (the rest pay no extra query).
  |
- | SUPUESTOS DEL PROYECTO, NO DE LA NORMA: el estándar no publica horas de sueño ni umbrales de calorías/PVT.
- | Lo único que viene de la guía «Datos médicos» (fila de `requisitos` tipo guía, ver config/trazabilidad.php) es el
- | enunciado «sueño menor a 6 h por más de 48 h». Cómo se traduce a lecturas es criterio del proyecto, sin validar
- | clínicamente. La severidad es solo preventiva: orienta, no diagnostica ni receta (sin hipnóticos ni fármacos).
+ | PROJECT ASSUMPTIONS, NOT THE STANDARD'S: the standard does not publish sleep hours or calorie/PVT thresholds.
+ | The only thing that comes from the "Medical data" guide (a guide-type row of `requisitos`, see
+ | config/trazabilidad.php) is the statement "sleep under 6 h for more than 48 h". How it maps to readings is a
+ | project criterion, not clinically validated. Severity is preventive only: it guides, does not diagnose or
+ | prescribe (no hypnotics or drugs). Rows are referenced by their stable `clave`, not by text.
  */
 
 return [
@@ -16,7 +17,7 @@ return [
         'sueno_corto' => [
             'activa' => true,
             'indicador' => 'sueno',
-            'nombre' => 'Sueño corto sostenido',
+            'nombre' => 'Sustained short sleep',
             'componente' => 'valor',
             'operador' => '<',
             // Guía: «menor a 6 h». Mismo número que la fila de la guía; se repite aquí porque la fila es texto.
@@ -29,16 +30,16 @@ return [
             'max_hueco_h' => 36,
             'eleva_a' => 'precaucion', // mínimo; nunca baja un estado ya más grave
             'accion' => 'preventiva',
-            'recomendacion' => 'Acción preventiva: evita asignar tareas críticas hasta recuperar el sueño y reprograma lo que se pueda. Protege un bloque de descanso, reduce luz y ruido antes de dormir y comenta el patrón con el médico de vuelo en la próxima ventana.',
+            'recomendacion' => 'Preventive action: avoid assigning critical tasks until sleep is recovered and reschedule what you can. Protect a rest block, reduce light and noise before sleep, and discuss the pattern with the Flight Surgeon at the next communication window.',
             // Pasos de la tarjeta del Médico de vuelo (solo medidas de conducta y de horario; nada de fármacos).
             'pasos' => [
-                'Bloquea las tareas críticas hasta recuperar el sueño y pide reprogramarlas si es posible.',
-                'Protege un bloque de descanso: horario fijo, luz tenue y poco ruido una hora antes de dormir.',
-                'Comenta el patrón con el médico de vuelo en la próxima ventana de comunicación.',
+                'Block critical tasks until sleep is recovered and ask to reschedule them if possible.',
+                'Protect a rest block: fixed schedule, dim light and low noise for one hour before sleep.',
+                'Discuss the pattern with the Flight Surgeon at the next communication window.',
             ],
-            'texto' => 'Sueño menor a 6 h durante {n} lecturas diarias seguidas (guía: «por más de 48 h»).',
+            'texto' => 'Sleep under 6 h for {n} consecutive daily readings (guide: "for more than 48 h").',
             // Fila de `requisitos` (tipo guía) en la que se apoya; coincide con la de config/trazabilidad.php.
-            'requisito' => ['tipo' => 'guia', 'dominio' => 'sueno', 'texto' => 'Sueño menor a 6 h por más de 48 h (severidad preventiva)'],
+            'requisito' => ['tipo' => 'guia', 'clave' => 'guia.sueno.menor_6h_48h'],
         ],
 
         // PRÓXIMAMENTE: necesitan indicadores que aún no existen (ingesta calórica, test PVT). Desactivadas:
@@ -46,9 +47,9 @@ return [
         'calorias_bajas' => [
             'activa' => false,
             'proximamente' => true,
-            'requiere' => 'Indicador de ingesta calórica (aún no existe)',
+            'requiere' => 'Calorie intake indicator (does not exist yet)',
             'indicador' => 'calorias',
-            'nombre' => 'Ingesta calórica baja sostenida',
+            'nombre' => 'Sustained low calorie intake',
             'componente' => 'valor',
             'operador' => '<',
             'umbral' => 90.0, // % del requerimiento (guía)
@@ -56,14 +57,14 @@ return [
             'max_hueco_h' => 36,
             'eleva_a' => 'precaucion',
             'accion' => 'preventiva',
-            'requisito' => ['tipo' => 'guia', 'dominio' => 'nutricion', 'texto' => 'Calorías bajo el 90 % del requerimiento durante 3 días seguidos'],
+            'requisito' => ['tipo' => 'guia', 'clave' => 'guia.nutricion.calorias_bajo_90'],
         ],
         'pvt_lapsos' => [
             'activa' => false,
             'proximamente' => true,
-            'requiere' => 'Indicador de vigilancia psicomotora PVT (aún no existe)',
+            'requiere' => 'PVT psychomotor vigilance indicator (does not exist yet)',
             'indicador' => 'pvt',
-            'nombre' => 'PVT con lapsos largos',
+            'nombre' => 'PVT with long lapses',
             'componente' => 'valor',
             'operador' => '>',
             'umbral' => 500.0, // ms (guía)
@@ -71,7 +72,7 @@ return [
             'max_hueco_h' => 36,
             'eleva_a' => 'precaucion',
             'accion' => 'preventiva',
-            'requisito' => ['tipo' => 'guia', 'dominio' => 'sueno', 'texto' => 'PVT con lapsos mayores a 500 ms (severidad preventiva)'],
+            'requisito' => ['tipo' => 'guia', 'clave' => 'guia.sueno.pvt_lapsos'],
         ],
     ],
 ];

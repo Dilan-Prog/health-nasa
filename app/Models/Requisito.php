@@ -9,15 +9,15 @@ class Requisito extends Model
 {
     public const TIPOS = [
         'norma' => 'NASA-STD-3001 Vol. 1 Rev. C',
-        'hrp' => 'HRP (observación)',
-        'guia' => 'Guía interna (Datos médicos)',
-        'referencia' => 'Referencia clínica',
+        'hrp' => 'HRP (observation)',
+        'guia' => 'Internal guide (Medical data)',
+        'referencia' => 'Clinical reference',
     ];
 
     protected $table = 'requisitos';
 
     protected $fillable = [
-        'codigo', 'texto', 'dominio', 'operador', 'valor', 'valor_max',
+        'clave', 'codigo', 'texto', 'dominio', 'operador', 'valor', 'valor_max',
         'unidad', 'revision', 'fuente_url', 'tipo', 'validado',
     ];
 

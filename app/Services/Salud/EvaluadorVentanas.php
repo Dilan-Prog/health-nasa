@@ -116,7 +116,7 @@ class EvaluadorVentanas
                     'nombre' => $regla['nombre'],
                     'estado' => $estado,
                     'accion' => $regla['accion'],
-                    'etiqueta' => 'Preventiva',
+                    'etiqueta' => 'Preventive',
                     'texto' => str_replace('{n}', (string) $regla['lecturas'], $regla['texto'] ?? $regla['nombre']),
                     'recomendacion' => $regla['recomendacion'] ?? null,
                     'lecturas' => (int) $regla['lecturas'],
@@ -136,7 +136,7 @@ class EvaluadorVentanas
     {
         $d = $resultado['requisito_def'];
 
-        return Requisito::where('tipo', $d['tipo'])->where('dominio', $d['dominio'])->where('texto', $d['texto'])->first();
+        return Requisito::where('clave', $d['clave'])->first();
     }
 
     /** @return array<int, array{valores: array, en: CarbonInterface}> de la más antigua a la más reciente */

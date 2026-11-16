@@ -1,54 +1,53 @@
 <?php
 
 /*
- | Trazabilidad: de qué requisito (tabla `requisitos`, RequisitosSeeder) cuelga cada indicador.
- | Lo resuelve App\Services\Salud\ResolvedorRequisito. Cada entrada se identifica por tipo + dominio + texto EXACTO
- | del seeder (su clave única); no se inventa ninguna fila ni código. Una entrada en null, o cuya fila no exista
- | en la BD, devuelve null: el indicador queda «sin requisito asociado».
+ | Traceability: which requirement (table `requisitos`, RequisitosSeeder) each indicator hangs from.
+ | Resolved by App\Services\Salud\ResolvedorRequisito. Each entry is identified by the stable `clave` of the
+ | seeder row (tipo.dominio.slug), never by its visible text; no row or code is invented. An entry set to null,
+ | or whose row does not exist in the DB, resolves to null: the indicator has "no associated requirement".
  |
- | Nada de esto está validado clínicamente: el vínculo indicador → requisito es un criterio del proyecto
- | (supuesto del proyecto, no de la norma) y los números siguen siendo valores de ejemplo.
+ | None of this is clinically validated: the indicator -> requirement link is a project criterion
+ | (a project assumption, not the standard's) and the numbers are still example values.
  */
 
-$rad = fn (string $texto) => ['tipo' => 'norma', 'dominio' => 'radiacion', 'texto' => $texto];
-$pa = fn (string $texto) => ['tipo' => 'referencia', 'dominio' => 'presion_arterial', 'texto' => $texto];
+$k = fn (string $clave) => ['clave' => $clave];
 
-$gcrLibre = $rad('GCR en espacio libre');
-$gcrSuperficie = $rad('GCR en superficie planetaria (sistemas habitables de más de 60 días)');
-$evento = $rad('Dosis efectiva por evento de partículas solares');
-$temperatura = ['tipo' => 'referencia', 'dominio' => 'temperatura', 'texto' => 'Temperatura central en órbita: de ~37.0 a ~38.0 °C tras ~2.5 meses; > 40 °C posible en ejercicio. La alerta es un salto sobre su propia base'];
+$gcrLibre = $k('norma.radiacion.gcr_espacio_libre');
+$gcrSuperficie = $k('norma.radiacion.gcr_superficie');
+$evento = $k('norma.radiacion.dosis_evento_spe');
+$temperatura = $k('referencia.temperatura.central_orbita');
 
 return [
-    // Requisito por defecto de cada indicador (clave de config/umbrales.php).
+    // Default requirement of each indicator (key of config/umbrales.php).
     'indicadores' => [
         'radiacion_diaria' => $gcrLibre,
-        'dosis_acumulada' => $rad('Dosis efectiva de carrera'),
-        // Es una tasa observada del HRP: se cita como «Proyección (HRP)», nunca como requisito.
-        'perdida_osea' => ['tipo' => 'hrp', 'dominio' => 'hueso', 'texto' => 'Pérdida ósea observada'],
-        'presion_arterial' => $pa('Normal: menor a 120/80 mmHg'),
+        'dosis_acumulada' => $k('norma.radiacion.dosis_carrera'),
+        // An observed HRP rate: cited as "Projection (HRP)", never as a requirement.
+        'perdida_osea' => $k('hrp.hueso.perdida_observada'),
+        'presion_arterial' => $k('referencia.presion_arterial.normal'),
         'temperatura' => $temperatura,
-        'frecuencia_cardiaca' => ['tipo' => 'referencia', 'dominio' => 'pulso', 'texto' => 'Pulso de los Apolo (rango observado)'],
-        'hidratacion' => ['tipo' => 'guia', 'dominio' => 'hidratacion', 'texto' => 'Hidratación diaria baja'],
-        'vision_sans' => ['tipo' => 'guia', 'dominio' => 'vision', 'texto' => 'SANS: aumento del grosor retiniano'],
-        'sueno' => ['tipo' => 'guia', 'dominio' => 'sueno', 'texto' => 'Sueño menor a 6 h por más de 48 h (severidad preventiva)'],
+        'frecuencia_cardiaca' => $k('referencia.pulso.apolo_rango'),
+        'hidratacion' => $k('guia.hidratacion.diaria_baja'),
+        'vision_sans' => $k('guia.vision.grosor_retiniano'),
+        'sueno' => $k('guia.sueno.menor_6h_48h'),
 
-        // SIN fila en el seeder (no se inventan): devuelven null.
+        // NO row in the seeder (none are invented): they return null.
         'saturacion_o2' => null,
         'glucosa' => null,
         'imc' => null,
-        'masa_muscular' => null,    // el seeder solo tiene «fuerza», que es otra medida
-        'estres_cognitivo' => null, // solo existe el requisito cualitativo de «conducta», sin número que enlazar
+        'masa_muscular' => null,    // the seeder only has "fuerza" (strength), which is a different measure
+        'estres_cognitivo' => null, // only the qualitative "conducta" requirement exists, with no number to link
         'animo' => null,
     ],
 
-    // Requisito "real" que acompaña a un indicador cuyo vínculo principal no lo es (tarjeta de pérdida ósea).
+    // The "real" requirement that accompanies an indicator whose main link is not one (bone loss card).
     'referencias' => [
-        'perdida_osea' => ['tipo' => 'norma', 'dominio' => 'hueso', 'texto' => 'DMO de cadera y columna respecto al valor pre-misión'], // V1 4027
+        'perdida_osea' => $k('norma.hueso.dmo_cadera_columna'), // V1 4027
     ],
 
-    // Entradas por contexto (reglas nuevas): indicador => campo del contexto => valor => entrada.
-    // Los nombres de banda son los de la referencia de presión del seeder; si T2 usa otros, no resuelven y
-    // se cae al requisito por defecto del indicador.
+    // Entries by context (new rules): indicator => context field => value => entry.
+    // Band names are those of the seeder's blood-pressure reference; if T2 uses others they do not resolve
+    // and the indicator's default requirement is used.
     'condiciones' => [
         'radiacion_diaria' => [
             'entorno' => ['espacio_libre' => $gcrLibre, 'superficie' => $gcrSuperficie],
@@ -59,11 +58,11 @@ return [
         ],
         'presion_arterial' => [
             'banda' => [
-                'normal' => $pa('Normal: menor a 120/80 mmHg'),
-                'elevada' => $pa('Elevada: sistólica 120–129 y diastólica menor a 80 mmHg'),
-                'hipertension_1' => $pa('Hipertensión 1: sistólica 130–139 u diastólica 80–89 mmHg'),
-                'hipertension_2' => $pa('Hipertensión 2: sistólica ≥ 140 o diastólica ≥ 90 mmHg'),
-                'crisis' => $pa('Crisis: mayor a 180/120 mmHg'),
+                'normal' => $k('referencia.presion_arterial.normal'),
+                'elevada' => $k('referencia.presion_arterial.elevada'),
+                'hipertension_1' => $k('referencia.presion_arterial.hipertension_1'),
+                'hipertension_2' => $k('referencia.presion_arterial.hipertension_2'),
+                'crisis' => $k('referencia.presion_arterial.crisis'),
             ],
         ],
         'temperatura' => [

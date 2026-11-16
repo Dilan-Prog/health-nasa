@@ -5,7 +5,7 @@ namespace App\Services\Salud;
 use App\Models\Requisito;
 
 /**
- * Resuelve el requisito (tabla `requisitos`) del que cuelga un indicador, según config/trazabilidad.php.
+ * Resuelve el requisito (tabla `requisitos`, por su `clave` estable) del que cuelga un indicador, según config/trazabilidad.php.
  * Devuelve null si el indicador no tiene requisito o la fila no existe. Caché en memoria por petición.
  */
 class ResolvedorRequisito
@@ -43,7 +43,7 @@ class ResolvedorRequisito
             'validado' => (bool) $r->validado,
             'codigo' => $r->codigo,
             'texto' => $r->texto,
-            'etiqueta' => $proyeccion ? 'Proyección (HRP)' : (Requisito::TIPOS[$r->tipo] ?? (string) $r->tipo),
+            'etiqueta' => $proyeccion ? 'Projection (HRP)' : (Requisito::TIPOS[$r->tipo] ?? (string) $r->tipo),
             'es_proyeccion' => $proyeccion,
         ];
     }
@@ -71,10 +71,10 @@ class ResolvedorRequisito
     {
         if (self::$cache === []) {
             foreach (Requisito::all() as $r) {
-                self::$cache[$r->tipo.'|'.$r->dominio.'|'.$r->texto] = $r;
+                self::$cache[(string) $r->clave] = $r;
             }
         }
 
-        return self::$cache[$e['tipo'].'|'.$e['dominio'].'|'.$e['texto']] ?? null;
+        return self::$cache[$e['clave']] ?? null;
     }
 }
