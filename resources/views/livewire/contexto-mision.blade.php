@@ -91,6 +91,8 @@
                     @endif
                 </section>
             </div>
+
+            <x-peligros-riesgos />
         @endif
     </main>
 </div>
