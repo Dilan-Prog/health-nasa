@@ -16,7 +16,7 @@
         </div>
 
         <div class="guia-rejilla">
-            @foreach ($tarjetas as $t)
+            @foreach (array_merge($tarjetas, $extras) as $t)
                 <article class="guia-tarjeta" data-guia="{{ $t['busca'] }}" x-show="coincide($el.dataset.guia)" wire:key="guia-{{ $t['clave'] }}" aria-labelledby="guia-{{ $t['clave'] }}-t">
                     <div class="guia-tarjeta-cab">
                         <span class="icono guia-ic" aria-hidden="true">{{ $t['ic'] }}</span>
@@ -26,6 +26,13 @@
                     <div class="guia-rango"><span class="guia-et">Rango: </span><span class="mono">{{ $t['rango'] }}</span></div>
                     <p class="guia-texto">{{ $t['texto'] }}</p>
                     <p class="guia-hacer"><strong>Qué hacer:</strong> {{ $t['rec'] }}</p>
+                    <div class="fuente-chips">
+                        @forelse ($t['fuentes'] as $f)
+                            <x-fuente-chip :tipo="$f['tipo']" :revision="$f['revision']" :validado="$f['validado']" />
+                        @empty
+                            <span class="fuente-sin">Umbral de ejemplo (sin requisito asociado)</span>
+                        @endforelse
+                    </div>
                     @if ($t['estado'])
                         <div class="guia-tuyo" data-estado="{{ $t['estado'] }}">
                             <span class="guia-et">Tu último valor</span>
@@ -44,5 +51,7 @@
         </div>
 
         <p class="guia-aviso" role="note"><span class="icono" aria-hidden="true">info</span>Orienta, no diagnostica. Consulta al flight surgeon ante cualquier duda.</p>
+
+        <x-peligros-riesgos />
     </main>
 </div>
