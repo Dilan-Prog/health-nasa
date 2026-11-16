@@ -67,6 +67,20 @@ Fuentes: **NASA-STD-3001 Vol. 1 Rev. C**, **NASA HRP** (Human Research Program) 
 
 **Aviso:** es un prototipo educativo. Todos los valores clínicos y umbrales son **valores de ejemplo, pendientes de revisión médica**, y la herramienta no sustituye a un profesional médico. Ver la página `/aviso-legal`.
 
+## Seguridad
+
+- **Cifrado del expediente.** Alergias, condiciones, medicamentos, antecedentes, contactos, restricciones y notas se guardan cifrados con la `APP_KEY` de Laravel (AES-256). **Si `APP_KEY` cambia o se pierde, esos datos quedan ilegibles.** Haz copia de `APP_KEY` y de la base (por separado y en lugar seguro) antes de migrar o desplegar. Para cifrar datos antiguos: `php artisan expediente:cifrar` (simulación) y `php artisan expediente:cifrar --confirmar` (escribe).
+- **Auditoría de accesos.** Se registra quién abre qué pantalla sensible (sin valores médicos). Consulta en `/auditoria` (flight surgeon cuando el login está activo). Poda: `php artisan auditoria:podar` (simulación) y `--confirmar`; conserva 90 días (supuesto del proyecto).
+- **API del reloj.** `php artisan reloj:token <id> [--dias=30]` entrega token y secreto de firma una sola vez. El token vence (401), el anterior sigue válido 1 hora al regenerar, límite de 120 peticiones/min por token (429). Firma opcional del lote: `X-Marca-Tiempo` y `X-Firma: sha256=<hex>` (HMAC-SHA256 de `marca.cuerpo`); se exige con `RELOJ_EXIGIR_FIRMA=true`. Campo opcional `bateria` (0 a 100) con aviso de batería baja. `RELOJ_SIN_TOKEN_ASTRONAUTA` es solo para pruebas y debe estar vacío fuera de ellas.
+- **Datos dudosos.** Un salto brusco o una señal plana marcan la medición como "dato sospechoso": se guarda, no avisa a tierra por sí sola ni entra en la línea base.
+- **Pendiente de despliegue (no lo hace la aplicación):** cifrado de disco de MySQL (tablespace encryption) y TLS en web y en la conexión a la base.
+
+Todos los números de estas medidas son supuestos del proyecto, no de la norma.
+
+## Hoja de ruta (Próximamente)
+
+Biomarcadores y datos que aún no tienen entrada ni lógica, visibles como "Próximamente" en la Guía y en Sistemas (`config/proximamente.php`): VO₂máx, fuerza, densidad mineral ósea, grosor de retina y presión intraocular, vitamina D, calcio urinario, cortisol salival, PVT, ingesta calórica, pCO₂/pO₂/humedad de cabina, ECG y flujo yugular, telemetría de ARED/T2/CEVIS, radiación por órgano y evento solar, prescripción dinámica de ejercicio y posvuelo de 45 días.
+
 ## Pruebas
 
 ```bash
