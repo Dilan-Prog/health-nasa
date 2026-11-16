@@ -32,7 +32,7 @@
 .trip-sil { flex: 1 1 auto; min-width: 0; position: relative; display: block; overflow: hidden; }
 .trip-sil-in { position: absolute; inset: 0; display: block; }
 .trip-lateral { flex: none; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px; }
-.trip-vistas { display: grid; grid-template-columns: repeat(2, 32px); gap: 4px; margin-bottom: 6px; }
+.trip-vistas { display: grid; grid-template-columns: repeat(2, 44px); gap: 4px; margin-bottom: 6px; } /* 44 px = objetivo táctil de los botones (antes 32 px y se solapaban) */
 .trip-vista {
     cursor: pointer; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; border-radius: 8px;
     border: 1px solid var(--border-soft); background: transparent; color: var(--muted-2); transition: background-color 150ms ease;
